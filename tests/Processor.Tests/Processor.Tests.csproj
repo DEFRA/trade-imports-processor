@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <AssemblyName>Defra.TradeImportsProcessor.Api.Tests</AssemblyName>
-    <RootNamespace>Defra.TradeImportsProcessor.Api.Tests</RootNamespace>
+    <AssemblyName>Defra.TradeImportsProcessor.Processor.Tests</AssemblyName>
+    <RootNamespace>Defra.TradeImportsProcessor.Processor.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Api\Api.csproj"/>
+    <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
   
