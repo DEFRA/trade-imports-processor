@@ -14,49 +14,37 @@ RUN apt update && \
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
-ARG VACUUM_VERSION=0.14.2
-WORKDIR /tmp/vacuum
-RUN wget --secure-protocol=TLSv1_2 "https://github.com/daveshanley/vacuum/releases/download/v${VACUUM_VERSION}/vacuum_${VACUUM_VERSION}_linux_x86_64.tar.gz" -q -O vacuum.tar.gz && \
-    tar zxvf "vacuum.tar.gz" && \
-    mv vacuum /usr/bin/vacuum
-
 WORKDIR /src
-
-ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet tool install -g --allow-roll-forward csharpier
 
 COPY .config/dotnet-tools.json .config/dotnet-tools.json
 COPY .csharpierrc .csharpierrc
-COPY .vacuum.yml .vacuum.yml
 
 RUN dotnet tool restore
 
-COPY src/Api/Api.csproj src/Api/Api.csproj
+COPY src/Processor/Processor.csproj src/Processor/Processor.csproj
 COPY tests/Testing/Testing.csproj tests/Testing/Testing.csproj
-COPY tests/Api.Tests/Api.Tests.csproj tests/Api.Tests/Api.Tests.csproj
-COPY tests/Api.IntegrationTests/Api.IntegrationTests.csproj tests/Api.IntegrationTests/Api.IntegrationTests.csproj
+COPY tests/Processor.Tests/Processor.Tests.csproj tests/Processor.Tests/Processor.Tests.csproj
+COPY tests/Processor.IntegrationTests/Processor.IntegrationTests.csproj tests/Processor.IntegrationTests/Processor.IntegrationTests.csproj
 COPY Defra.TradeImportsProcessor.sln Defra.TradeImportsProcessor.sln
 COPY Directory.Build.props Directory.Build.props
 
 RUN dotnet restore
 
-COPY src/Api src/Api
+COPY src/Processor src/Processor
 COPY tests/Testing tests/Testing
-COPY tests/Api.Tests tests/Api.Tests
-COPY tests/Api.IntegrationTests tests/Api.IntegrationTests
+COPY tests/Processor.Tests tests/Processor.Tests
+COPY tests/Processor.IntegrationTests tests/Processor.IntegrationTests
 
 RUN dotnet csharpier --check .
 
-RUN dotnet build src/Api/Api.csproj --no-restore -c Release
-RUN dotnet swagger tofile --output openapi.json ./src/Api/bin/Release/net9.0/Defra.TradeImportsProcessor.Api.dll v1
-RUN vacuum lint -d -r .vacuum.yml openapi.json
+RUN dotnet build src/Processor/Processor.csproj --no-restore -c Release
 
-RUN dotnet test --no-restore tests/Api.Tests
-RUN dotnet test --no-restore tests/Api.IntegrationTests
+RUN dotnet test --no-restore tests/Processor.Tests
+RUN dotnet test --no-restore tests/Processor.IntegrationTests
 
 FROM build AS publish
 
-RUN dotnet publish src/Api -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish src/Processor -c Release -o /app/publish /p:UseAppHost=false
 
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
@@ -67,4 +55,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 EXPOSE 8085
-ENTRYPOINT ["dotnet", "Defra.TradeImportsProcessor.Api.dll"]
+ENTRYPOINT ["dotnet", "Defra.TradeImportsProcessor.Processor.dll"]
