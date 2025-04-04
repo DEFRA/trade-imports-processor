@@ -11,9 +11,7 @@ public static class OptionsExtensions
     )
         where TOptions : class
     {
-        var s = services.AddOptions<TOptions>().BindConfiguration(section).ValidateDataAnnotations();
-
-        return s;
+        return services.AddOptions<TOptions>().BindConfiguration(section).ValidateDataAnnotations();
     }
 
     public static TOptions Get<TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
