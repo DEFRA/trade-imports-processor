@@ -1,32 +1,56 @@
 services:
-  asb:
+  asb-backend:
     environment:
+      SQL_WAIT_INTERVAL: 0
       SQL_SERVER: sqledge
       MSSQL_SA_PASSWORD: "s4usag3s!"
       ACCEPT_EULA: "Y"
     depends_on:
       sqledge:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5300/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
     image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
     ports:
       - "5672:5672"
       - "5300:5300"
+    pull_policy: always
     volumes:
       - "./compose/asb.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
   
+  asb:
+    image: alpine/curl:latest
+    depends_on:
+      asb-backend:
+        condition: service_started
+    command: ["tail", "-f", "/dev/null"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://asb-backend:5300/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+  
+  processor:
+    build: ./
+    command: ["--integrationTest=true"]
+    depends_on:
+      asb:
+        condition: service_healthy
+    env_file:
+      - 'compose/aws.env'
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      PORT: 8080
+      ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+    ports:
+      - '8080:8080'
+  
   sqledge:
     healthcheck:
-      interval: 10s
-      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
-      retries: 5
-      timeout: 2s
+      interval: 5s
+      retries: 10
       start_period: 5s
+      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
+      timeout: 5s
     image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
       ACCEPT_EULA: "Y"
@@ -96,22 +120,7 @@ services:
   #   networks:
   #     - cdp-tenant
 
-#  processor:
-#    build: ./
-#    ports:
-#      - '8080:8080'
-#    depends_on:
-#      asb:
-#        condition: service_healthy
-##      localstack:
-##        condition: service_healthy
-##      mongodb:
-##        condition: service_started
-#    env_file:
-#      - 'compose/aws.env'
-#    environment:
-#      PORT: 8080
-#      LOCALSTACK_ENDPOINT: http://localstack:4566
+
 
 ################################################################################
 

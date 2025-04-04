@@ -33,14 +33,12 @@ RUN dotnet restore
 COPY src/Processor src/Processor
 COPY tests/Testing tests/Testing
 COPY tests/Processor.Tests tests/Processor.Tests
-COPY tests/Processor.IntegrationTests tests/Processor.IntegrationTests
 
 RUN dotnet csharpier --check .
 
 RUN dotnet build src/Processor/Processor.csproj --no-restore -c Release
 
 RUN dotnet test --no-restore tests/Processor.Tests
-RUN dotnet test --no-restore tests/Processor.IntegrationTests
 
 FROM build AS publish
 
