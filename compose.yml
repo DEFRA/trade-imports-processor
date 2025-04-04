@@ -1,45 +1,75 @@
-version: '3.4'
 services:
-  localstack:
-    image: localstack/localstack:3.0.2
-    ports:
-      - '4566:4566' # LocalStack Gateway
-      - '4510-4559:4510-4559' # external services port range
-    env_file:
-      - 'compose/aws.env'
+  asb:
     environment:
-      DEBUG: ${DEBUG:-1}
-      LS_LOG: WARN # Localstack DEBUG Level
-      SERVICES: s3,sqs,sns,firehose
-      LOCALSTACK_HOST: 127.0.0.1
-    volumes:
-      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+      SQL_SERVER: sqledge
+      MSSQL_SA_PASSWORD: "s4usag3s!"
+      ACCEPT_EULA: "Y"
+    depends_on:
+      sqledge:
+        condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', 'localhost:4566']
-      interval: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:5300/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       start_period: 5s
-      retries: 3
-    networks:
-      - cdp-tenant
-
-  redis:
-    image: redis:7.2.3-alpine3.18
+    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
     ports:
-      - '6379:6379'
-    restart: always
-    networks:
-      - cdp-tenant
-
-  mongodb:
-    image: mongo:6.0.13
-    networks:
-      - cdp-tenant
-    ports:
-      - '27017:27017'
+      - "5672:5672"
+      - "5300:5300"
     volumes:
-      - mongodb-data:/data
-    restart: always
+      - "./compose/asb.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
+  
+  sqledge:
+    healthcheck:
+      interval: 10s
+      test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
+      retries: 5
+      timeout: 2s
+      start_period: 5s
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "s4usag3s!"
+
+
+#  localstack:
+#    image: localstack/localstack:3.0.2
+#    ports:
+#      - '4566:4566' # LocalStack Gateway
+#      - '4510-4559:4510-4559' # external services port range
+#    env_file:
+#      - 'compose/aws.env'
+#    environment:
+#      DEBUG: ${DEBUG:-1}
+#      LS_LOG: WARN # Localstack DEBUG Level
+#      SERVICES: s3,sqs,sns,firehose
+#      LOCALSTACK_HOST: 127.0.0.1
+#    volumes:
+#      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
+#      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+#    healthcheck:
+#      test: ['CMD', 'curl', 'localhost:4566']
+#      interval: 5s
+#      start_period: 5s
+#      retries: 3
+#  redis:
+#    image: redis:7.2.3-alpine3.18
+#    ports:
+#      - '6379:6379'
+#    restart: always
+#    networks:
+#      - cdp-tenant
+#
+#  mongodb:
+#    image: mongo:6.0.13
+#    networks:
+#      - cdp-tenant
+#    ports:
+#      - '27017:27017'
+#    volumes:
+#      - mongodb-data:/data
+#    restart: always
 
   ################################################################################
 
@@ -66,32 +96,24 @@ services:
   #   networks:
   #     - cdp-tenant
 
-  your-backend:
-    build: ./
-    ports:
-      - '8080:8080'
-    links:
-      - 'localstack:localstack'
-      - 'mongodb:mongodb'
-    depends_on:
-      localstack:
-        condition: service_healthy
-      mongodb:
-        condition: service_started
-    env_file:
-      - 'compose/aws.env'
-    environment:
-      PORT: 8080
-      LOCALSTACK_ENDPOINT: http://localstack:4566
-      MONGO_URI: mongodb://mongodb:27017/
-    networks:
-      - cdp-tenant
+#  processor:
+#    build: ./
+#    ports:
+#      - '8080:8080'
+#    depends_on:
+#      asb:
+#        condition: service_healthy
+##      localstack:
+##        condition: service_healthy
+##      mongodb:
+##        condition: service_started
+#    env_file:
+#      - 'compose/aws.env'
+#    environment:
+#      PORT: 8080
+#      LOCALSTACK_ENDPOINT: http://localstack:4566
 
 ################################################################################
 
 volumes:
   mongodb-data:
-
-networks:
-  cdp-tenant:
-    driver: bridge
