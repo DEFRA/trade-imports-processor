@@ -3,7 +3,7 @@ using SlimMessageBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-internal class NotificationConsumer(ILogger<NotificationConsumer> logger) : IConsumer<Dictionary<string, object>>
+public class NotificationConsumer(ILogger<NotificationConsumer> logger) : IConsumer<Dictionary<string, object>>
 {
     public Task OnHandle(Dictionary<string, object> message, CancellationToken cancellationToken)
     {
