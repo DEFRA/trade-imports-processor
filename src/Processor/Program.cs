@@ -67,7 +67,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
             options.Headers.Add(traceHeader);
     });
 
-    builder.Services.AddOptions<CdpOptions>();
+    builder.Services.AddOptions<CdpOptions>().Bind(builder.Configuration);
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);

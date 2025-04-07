@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Http.Headers;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -38,7 +39,7 @@ public static class Proxy
         return new HttpClientHandler { Proxy = proxy, UseProxy = proxyUri != null };
     }
 
-    public static WebProxy CreateProxy(string? proxyUri, ILogger logger)
+    public static IWebProxy CreateProxy(string? proxyUri, ILogger logger)
     {
         var proxy = new WebProxy { BypassProxyOnLocal = true };
         if (proxyUri != null)
@@ -47,7 +48,7 @@ public static class Proxy
         }
         else
         {
-            logger.LogWarning("CDP_HTTP_PROXY is NOT set, proxy client will be disabled");
+            logger.LogWarning("CDP_HTTPS_PROXY is NOT set, proxy client will be disabled");
         }
 
         return proxy;
