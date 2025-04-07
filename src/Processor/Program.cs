@@ -1,3 +1,5 @@
+using Defra.TradeImportsProcessor.Processor.Configuration;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.AspNetCore.Diagnostics;
@@ -63,6 +65,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
         if (!string.IsNullOrWhiteSpace(traceHeader))
             options.Headers.Add(traceHeader);
     });
+    builder.Services.AddOptions<CdpOptions>();
+    builder.Services.AddConsumers(builder.Configuration);
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
