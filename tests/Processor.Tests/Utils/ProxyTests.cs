@@ -47,16 +47,16 @@ public class ProxyTest
     [Fact]
     public void CreateProxyFromUri()
     {
-        var proxy = Proxy.CreateProxy(ProxyUri, NullLogger.Instance);
-        proxy.Address.Should().NotBeNull();
-        proxy.Address?.AbsoluteUri.Should().Be(LocalProxy);
+        var proxy = Proxy.CreateProxy(ProxyUri, NullLogger.Instance) as System.Net.WebProxy;
+        proxy?.Address.Should().NotBeNull();
+        proxy?.Address?.AbsoluteUri.Should().Be(LocalProxy);
     }
 
     [Fact]
     public void CreateNoProxyFromEmptyUri()
     {
-        var proxy = Proxy.CreateProxy(null, NullLogger.Instance);
-        proxy.Address.Should().BeNull();
+        var proxy = Proxy.CreateProxy(null, NullLogger.Instance) as System.Net.WebProxy;
+        proxy?.Address.Should().BeNull();
     }
 
     [Fact]
