@@ -1,3 +1,5 @@
+using System;
+using System.Net.Http;
 using WireMock.Server;
 using WireMock.Settings;
 using WireMock.Types;

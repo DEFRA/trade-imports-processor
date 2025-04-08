@@ -1,7 +1,10 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Xunit;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;

@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.Extensions.Hosting;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests;
@@ -13,7 +14,7 @@ public class ApiWebApplicationFactory : TestWebApplicationFactory<Program>
         // that has started happening since the recent CDP Serilog changes have
         // been introduced. In tests, multiple hosts are created in parallel but
         // the CreateBootstrapLogger code is not thread safe and can throw errors.
-        //
+
         // We can mitigate this issue from here by locking host creation so we
         // don't need to change host creation of the app itself.
         lock (s_lock)

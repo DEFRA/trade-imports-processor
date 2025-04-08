@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Bogus" Version="35.6.2" />
+      <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
+      <PackageReference Include="AutoFixture" Version="4.18.1" />
     </ItemGroup>
 
 </Project>

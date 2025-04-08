@@ -1,5 +1,8 @@
+using System;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
+using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Xunit;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Utils;
 

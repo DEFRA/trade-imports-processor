@@ -1,6 +1,8 @@
+using System.Net.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Endpoints;
