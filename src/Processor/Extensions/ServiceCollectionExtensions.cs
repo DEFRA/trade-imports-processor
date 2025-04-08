@@ -2,6 +2,7 @@ using System.Net;
 using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions
                     ConfigureServiceBusClient(cbb, serviceBusOptions.Notifications.ConnectionString);
 
                     cbb.AddServicesFromAssemblyContaining<NotificationConsumer>()
-                        .Consume<Dictionary<string, object>>(x =>
+                        .Consume<ImportNotification>(x =>
                             x.Topic(serviceBusOptions.Notifications.Topic)
                                 .SubscriptionName(serviceBusOptions.Notifications.Subscription)
                                 .WithConsumer<NotificationConsumer>()

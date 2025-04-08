@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
+    <ProjectReference Include="..\TestFixtures\TestFixtures.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
   
