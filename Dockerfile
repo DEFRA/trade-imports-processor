@@ -23,6 +23,7 @@ RUN dotnet tool restore
 
 COPY src/Processor/Processor.csproj src/Processor/Processor.csproj
 COPY tests/Testing/Testing.csproj tests/Testing/Testing.csproj
+COPY tests/TestFixtures/TestFixtures.csproj tests/TestFixtures/TestFixtures.csproj
 COPY tests/Processor.Tests/Processor.Tests.csproj tests/Processor.Tests/Processor.Tests.csproj
 COPY tests/Processor.IntegrationTests/Processor.IntegrationTests.csproj tests/Processor.IntegrationTests/Processor.IntegrationTests.csproj
 COPY Defra.TradeImportsProcessor.sln Defra.TradeImportsProcessor.sln
@@ -32,6 +33,7 @@ RUN dotnet restore
 
 COPY src/Processor src/Processor
 COPY tests/Testing tests/Testing
+COPY tests/TestFixtures tests/TestFixtures
 COPY tests/Processor.Tests tests/Processor.Tests
 
 RUN dotnet csharpier --check .
