@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-// ReSharper disable once CheckNamespace
-namespace Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 public class KeyDataPairsToDictionaryStringObjectJsonConverter : JsonConverter<Dictionary<string, object?>>
 {

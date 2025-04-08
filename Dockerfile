@@ -29,6 +29,9 @@ COPY tests/Processor.IntegrationTests/Processor.IntegrationTests.csproj tests/Pr
 COPY Defra.TradeImportsProcessor.sln Defra.TradeImportsProcessor.sln
 COPY Directory.Build.props Directory.Build.props
 
+COPY NuGet.config NuGet.config
+ARG DEFRA_NUGET_PAT
+
 RUN dotnet restore
 
 COPY src/Processor src/Processor

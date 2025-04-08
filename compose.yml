@@ -30,7 +30,9 @@ services:
       start_period: 5s
   
   processor:
-    build: ./
+    build:
+      args:
+        DEFRA_NUGET_PAT: ${DEFRA_NUGET_PAT}
     command: ["--integrationTest=true"]
     depends_on:
       asb:

@@ -1,4 +1,5 @@
 using WireMock.Server;
+using Xunit;
 
 namespace Defra.TradeImportsProcessor.Testing;
 

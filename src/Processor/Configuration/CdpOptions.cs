@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 namespace Defra.TradeImportsProcessor.Processor.Configuration;
 
 public class CdpOptions

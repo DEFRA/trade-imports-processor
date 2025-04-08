@@ -1,4 +1,7 @@
+using System;
+using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
+using Xunit;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Services;
 
