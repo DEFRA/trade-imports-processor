@@ -3,9 +3,6 @@ using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
@@ -14,6 +11,16 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddProcessorConfiguration(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
+        services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
+        return services;
+    }
+
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSlimMessageBus(mbb =>
