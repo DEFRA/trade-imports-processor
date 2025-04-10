@@ -25,6 +25,7 @@ updates:
           - "minor"
     allow:
       - dependency-type: direct
+    registries: "*"
 
   - package-ecosystem: github-actions
     directory: /
