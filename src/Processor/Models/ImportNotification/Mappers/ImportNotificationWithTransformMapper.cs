@@ -6,7 +6,7 @@ using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 public static class ImportNotificationWithTransformMapper
 {
-    public static IpaffsDataApi.ImportNotification MapWithTransform(this ImportNotification? from)
+    public static IpaffsDataApi.ImportPreNotification MapWithTransform(this ImportNotification? from)
     {
         if (from is null)
         {
@@ -42,7 +42,7 @@ public static class ImportNotificationWithTransformMapper
         return input.ToDictionary(mc => mc.Key.FromSnakeCase(), mc => mc.Value);
     }
 
-    private static void Map(ImportNotification from, IpaffsDataApi.ImportNotification to)
+    private static void Map(ImportNotification from, IpaffsDataApi.ImportPreNotification to)
     {
         var commodities = from.PartOne!.Commodities;
 

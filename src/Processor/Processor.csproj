@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.2.0-pr-22.135"/>
+    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.3.0-pr-35.165" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.12.3"/>
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.12.3"/>
     <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>

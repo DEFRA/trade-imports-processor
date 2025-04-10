@@ -22,7 +22,7 @@ public class NotificationConsumerTests
 
         _mockApi
             .GetImportNotification(importNotification.ReferenceNumber!, cancellationToken)
-            .Returns(null as ImportNotificationResponse);
+            .Returns(null as ImportPreNotificationResponse);
 
         await consumer.OnHandle(importNotification, cancellationToken);
 
@@ -30,7 +30,7 @@ public class NotificationConsumerTests
             .Received()
             .PutImportNotification(
                 importNotification.ReferenceNumber!,
-                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 null,
                 cancellationToken
             );
@@ -45,7 +45,7 @@ public class NotificationConsumerTests
         var dataApiImportNotification = DataApiImportNotificationFixture();
         var cancellationToken = CancellationToken.None;
         const string expectedEtag = "12345";
-        var response = new ImportNotificationResponse(
+        var response = new ImportPreNotificationResponse(
             dataApiImportNotification,
             DateTime.Now,
             DateTime.Now,
@@ -60,7 +60,7 @@ public class NotificationConsumerTests
             .Received()
             .PutImportNotification(
                 importNotification.ReferenceNumber!,
-                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 expectedEtag,
                 cancellationToken
             );

@@ -20,7 +20,7 @@ public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiCl
 
         logger.LogInformation("Received notification {ReferenceNumber}", from.ReferenceNumber);
 
-        var to = new IpaffsDataApi.ImportNotification
+        var to = new IpaffsDataApi.ImportPreNotification
         {
             IpaffsId = from.IpaffsId,
             Etag = from.Etag,
@@ -59,7 +59,7 @@ public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiCl
         {
             logger.LogInformation(
                 "Updating existing notification {ReferenceNumber}",
-                existingNotification.Data.ReferenceNumber
+                existingNotification.ImportPreNotification.ReferenceNumber
             );
             await api.PutImportNotification(from.ReferenceNumber!, to, existingNotification.ETag, cancellationToken);
             return;
