@@ -21,14 +21,14 @@ public class NotificationConsumerTests
         var cancellationToken = CancellationToken.None;
 
         _mockApi
-            .GetImportNotification(importNotification.ReferenceNumber!, cancellationToken)
+            .GetImportPreNotification(importNotification.ReferenceNumber!, cancellationToken)
             .Returns(null as ImportPreNotificationResponse);
 
         await consumer.OnHandle(importNotification, cancellationToken);
 
         await _mockApi
             .Received()
-            .PutImportNotification(
+            .PutImportPreNotification(
                 importNotification.ReferenceNumber!,
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 null,
@@ -52,13 +52,13 @@ public class NotificationConsumerTests
             expectedEtag
         );
 
-        _mockApi.GetImportNotification(importNotification.ReferenceNumber!, cancellationToken).Returns(response);
+        _mockApi.GetImportPreNotification(importNotification.ReferenceNumber!, cancellationToken).Returns(response);
 
         await consumer.OnHandle(importNotification, cancellationToken);
 
         await _mockApi
             .Received()
-            .PutImportNotification(
+            .PutImportPreNotification(
                 importNotification.ReferenceNumber!,
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 expectedEtag,
