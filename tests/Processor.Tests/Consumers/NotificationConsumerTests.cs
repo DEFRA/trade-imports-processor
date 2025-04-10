@@ -21,16 +21,16 @@ public class NotificationConsumerTests
         var cancellationToken = CancellationToken.None;
 
         _mockApi
-            .GetImportNotification(importNotification.ReferenceNumber!, cancellationToken)
-            .Returns(null as ImportNotificationResponse);
+            .GetImportPreNotification(importNotification.ReferenceNumber!, cancellationToken)
+            .Returns(null as ImportPreNotificationResponse);
 
         await consumer.OnHandle(importNotification, cancellationToken);
 
         await _mockApi
             .Received()
-            .PutImportNotification(
+            .PutImportPreNotification(
                 importNotification.ReferenceNumber!,
-                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 null,
                 cancellationToken
             );
@@ -45,22 +45,22 @@ public class NotificationConsumerTests
         var dataApiImportNotification = DataApiImportNotificationFixture();
         var cancellationToken = CancellationToken.None;
         const string expectedEtag = "12345";
-        var response = new ImportNotificationResponse(
+        var response = new ImportPreNotificationResponse(
             dataApiImportNotification,
             DateTime.Now,
             DateTime.Now,
             expectedEtag
         );
 
-        _mockApi.GetImportNotification(importNotification.ReferenceNumber!, cancellationToken).Returns(response);
+        _mockApi.GetImportPreNotification(importNotification.ReferenceNumber!, cancellationToken).Returns(response);
 
         await consumer.OnHandle(importNotification, cancellationToken);
 
         await _mockApi
             .Received()
-            .PutImportNotification(
+            .PutImportPreNotification(
                 importNotification.ReferenceNumber!,
-                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 expectedEtag,
                 cancellationToken
             );

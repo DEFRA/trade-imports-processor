@@ -20,12 +20,12 @@ public static class ImportNotificationFixtures
             .Create();
     }
 
-    public static TradeImportsDataApi.Domain.Ipaffs.ImportNotification DataApiImportNotificationFixture()
+    public static TradeImportsDataApi.Domain.Ipaffs.ImportPreNotification DataApiImportNotificationFixture()
     {
         var fixture = GetFixture();
 
         return fixture
-            .Build<TradeImportsDataApi.Domain.Ipaffs.ImportNotification>()
+            .Build<TradeImportsDataApi.Domain.Ipaffs.ImportPreNotification>()
             .With(i => i.ReferenceNumber, "CHEDP.GB.2025.1234567") // TO-DO: Randomize
             .Create();
     }

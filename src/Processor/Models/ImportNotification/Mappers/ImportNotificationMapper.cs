@@ -8,13 +8,13 @@ namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mapper
 
 public static class ImportNotificationMapper
 {
-    public static IpaffsDataApi.ImportNotification Map(ImportNotification? from)
+    public static IpaffsDataApi.ImportPreNotification Map(ImportNotification? from)
     {
         if (from is null)
         {
             return default!;
         }
-        var to = new IpaffsDataApi.ImportNotification();
+        var to = new IpaffsDataApi.ImportPreNotification();
         to.IpaffsId = from?.IpaffsId;
         to.Etag = from?.Etag;
         to.ExternalReferences = from?.ExternalReferences?.Select(x => ExternalReferenceMapper.Map(x)).ToArray();

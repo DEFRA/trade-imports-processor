@@ -20,7 +20,7 @@ public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiCl
 
         logger.LogInformation("Received notification {ReferenceNumber}", from.ReferenceNumber);
 
-        var to = new IpaffsDataApi.ImportNotification
+        var to = new IpaffsDataApi.ImportPreNotification
         {
             IpaffsId = from.IpaffsId,
             Etag = from.Etag,
@@ -54,18 +54,18 @@ public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiCl
             IsGMRMatched = from.IsGMRMatched,
         };
 
-        var existingNotification = await api.GetImportNotification(from.ReferenceNumber!, cancellationToken);
+        var existingNotification = await api.GetImportPreNotification(from.ReferenceNumber!, cancellationToken);
         if (existingNotification != null)
         {
             logger.LogInformation(
                 "Updating existing notification {ReferenceNumber}",
-                existingNotification.Data.ReferenceNumber
+                existingNotification.ImportPreNotification.ReferenceNumber
             );
-            await api.PutImportNotification(from.ReferenceNumber!, to, existingNotification.ETag, cancellationToken);
+            await api.PutImportPreNotification(from.ReferenceNumber!, to, existingNotification.ETag, cancellationToken);
             return;
         }
 
         logger.LogInformation("Creating new notification {ReferenceNumber}", to.ReferenceNumber);
-        await api.PutImportNotification(from.ReferenceNumber!, to, null, cancellationToken);
+        await api.PutImportPreNotification(from.ReferenceNumber!, to, null, cancellationToken);
     }
 }
