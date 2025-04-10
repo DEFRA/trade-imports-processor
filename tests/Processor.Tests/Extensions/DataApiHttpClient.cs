@@ -4,7 +4,7 @@ using Defra.TradeImportsProcessor.Processor.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Defra.TradeImportsProcessor.Processor.Tests.Clients;
+namespace Defra.TradeImportsProcessor.Processor.Tests.Extensions;
 
 public class DataApiHttpClient
 {
@@ -19,7 +19,7 @@ public class DataApiHttpClient
             Username = "username",
             Password = "password",
         };
-        var expectedBasicAuthCredential = "dXNlcm5hbWU6cGFzc3dvcmQ=";
+        const string expectedBasicAuthCredential = "dXNlcm5hbWU6cGFzc3dvcmQ=";
 
         var services = new ServiceCollection();
         services.AddSingleton(Options.Create(dataApiOptions));
