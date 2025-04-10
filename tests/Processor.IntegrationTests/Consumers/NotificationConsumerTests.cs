@@ -22,7 +22,7 @@ public class NotificationConsumerTests : ServiceBusTestBase
         await wireMockAdminApi.ResetMappingsAsync();
         await wireMockAdminApi.ResetRequestsAsync();
 
-        var createPath = $"/import-notifications/{importNotification.ReferenceNumber}";
+        var createPath = $"/import-pre-notifications/{importNotification.ReferenceNumber}";
         var mappingBuilder = wireMockAdminApi.GetMappingBuilder();
         mappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPut().WithPath(createPath))
