@@ -1,5 +1,8 @@
 ﻿using AutoFixture;
+using AutoFixture.Dsl;
+using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
+using ImportNotificationStatus = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotificationStatus;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
 
@@ -12,21 +15,18 @@ public static class ImportNotificationFixtures
         return fixture;
     }
 
-    public static ImportNotification ImportNotificationFixture()
+    public static IPostprocessComposer<ImportNotification> ImportNotificationFixture()
     {
         return GetFixture()
             .Build<ImportNotification>()
             .With(i => i.ReferenceNumber, "CHEDP.GB.2025.1234567") // TO-DO: Randomize
-            .Create();
+            .With(i => i.Status, ImportNotificationStatus.InProgress);
     }
 
-    public static TradeImportsDataApi.Domain.Ipaffs.ImportPreNotification DataApiImportNotificationFixture()
+    public static IPostprocessComposer<ImportPreNotification> DataApiImportNotificationFixture()
     {
         var fixture = GetFixture();
 
-        return fixture
-            .Build<TradeImportsDataApi.Domain.Ipaffs.ImportPreNotification>()
-            .With(i => i.ReferenceNumber, "CHEDP.GB.2025.1234567") // TO-DO: Randomize
-            .Create();
+        return fixture.Build<ImportPreNotification>().With(i => i.ReferenceNumber, "CHEDP.GB.2025.1234567"); // TO-DO: Randomize
     }
 }

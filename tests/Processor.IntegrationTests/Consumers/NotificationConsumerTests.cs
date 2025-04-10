@@ -1,4 +1,5 @@
 using System.Net;
+using AutoFixture;
 using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -17,7 +18,7 @@ public class NotificationConsumerTests : ServiceBusTestBase
     [Fact]
     public async Task WhenNotificationSent_ThenNotificationReceivedAndRemovedFromServiceBus()
     {
-        var importNotification = ImportNotificationFixture();
+        var importNotification = ImportNotificationFixture().Create();
 
         await wireMockAdminApi.ResetMappingsAsync();
         await wireMockAdminApi.ResetRequestsAsync();

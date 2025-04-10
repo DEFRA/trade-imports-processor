@@ -1,5 +1,7 @@
+using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
@@ -17,7 +19,7 @@ public class NotificationConsumerTests
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
-        var importNotification = ImportNotificationFixture();
+        var importNotification = ImportNotificationFixture().Create();
         var cancellationToken = CancellationToken.None;
 
         _mockApi
@@ -41,8 +43,8 @@ public class NotificationConsumerTests
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
-        var importNotification = ImportNotificationFixture();
-        var dataApiImportNotification = DataApiImportNotificationFixture();
+        var importNotification = ImportNotificationFixture().Create();
+        var dataApiImportNotification = DataApiImportNotificationFixture().Create();
         var cancellationToken = CancellationToken.None;
         const string expectedEtag = "12345";
         var response = new ImportPreNotificationResponse(
@@ -63,6 +65,33 @@ public class NotificationConsumerTests
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 expectedEtag,
                 cancellationToken
+            );
+    }
+
+    [Theory]
+    [InlineData(ImportNotificationStatus.Amend)]
+    [InlineData(ImportNotificationStatus.Draft)]
+    public async Task OnHandle_WhenImportNotificationIsShouldNotBeProcessed_ThenItIsSkipped(
+        ImportNotificationStatus status
+    )
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var importNotification = ImportNotificationFixture().With(i => i.Status, status).Create();
+        var cancellationToken = CancellationToken.None;
+
+        await consumer.OnHandle(importNotification, cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .GetImportPreNotification(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
             );
     }
 }
