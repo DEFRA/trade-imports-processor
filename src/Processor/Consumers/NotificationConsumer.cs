@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
 using SlimMessageBus;
@@ -6,11 +7,17 @@ using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
-    : IConsumer<ImportNotification>
+public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiClient api) : IConsumer<object>
 {
-    public async Task OnHandle(ImportNotification from, CancellationToken cancellationToken)
+    public async Task OnHandle(object received, CancellationToken cancellationToken)
     {
+        var from = JsonSerializer.Deserialize<ImportNotification>(JsonSerializer.Serialize(received));
+        if (from == null)
+        {
+            logger.LogWarning("Received invalid message {Received}", received);
+            throw new InvalidOperationException("Received invalid message");
+        }
+
         logger.LogInformation("Received notification {ReferenceNumber}", from.ReferenceNumber);
 
         var to = new IpaffsDataApi.ImportNotification

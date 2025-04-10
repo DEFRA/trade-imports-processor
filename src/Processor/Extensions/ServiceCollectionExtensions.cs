@@ -4,7 +4,6 @@ using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
@@ -68,12 +67,13 @@ public static class ServiceCollectionExtensions
                     ConfigureServiceBusClient(cbb, serviceBusOptions.Notifications.ConnectionString);
 
                     cbb.AddServicesFromAssemblyContaining<NotificationConsumer>()
-                        .Consume<ImportNotification>(x =>
+                        .Consume<object>(x =>
+                        {
                             x.Topic(serviceBusOptions.Notifications.Topic)
                                 .SubscriptionName(serviceBusOptions.Notifications.Subscription)
                                 .WithConsumer<NotificationConsumer>()
-                                .Instances(20)
-                        );
+                                .Instances(20);
+                        });
                 }
             );
         });
