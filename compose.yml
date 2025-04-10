@@ -37,14 +37,17 @@ services:
     depends_on:
       asb:
         condition: service_healthy
+      wiremock:
+        condition: service_started
     env_file:
       - 'compose/aws.env'
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       PORT: 8080
+      DataApi__BaseAddress: "http://wiremock"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
     ports:
-      - '8080:8080'
+      - "8080:8080"
   
   sqledge:
     healthcheck:
@@ -57,7 +60,17 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "s4usag3s!"
-
+  
+  wiremock:
+    healthcheck:
+      interval: 5s
+      retries: 10
+      start_period: 5s
+      test: wget --spider -O /dev/null localhost:8080/__admin/mappings
+      timeout: 5s
+    image: sheyenrath/wiremock.net:latest
+    ports:
+      - "9090:80"
 
 #  localstack:
 #    image: localstack/localstack:3.0.2

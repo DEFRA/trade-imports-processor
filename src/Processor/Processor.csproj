@@ -18,24 +18,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.1.0" />
-    <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.12.3" />
-    <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.12.3" />
-    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.3.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.1.2" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
-    <PackageReference Include="SlimMessageBus" Version="3.0.0" />
-    <PackageReference Include="SlimMessageBus.Host.AzureServiceBus" Version="3.1.0" />
-    <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.1.0" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.2.0-pr-22.135"/>
+    <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.12.3"/>
+    <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.12.3"/>
+    <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="9.0.3"/>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.3.0"/>
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
+    <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.1.2"/>
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1"/>
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0"/>
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0"/>
+    <PackageReference Include="SlimMessageBus" Version="3.0.0"/>
+    <PackageReference Include="SlimMessageBus.Host.AzureServiceBus" Version="3.1.0"/>
+    <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.1.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\ImportNotification\Mappers\" />
+    <Folder Include="Models\ImportNotification\Mappers\"/>
   </ItemGroup>
 
 </Project>

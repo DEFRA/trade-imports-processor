@@ -1,15 +1,8 @@
-using System;
-using System.Linq;
-using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -60,20 +53,12 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
         // within an integration test
         builder.Host.UseSerilog(CdpLogging.Configuration);
 
-    // This adds default rate limiter, total request timeout, retries, circuit breaker and timeout per attempt
-    builder.Services.ConfigureHttpClientDefaults(options => options.AddStandardResilienceHandler());
     builder.Services.AddProblemDetails();
     builder.Services.AddHealthChecks();
 
-    builder.Services.AddHttpClient();
-    builder.Services.AddHeaderPropagation(options =>
-    {
-        var traceHeader = builder.Configuration.GetValue<string>("TraceHeader");
-        if (!string.IsNullOrWhiteSpace(traceHeader))
-            options.Headers.Add(traceHeader);
-    });
+    builder.Services.AddProcessorConfiguration(builder.Configuration);
 
-    builder.Services.AddOptions<CdpOptions>().Bind(builder.Configuration);
+    builder.Services.AddDataApiHttpClient();
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
@@ -83,9 +68,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
     var app = builder.Build();
 
-    app.UseHeaderPropagation();
     app.MapHealthChecks("/health");
-
     app.UseStatusCodePages();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions

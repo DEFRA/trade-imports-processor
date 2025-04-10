@@ -1,11 +1,12 @@
 using System.Net;
+using System.Net.Http.Headers;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
@@ -14,6 +15,44 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
+    {
+        services
+            .AddTradeImportsDataApiClient()
+            .ConfigureHttpClient(
+                (sp, c) =>
+                {
+                    var options = sp.GetRequiredService<IOptions<DataApiOptions>>().Value;
+                    c.BaseAddress = new Uri(options.BaseAddress);
+
+                    if (options.BasicAuthCredential != null)
+                        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                            "Basic",
+                            options.BasicAuthCredential
+                        );
+
+                    if (c.BaseAddress.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                        c.DefaultRequestVersion = HttpVersion.Version20;
+                }
+            )
+            .AddStandardResilienceHandler(o =>
+            {
+                o.Retry.DisableForUnsafeHttpMethods();
+            });
+
+        return services;
+    }
+
+    public static IServiceCollection AddProcessorConfiguration(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
+        services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
+        return services;
+    }
+
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSlimMessageBus(mbb =>

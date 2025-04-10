@@ -1,25 +1,68 @@
-using System.Threading;
-using System.Threading.Tasks;
+using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
+using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
 
 public class NotificationConsumerTests
 {
+    private readonly ITradeImportsDataApiClient _mockApi = Substitute.For<ITradeImportsDataApiClient>();
+    private readonly ILogger<NotificationConsumer> _mockLogger = Substitute.For<ILogger<NotificationConsumer>>();
+
     [Fact]
-    public void OnHandle_ReturnsTaskCompleted()
+    public async Task OnHandle_WhenImportNotificationReceived_AndNoImportNotificationExistsInTheDataApi_ThenItIsCreated()
     {
-        var logger = Substitute.For<ILogger<NotificationConsumer>>();
-        var consumer = new NotificationConsumer(logger);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
         var importNotification = ImportNotificationFixture();
+        var cancellationToken = CancellationToken.None;
 
-        var result = consumer.OnHandle(importNotification, CancellationToken.None);
-        Assert.Equal(Task.CompletedTask, result);
+        _mockApi
+            .GetImportNotification(importNotification.ReferenceNumber!, cancellationToken)
+            .Returns(null as ImportNotificationResponse);
+
+        await consumer.OnHandle(importNotification, cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutImportNotification(
+                importNotification.ReferenceNumber!,
+                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                null,
+                cancellationToken
+            );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenImportNotificationReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var importNotification = ImportNotificationFixture();
+        var dataApiImportNotification = DataApiImportNotificationFixture();
+        var cancellationToken = CancellationToken.None;
+        const string expectedEtag = "12345";
+        var response = new ImportNotificationResponse(
+            dataApiImportNotification,
+            DateTime.Now,
+            DateTime.Now,
+            expectedEtag
+        );
+
+        _mockApi.GetImportNotification(importNotification.ReferenceNumber!, cancellationToken).Returns(response);
+
+        await consumer.OnHandle(importNotification, cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutImportNotification(
+                importNotification.ReferenceNumber!,
+                Arg.Any<IpaffsDataApi.ImportNotification>(),
+                expectedEtag,
+                cancellationToken
+            );
     }
 }
