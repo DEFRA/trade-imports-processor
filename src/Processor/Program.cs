@@ -1,12 +1,8 @@
-using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.Options;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -62,20 +58,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
 
     builder.Services.AddProcessorConfiguration(builder.Configuration);
 
-    builder
-        .Services.AddTradeImportsDataApiClient()
-        .ConfigureHttpClient(
-            (sp, c) =>
-            {
-                var options = sp.GetRequiredService<IOptions<DataApiOptions>>().Value;
-                c.BaseAddress = new Uri(options.BaseAddress);
-            }
-        )
-        .AddStandardResilienceHandler(o =>
-        {
-            o.Retry.DisableForUnsafeHttpMethods();
-        });
-
+    builder.Services.AddDataApiHttpClient();
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
