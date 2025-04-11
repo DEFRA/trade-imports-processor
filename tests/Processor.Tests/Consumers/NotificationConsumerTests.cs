@@ -115,4 +115,61 @@ public class NotificationConsumerTests
                 Arg.Any<CancellationToken>()
             );
     }
+
+    [Fact]
+    public async Task OnHandle_WhenNewImportNotificationIsOlderThanExistingNotification_Skip()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, DateTime.Now.AddSeconds(-5))
+            .Create();
+        var existingNotification = DataApiImportNotificationFixture().With(i => i.UpdatedSource, DateTime.Now).Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
+
+        await consumer.OnHandle(newNotification, _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Theory]
+    [InlineData(IpaffsDataApi.ImportNotificationStatus.Validated)]
+    [InlineData(IpaffsDataApi.ImportNotificationStatus.Rejected)]
+    [InlineData(IpaffsDataApi.ImportNotificationStatus.PartiallyRejected)]
+    public async Task OnHandle_WhenNewImportNotificationIsInProgress_AndTheExistingIsMoreMature_Skip(
+        IpaffsDataApi.ImportNotificationStatus existingStatus
+    )
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.Status, ImportNotificationStatus.InProgress)
+            .Create();
+
+        var existingNotification = DataApiImportNotificationFixture().With(i => i.Status, existingStatus).Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
+
+        await consumer.OnHandle(newNotification, _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Any<IpaffsDataApi.ImportPreNotification>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
 }

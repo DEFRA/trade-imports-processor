@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using ImportNotificationStatus = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotificationStatus;
+using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
 
@@ -31,14 +31,19 @@ public static class ImportNotificationFixtures
     {
         return GetFixture()
             .Build<ImportNotification>()
-            .With(i => i.ReferenceNumber, GenerateReferenceNumber()) // TO-DO: Randomize
+            .With(i => i.ReferenceNumber, GenerateReferenceNumber())
+            .With(i => i.LastUpdated, DateTime.Now)
             .With(i => i.Status, ImportNotificationStatus.InProgress);
     }
 
-    public static IPostprocessComposer<ImportPreNotification> DataApiImportNotificationFixture()
+    public static IPostprocessComposer<IpaffsDataApi.ImportPreNotification> DataApiImportNotificationFixture()
     {
         var fixture = GetFixture();
 
-        return fixture.Build<ImportPreNotification>().With(i => i.ReferenceNumber, GenerateReferenceNumber()); // TO-DO: Randomize
+        return fixture
+            .Build<IpaffsDataApi.ImportPreNotification>()
+            .With(i => i.ReferenceNumber, GenerateReferenceNumber())
+            .With(i => i.UpdatedSource, DateTime.Now.AddMinutes(-5))
+            .With(i => i.Status, IpaffsDataApi.ImportNotificationStatus.InProgress);
     }
 }
