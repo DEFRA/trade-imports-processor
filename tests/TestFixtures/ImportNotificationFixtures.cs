@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System.Security.Cryptography;
+using AutoFixture;
 using AutoFixture.Dsl;
 using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
@@ -19,9 +20,9 @@ public static class ImportNotificationFixtures
 
     private static string GenerateReferenceNumber()
     {
-        var chedType = s_chedTypes[new Random().Next(s_chedTypes.Count)];
+        var chedType = s_chedTypes[RandomNumberGenerator.GetInt32(0, s_chedTypes.Count)];
         var currentYear = DateTime.Now.Year;
-        var number = new Random().Next(1000000, 10000000);
+        var number = RandomNumberGenerator.GetInt32(1000000, 10000000);
 
         return $"CHED{chedType}.GB.{currentYear}.{number}";
     }
