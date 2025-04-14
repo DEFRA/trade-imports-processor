@@ -32,7 +32,11 @@ public class NotificationConsumerTests : ServiceBusTestBase
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
-        await Sender.SendMessageAsync(new ServiceBusMessage { Body = new BinaryData(importNotification) });
+        var message = new ServiceBusMessage { Body = new BinaryData(importNotification) };
+        var traceId = Guid.NewGuid().ToString("N");
+        const string traceHeader = "x-cdp-request-id";
+        message.ApplicationProperties.Add(traceHeader, traceId);
+        await Sender.SendMessageAsync(message);
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
@@ -40,8 +44,14 @@ public class NotificationConsumerTests : ServiceBusTestBase
                 try
                 {
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
-                    var requests = await wireMockAdminApi.FindRequestsAsync(requestModel);
-                    return requests.Count == 1;
+                    var requests = (await wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
+                        x.Request.Headers != null
+                        && x.Request.Headers.ContainsKey(traceHeader)
+                        && x.Request.Headers.TryGetValue(traceHeader, out var list)
+                        && list.Contains(traceId)
+                    );
+
+                    return requests.Count() == 1;
                 }
                 catch (Exception)
                 {

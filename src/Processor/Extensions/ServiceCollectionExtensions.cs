@@ -4,10 +4,12 @@ using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
+using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -34,6 +36,7 @@ public static class ServiceCollectionExtensions
                         c.DefaultRequestVersion = HttpVersion.Version20;
                 }
             )
+            .AddHeaderPropagation()
             .AddStandardResilienceHandler(o =>
             {
                 o.Retry.DisableForUnsafeHttpMethods();
@@ -49,6 +52,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
+
         return services;
     }
 
@@ -77,6 +81,14 @@ public static class ServiceCollectionExtensions
                 }
             );
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
+    {
+        services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
 
         return services;
     }

@@ -33,7 +33,6 @@ services:
     build:
       args:
         DEFRA_NUGET_PAT: ${DEFRA_NUGET_PAT}
-    command: ["--integrationTest=true"]
     depends_on:
       asb:
         condition: service_healthy
@@ -43,6 +42,7 @@ services:
       - 'compose/aws.env'
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ENVIRONMENT: local
       PORT: 8080
       DataApi__BaseAddress: "http://wiremock"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
