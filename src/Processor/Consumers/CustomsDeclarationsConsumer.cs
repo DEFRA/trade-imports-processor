@@ -84,13 +84,15 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
 
         if (
             existingCustomsDeclaration.ClearanceRequest != null
-            && NewClearanceRequestIsOlderThanExistingClearanceRequest(
-                newClearanceRequest,
-                existingCustomsDeclaration.ClearanceRequest
-            )
+            && IsClearanceRequestOlderThan(newClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
         )
         {
-            logger.LogInformation("Skipping {Mrn} because new clearance request is older than existing", mrn);
+            logger.LogInformation(
+                "Skipping {Mrn} because new clearance request {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
+                mrn,
+                newClearanceRequest.ExternalVersion,
+                existingCustomsDeclaration.ClearanceRequest.ExternalVersion
+            );
             return;
         }
 
@@ -110,7 +112,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
         );
     }
 
-    private static bool NewClearanceRequestIsOlderThanExistingClearanceRequest(
+    private static bool IsClearanceRequestOlderThan(
         DataApiCustomsDeclaration.ClearanceRequest newClearanceRequest,
         DataApiCustomsDeclaration.ClearanceRequest existingClearanceRequest
     )
