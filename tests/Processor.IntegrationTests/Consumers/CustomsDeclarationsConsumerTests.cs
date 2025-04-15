@@ -4,6 +4,7 @@ using AutoFixture;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using RestEase;
+using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
 using Xunit.Abstractions;
@@ -17,7 +18,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output) : SqsTes
     private readonly IWireMockAdminApi _wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
 
     [Fact]
-    public async Task WhenClearanceRequestSent_ThenClearanceRequestReceivedAndRemovedFromServiceBus()
+    public async Task WhenClearanceRequestSent_ThenClearanceRequestIsProcessedAndSentToTheDataApi()
     {
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
@@ -37,7 +38,12 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output) : SqsTes
         await SendMessage(mrn, JsonSerializer.Serialize(clearanceRequest));
 
         Assert.True(
-            await AsyncWaiter.WaitForAsync(async () => (await GetQueueAttributes()).ApproximateNumberOfMessages == 0)
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var requestsModel = new RequestModel { Methods = ["PUT"], Path = createPath };
+                var requests = await _wireMockAdminApi.FindRequestsAsync(requestsModel);
+                return requests.Count == 1;
+            })
         );
     }
 }
