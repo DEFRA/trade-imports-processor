@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
@@ -26,7 +27,7 @@ public class NotificationConsumerTests
             .GetImportPreNotification(importNotification.ReferenceNumber!, _cancellationToken)
             .Returns(null as ImportPreNotificationResponse);
 
-        await consumer.OnHandle(importNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
             .Received()
@@ -55,7 +56,7 @@ public class NotificationConsumerTests
 
         _mockApi.GetImportPreNotification(importNotification.ReferenceNumber!, _cancellationToken).Returns(response);
 
-        await consumer.OnHandle(importNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
             .Received()
@@ -78,7 +79,7 @@ public class NotificationConsumerTests
 
         var importNotification = ImportNotificationFixture().With(i => i.Status, status).Create();
 
-        await consumer.OnHandle(importNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
             .Received()
@@ -101,7 +102,7 @@ public class NotificationConsumerTests
 
         var importNotification = ImportNotificationFixture().With(i => i.Status, status).Create();
 
-        await consumer.OnHandle(importNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
             .DidNotReceiveWithAnyArgs()
@@ -130,7 +131,7 @@ public class NotificationConsumerTests
             .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
             .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
 
-        await consumer.OnHandle(newNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
 
         await _mockApi
             .DidNotReceiveWithAnyArgs()
@@ -161,7 +162,7 @@ public class NotificationConsumerTests
             .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
             .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
 
-        await consumer.OnHandle(newNotification, _cancellationToken);
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
 
         await _mockApi
             .DidNotReceiveWithAnyArgs()

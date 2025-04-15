@@ -1,20 +1,17 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
-public partial class IdentificationDetails
+public class IdentificationDetails
 {
     /// <summary>
-    /// Identification detail
+    ///     Identification detail
     /// </summary>
     [JsonPropertyName("identificationDetail")]
     public string? IdentificationDetail { get; set; }
 
     /// <summary>
-    /// Identification description
+    ///     Identification description
     /// </summary>
     [JsonPropertyName("identificationDescription")]
     public string? IdentificationDescription { get; set; }

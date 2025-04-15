@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Configuration;
@@ -8,6 +9,7 @@ using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
+using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
@@ -58,26 +60,72 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSlimMessageBus(mbb =>
+        services.AddSlimMessageBus(smb =>
         {
-            var serviceBusOptions = services
-                .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
-                .Get();
-
-            mbb.AddChildBus(
+            smb.AddChildBus(
                 "ASB_Notification",
-                cbb =>
+                mbb =>
                 {
-                    ConfigureServiceBusClient(cbb, serviceBusOptions.Notifications.ConnectionString);
+                    var serviceBusOptions = services
+                        .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
+                        .Get();
 
-                    cbb.AddServicesFromAssemblyContaining<NotificationConsumer>()
-                        .Consume<object>(x =>
+                    mbb.WithProviderServiceBus(cfg =>
+                    {
+                        cfg.TopologyProvisioning = new ServiceBusTopologySettings { Enabled = false };
+                        cfg.ClientFactory = (sp, settings) =>
                         {
-                            x.Topic(serviceBusOptions.Notifications.Topic)
-                                .SubscriptionName(serviceBusOptions.Notifications.Subscription)
-                                .WithConsumer<NotificationConsumer>()
-                                .Instances(20);
-                        });
+                            var clientOptions = sp.GetRequiredService<IHostEnvironment>().IsDevelopment()
+                                ? new ServiceBusClientOptions()
+                                : new ServiceBusClientOptions
+                                {
+                                    WebProxy = sp.GetRequiredService<IWebProxy>(),
+                                    TransportType = ServiceBusTransportType.AmqpWebSockets,
+                                };
+
+                            return new ServiceBusClient(settings.ConnectionString, clientOptions);
+                        };
+                        cfg.ConnectionString = serviceBusOptions.Notifications.ConnectionString;
+                    });
+                    mbb.AddJsonSerializer();
+
+                    mbb.AddServicesFromAssemblyContaining<NotificationConsumer>();
+                    mbb.Consume<JsonElement>(x =>
+                    {
+                        x.Topic(serviceBusOptions.Notifications.Topic)
+                            .SubscriptionName(serviceBusOptions.Notifications.Subscription)
+                            .WithConsumer<NotificationConsumer>()
+                            .Instances(20);
+                    });
+                }
+            );
+
+            smb.AddChildBus(
+                "SQS_CustomsDeclarations",
+                mbb =>
+                {
+                    var customsDeclarationsConsumerOptions = services
+                        .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
+                            configuration,
+                            CustomsDeclarationsConsumerOptions.SectionName
+                        )
+                        .Get();
+
+                    mbb.WithProviderAmazonSQS(cfg =>
+                    {
+                        cfg.TopologyProvisioning.Enabled = false;
+                        cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                            cfg.SqsClientConfig,
+                            configuration
+                        );
+                    });
+                    mbb.AddJsonSerializer();
+
+                    mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
+                    mbb.Consume<JsonElement>(x =>
+                        x.WithConsumer<CustomsDeclarationsConsumer>()
+                            .Queue(customsDeclarationsConsumerOptions.QueueName)
+                    );
                 }
             );
         });
@@ -91,27 +139,5 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
 
         return services;
-    }
-
-    private static void ConfigureServiceBusClient(MessageBusBuilder cbb, string connectionString)
-    {
-        cbb.WithProviderServiceBus(cfg =>
-        {
-            cfg.TopologyProvisioning = new ServiceBusTopologySettings { Enabled = false };
-            cfg.ClientFactory = (sp, settings) =>
-            {
-                var clientOptions = sp.GetRequiredService<IHostEnvironment>().IsDevelopment()
-                    ? new ServiceBusClientOptions()
-                    : new ServiceBusClientOptions
-                    {
-                        WebProxy = sp.GetRequiredService<IWebProxy>(),
-                        TransportType = ServiceBusTransportType.AmqpWebSockets,
-                    };
-
-                return new ServiceBusClient(settings.ConnectionString, clientOptions);
-            };
-            cfg.ConnectionString = connectionString;
-        });
-        cbb.AddJsonSerializer();
     }
 }

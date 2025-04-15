@@ -1,107 +1,104 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 /// <summary>
-/// consignment checks
+///     consignment checks
 /// </summary>
-public partial class ConsignmentCheck
+public class ConsignmentCheck
 {
     /// <summary>
-    /// Does it conform EU standards
+    ///     Does it conform EU standards
     /// </summary>
     [JsonPropertyName("euStandard")]
     public string? EuStandard { get; set; }
 
     /// <summary>
-    /// Result of additional guarantees
+    ///     Result of additional guarantees
     /// </summary>
     [JsonPropertyName("additionalGuarantees")]
     public string? AdditionalGuarantees { get; set; }
 
     /// <summary>
-    /// Result of document check
+    ///     Result of document check
     /// </summary>
     [JsonPropertyName("documentCheckResult")]
     public string? DocumentCheckResult { get; set; }
 
     /// <summary>
-    /// Result of national requirements check
+    ///     Result of national requirements check
     /// </summary>
     [JsonPropertyName("nationalRequirements")]
     public string? NationalRequirements { get; set; }
 
     /// <summary>
-    /// Was identity check done
+    ///     Was identity check done
     /// </summary>
     [JsonPropertyName("identityCheckDone")]
     public bool? IdentityCheckDone { get; set; }
 
     /// <summary>
-    /// Type of identity check performed
+    ///     Type of identity check performed
     /// </summary>
     [JsonPropertyName("identityCheckType")]
     public ConsignmentCheckIdentityCheckType? IdentityCheckType { get; set; }
 
     /// <summary>
-    /// Result of identity check
+    ///     Result of identity check
     /// </summary>
     [JsonPropertyName("identityCheckResult")]
     public string? IdentityCheckResult { get; set; }
 
     /// <summary>
-    /// What was the reason for skipping identity check
+    ///     What was the reason for skipping identity check
     /// </summary>
     [JsonPropertyName("identityCheckNotDoneReason")]
     public ConsignmentCheckIdentityCheckNotDoneReason? IdentityCheckNotDoneReason { get; set; }
 
     /// <summary>
-    /// Was physical check done
+    ///     Was physical check done
     /// </summary>
     [JsonPropertyName("physicalCheckDone")]
     public bool? PhysicalCheckDone { get; set; }
 
     /// <summary>
-    /// Result of physical check
+    ///     Result of physical check
     /// </summary>
     [JsonPropertyName("physicalCheckResult")]
     public string? PhysicalCheckResult { get; set; }
 
     /// <summary>
-    /// What was the reason for skipping physical check
+    ///     What was the reason for skipping physical check
     /// </summary>
     [JsonPropertyName("physicalCheckNotDoneReason")]
     public ConsignmentCheckPhysicalCheckNotDoneReason? PhysicalCheckNotDoneReason { get; set; }
 
     /// <summary>
-    /// Other reason to not do physical check
+    ///     Other reason to not do physical check
     /// </summary>
     [JsonPropertyName("physicalCheckOtherText")]
     public string? PhysicalCheckOtherText { get; set; }
 
     /// <summary>
-    /// Welfare check
+    ///     Welfare check
     /// </summary>
     [JsonPropertyName("welfareCheck")]
     public string? WelfareCheck { get; set; }
 
     /// <summary>
-    /// Number of animals checked
+    ///     Number of animals checked
     /// </summary>
     [JsonPropertyName("numberOfAnimalsChecked")]
     public int? NumberOfAnimalsChecked { get; set; }
 
     /// <summary>
-    /// Were laboratory tests done
+    ///     Were laboratory tests done
     /// </summary>
     [JsonPropertyName("laboratoryCheckDone")]
     public bool? LaboratoryCheckDone { get; set; }
 
     /// <summary>
-    /// Result of laboratory tests
+    ///     Result of laboratory tests
     /// </summary>
     [JsonPropertyName("laboratoryCheckResult")]
     public string? LaboratoryCheckResult { get; set; }

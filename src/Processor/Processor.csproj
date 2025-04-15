@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.6.0-pr-40.213" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.6.0"/>
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.12.3"/>
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.12.3"/>
     <PackageReference Include="Macross.Json.Extensions" Version="3.0.0"/>
@@ -30,11 +30,13 @@
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0"/>
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0"/>
     <PackageReference Include="SlimMessageBus" Version="3.0.0"/>
+    <PackageReference Include="SlimMessageBus.Host.AmazonSQS" Version="3.1.1"/>
     <PackageReference Include="SlimMessageBus.Host.AzureServiceBus" Version="3.1.0"/>
     <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.1.0"/>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\ClearanceRequest\"/>
     <Folder Include="Models\ImportNotification\Mappers\"/>
   </ItemGroup>
 

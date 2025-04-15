@@ -1,23 +1,20 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 /// <summary>
-/// Validation field code-message representation
+///     Validation field code-message representation
 /// </summary>
-public partial class ValidationMessageCode
+public class ValidationMessageCode
 {
     /// <summary>
-    /// Field
+    ///     Field
     /// </summary>
     [JsonPropertyName("field")]
     public string? Field { get; set; }
 
     /// <summary>
-    /// Code
+    ///     Code
     /// </summary>
     [JsonPropertyName("code")]
     public string? Code { get; set; }

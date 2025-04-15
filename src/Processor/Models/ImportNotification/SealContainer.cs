@@ -1,14 +1,11 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 /// <summary>
-/// Seal container details
+///     Seal container details
 /// </summary>
-public partial class SealContainer
+public class SealContainer
 {
     [JsonPropertyName("sealNumber")]
     public string? SealNumber { get; set; }

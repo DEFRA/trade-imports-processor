@@ -1,7 +1,3 @@
-#nullable enable
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -11,9 +7,7 @@ public static class PurposeMapper
     public static IpaffsDataApi.Purpose Map(Purpose? from)
     {
         if (from is null)
-        {
             return default!;
-        }
         var to = new IpaffsDataApi.Purpose();
         to.ConformsToEU = from?.ConformsToEU;
         to.InternalMarketPurpose = PurposeInternalMarketPurposeEnumMapper.Map(from?.InternalMarketPurpose);

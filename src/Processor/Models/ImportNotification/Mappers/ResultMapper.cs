@@ -1,6 +1,3 @@
-#nullable enable
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -10,9 +7,7 @@ public static class ResultEnumMapper
     public static IpaffsDataApi.Result? Map(Result? from)
     {
         if (from == null)
-        {
             return default!;
-        }
         return from switch
         {
             Result.Satisfactory => IpaffsDataApi.Result.Satisfactory,
