@@ -69,17 +69,29 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
                 .ToArray(),
         };
 
-        var customsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration { ClearanceRequest = to };
-
         var existingCustomsDeclaration = await api.GetCustomsDeclaration(mrn, cancellationToken);
-        if (existingCustomsDeclaration?.ClearanceRequest == null)
+        if (existingCustomsDeclaration == null)
         {
             logger.LogInformation("Creating new customs declaration {Mrn}", mrn);
-            await api.PutCustomsDeclaration(mrn, customsDeclaration, null, cancellationToken);
+            var newCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration { ClearanceRequest = to };
+
+            await api.PutCustomsDeclaration(mrn, newCustomsDeclaration, null, cancellationToken);
             return;
         }
 
+        var updatedCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration
+        {
+            ClearanceDecision = existingCustomsDeclaration.ClearanceDecision,
+            ClearanceRequest = to,
+            Finalisation = existingCustomsDeclaration.Finalisation,
+        };
+
         logger.LogInformation("Updating existing customs declaration {Mrn}", mrn);
-        await api.PutCustomsDeclaration(mrn, customsDeclaration, existingCustomsDeclaration.ETag, cancellationToken);
+        await api.PutCustomsDeclaration(
+            mrn,
+            updatedCustomsDeclaration,
+            existingCustomsDeclaration.ETag,
+            cancellationToken
+        );
     }
 }
