@@ -57,7 +57,7 @@ public static class WebApplicationBuilderExtensions
             .ReadFrom.Configuration(hostBuilderContext.Configuration)
             .Enrich.WithEcsHttpContext(httpAccessor)
             .Enrich.FromLogContext()
-            .Enrich.With(new TraceContextEnricher());
+            .Enrich.With(new TraceContextEnricher(services.GetRequiredService<IOptions<TraceHeader>>().Value.Name));
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))
             config.Enrich.WithProperty("service.version", serviceVersion);

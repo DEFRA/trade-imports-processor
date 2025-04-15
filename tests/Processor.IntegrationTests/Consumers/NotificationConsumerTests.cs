@@ -18,7 +18,7 @@ public class NotificationConsumerTests : ServiceBusTestBase
     [Fact]
     public async Task WhenNotificationSent_ThenNotificationReceivedAndRemovedFromServiceBus()
     {
-        var importNotification = ImportNotificationFixture().Create();
+        var importNotification = ImportNotificationFixture().With(x => x.Etag, "error").Create();
 
         await wireMockAdminApi.ResetMappingsAsync();
         await wireMockAdminApi.ResetRequestsAsync();

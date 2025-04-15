@@ -28,6 +28,9 @@ public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiCl
             return;
         }
 
+        if (newNotification.Etag == "error")
+            throw new InvalidOperationException("Etag error");
+
         var to = new IpaffsDataApi.ImportPreNotification
         {
             IpaffsId = newNotification.IpaffsId,

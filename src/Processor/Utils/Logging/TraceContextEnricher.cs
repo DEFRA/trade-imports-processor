@@ -1,28 +1,42 @@
 using Serilog.Core;
 using Serilog.Events;
+using SlimMessageBus;
+using SlimMessageBus.Host.Consumer;
 
 namespace Defra.TradeImportsProcessor.Processor.Utils.Logging;
 
 public class TraceContextEnricher : ILogEventEnricher
 {
-    public const string PropertyName = "CorrelationId";
+    private readonly string _traceHeader;
     private readonly ITraceContextAccessor _traceContextAccessor;
+    public const string PropertyName = "CorrelationId";
 
-    public TraceContextEnricher()
-        : this(new TraceContextAccessor()) { }
+    public TraceContextEnricher(string traceHeader)
+        : this(traceHeader, new TraceContextAccessor()) { }
 
-    private TraceContextEnricher(ITraceContextAccessor traceContextAccessor)
+    private TraceContextEnricher(string traceHeader, ITraceContextAccessor traceContextAccessor)
     {
+        _traceHeader = traceHeader;
         _traceContextAccessor = traceContextAccessor;
     }
 
     /// <inheritdoc/>
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
-        var requestContext = _traceContextAccessor.Context;
-        if (requestContext == null)
-            return;
+        if (_traceContextAccessor.Context?.TraceId is null)
+        {
+            var consumerContext = MessageScope.Current?.GetService<IConsumerContext>();
+            if (consumerContext == null)
+                return;
 
-        logEvent.AddOrUpdateProperty(new LogEventProperty(PropertyName, new ScalarValue(requestContext.TraceId)));
+            _traceContextAccessor.Context = new TraceContext
+            {
+                TraceId = consumerContext.Headers.GetTraceId(_traceHeader) ?? Guid.NewGuid().ToString("N"),
+            };
+        }
+
+        logEvent.AddOrUpdateProperty(
+            new LogEventProperty(PropertyName, new ScalarValue(_traceContextAccessor.Context.TraceId))
+        );
     }
 }
