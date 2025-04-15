@@ -4,8 +4,10 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using static Defra.TradeImportsProcessor.TestFixtures.ClearanceDecisionFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
+using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
@@ -20,7 +22,7 @@ public class CustomsDeclarationsConsumerTests
     >();
 
     [Fact]
-    public async Task OnHandle_WhenClearanceRequestReceived_AndNoClearanceRequestExistsInTheDataApi_ThenItIsCreated()
+    public async Task OnHandle_WhenClearanceRequestReceived_AndNoCustomsDeclarationRecordExistsInTheDataApi_ThenItIsCreated()
     {
         var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
 
@@ -42,20 +44,22 @@ public class CustomsDeclarationsConsumerTests
     }
 
     [Fact]
-    public async Task OnHandle_WhenClearanceRequestReceived_AndAClearanceRequestAlreadyExists_ThenItIsUpdated()
+    public async Task OnHandle_WhenClearanceRequestReceived_AndACustomsDeclarationRecordAlreadyExists_ThenItIsUpdated()
     {
         var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
 
         var mrn = GenerateMrn();
+        var clearanceDecision = DataApiClearanceDecisionFixture().Create();
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
+        var finalisation = DataApiFinalisationFixture().Create();
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         const string expectedEtag = "12345";
 
         var response = new CustomsDeclarationResponse(
             mrn,
             existingClearanceRequest,
-            null,
-            null,
+            clearanceDecision,
+            finalisation,
             DateTime.Now,
             DateTime.Now,
             expectedEtag
@@ -69,7 +73,11 @@ public class CustomsDeclarationsConsumerTests
             .Received()
             .PutCustomsDeclaration(
                 mrn,
-                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
+                    d.ClearanceRequest != null
+                    && d.ClearanceDecision == clearanceDecision
+                    && d.Finalisation == finalisation
+                ),
                 expectedEtag,
                 _cancellationToken
             );
