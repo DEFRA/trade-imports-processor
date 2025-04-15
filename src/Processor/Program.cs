@@ -45,13 +45,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
     builder.Services.AddCustomTrustStore();
 
-    // Configure logging to use the CDP Platform standards.
-    builder.Services.AddHttpContextAccessor();
-    if (!integrationTest)
-        // Configuring Serilog below wipes out the framework logging
-        // so we don't execute the following when the host is running
-        // within an integration test
-        builder.Host.UseSerilog(CdpLogging.Configuration);
+    builder.ConfigureLoggingAndTracing();
 
     builder.Services.AddProblemDetails();
     builder.Services.AddHealthChecks();
