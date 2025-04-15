@@ -13,20 +13,22 @@ public static class ClearanceRequestFixtures
         return new Fixture();
     }
 
-    private static Header GenerateHeader(string? mrn = null)
+    private static Header GenerateHeader(int version, string? mrn = null)
     {
-        return GetFixture().Build<Header>().With(h => h.EntryReference, mrn ?? GenerateMrn()).Create();
+        return GetFixture()
+            .Build<Header>()
+            .With(h => h.EntryReference, mrn ?? GenerateMrn())
+            .With(h => h.EntryVersionNumber, version)
+            .Create();
     }
 
-    public static IPostprocessComposer<ClearanceRequest> ClearanceRequestFixture(string? mrn = null)
+    public static IPostprocessComposer<ClearanceRequest> ClearanceRequestFixture(string? mrn = null, int version = 2)
     {
-        return GetFixture().Build<ClearanceRequest>().With(c => c.Header, GenerateHeader(mrn));
+        return GetFixture().Build<ClearanceRequest>().With(c => c.Header, GenerateHeader(version, mrn));
     }
 
-    public static IPostprocessComposer<DataApiCustomsDeclaration.ClearanceRequest> DataApiClearanceRequestFixture(
-        string? mrn = null
-    )
+    public static IPostprocessComposer<DataApiCustomsDeclaration.ClearanceRequest> DataApiClearanceRequestFixture()
     {
-        return GetFixture().Build<DataApiCustomsDeclaration.ClearanceRequest>();
+        return GetFixture().Build<DataApiCustomsDeclaration.ClearanceRequest>().With(c => c.ExternalVersion, 1);
     }
 }

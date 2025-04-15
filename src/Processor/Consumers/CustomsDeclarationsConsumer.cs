@@ -23,7 +23,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
 
         var mrn = clearanceRequest.Header.EntryReference!;
 
-        var to = new DataApiCustomsDeclaration.ClearanceRequest
+        var newClearanceRequest = new DataApiCustomsDeclaration.ClearanceRequest
         {
             ExternalCorrelationId = clearanceRequest.ServiceHeader.CorrelationId,
             MessageSentAt = clearanceRequest.ServiceHeader.ServiceCallTimestamp,
@@ -73,16 +73,33 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
         if (existingCustomsDeclaration == null)
         {
             logger.LogInformation("Creating new customs declaration {Mrn}", mrn);
-            var newCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration { ClearanceRequest = to };
+            var newCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration
+            {
+                ClearanceRequest = newClearanceRequest,
+            };
 
             await api.PutCustomsDeclaration(mrn, newCustomsDeclaration, null, cancellationToken);
+            return;
+        }
+
+        if (
+            existingCustomsDeclaration.ClearanceRequest != null
+            && IsClearanceRequestOlderThan(newClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
+        )
+        {
+            logger.LogInformation(
+                "Skipping {Mrn} because new clearance request {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
+                mrn,
+                newClearanceRequest.ExternalVersion,
+                existingCustomsDeclaration.ClearanceRequest.ExternalVersion
+            );
             return;
         }
 
         var updatedCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration
         {
             ClearanceDecision = existingCustomsDeclaration.ClearanceDecision,
-            ClearanceRequest = to,
+            ClearanceRequest = newClearanceRequest,
             Finalisation = existingCustomsDeclaration.Finalisation,
         };
 
@@ -93,5 +110,13 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
             existingCustomsDeclaration.ETag,
             cancellationToken
         );
+    }
+
+    private static bool IsClearanceRequestOlderThan(
+        DataApiCustomsDeclaration.ClearanceRequest newClearanceRequest,
+        DataApiCustomsDeclaration.ClearanceRequest existingClearanceRequest
+    )
+    {
+        return newClearanceRequest.ExternalVersion < existingClearanceRequest.ExternalVersion;
     }
 }

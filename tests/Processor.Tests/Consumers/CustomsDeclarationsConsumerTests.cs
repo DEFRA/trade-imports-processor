@@ -82,4 +82,38 @@ public class CustomsDeclarationsConsumerTests
                 _cancellationToken
             );
     }
+
+    [Fact]
+    public async Task OnHandle_WhenClearanceRequestReceived_ButExistingClearanceRequestIsNewer_ThenItIsSkipped()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
+
+        var mrn = GenerateMrn();
+        var clearanceRequest = ClearanceRequestFixture(mrn, 1).Create();
+        var existingClearanceRequest = DataApiClearanceRequestFixture().With(cr => cr.ExternalVersion, 2).Create();
+        const string expectedEtag = "12345";
+
+        var response = new CustomsDeclarationResponse(
+            mrn,
+            existingClearanceRequest,
+            null,
+            null,
+            DateTime.Now,
+            DateTime.Now,
+            expectedEtag
+        );
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
 }
