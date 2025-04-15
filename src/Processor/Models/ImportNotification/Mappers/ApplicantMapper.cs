@@ -1,6 +1,3 @@
-#nullable enable
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -10,9 +7,7 @@ public static class ApplicantMapper
     public static IpaffsDataApi.Applicant Map(Applicant? from)
     {
         if (from is null)
-        {
             return default!;
-        }
         var to = new IpaffsDataApi.Applicant();
         to.Laboratory = from?.Laboratory;
         to.LaboratoryAddress = from?.LaboratoryAddress;

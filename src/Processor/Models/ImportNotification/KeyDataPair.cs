@@ -1,11 +1,8 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
-public partial class KeyDataPair
+public class KeyDataPair
 {
     [JsonPropertyName("key")]
     public string? Key { get; set; }

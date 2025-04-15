@@ -9,11 +9,12 @@ using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class NotificationConsumer(ILogger<object> logger, ITradeImportsDataApiClient api) : IConsumer<object>
+public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
+    : IConsumer<JsonElement>
 {
-    public async Task OnHandle(object received, CancellationToken cancellationToken)
+    public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
-        var newNotification = JsonSerializer.Deserialize<ImportNotification>(JsonSerializer.Serialize(received));
+        var newNotification = received.Deserialize<ImportNotification>();
         if (newNotification == null)
         {
             logger.LogWarning("Received invalid message {Received}", received);

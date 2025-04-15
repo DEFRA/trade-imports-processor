@@ -1,7 +1,3 @@
-#nullable enable
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -13,9 +9,7 @@ public static class DecisionNotAcceptableActionIndustrialProcessingReasonEnumMap
     )
     {
         if (from == null)
-        {
             return default!;
-        }
         return from switch
         {
             DecisionNotAcceptableActionIndustrialProcessingReason.ContaminatedProducts => IpaffsDataApi

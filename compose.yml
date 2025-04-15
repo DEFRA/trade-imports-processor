@@ -36,6 +36,8 @@ services:
     depends_on:
       asb:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
       wiremock:
         condition: service_started
     env_file:
@@ -45,7 +47,10 @@ services:
       ENVIRONMENT: local
       PORT: 8080
       DataApi__BaseAddress: "http://wiremock"
+      CustomsDeclarationsConsumer_QueueName: "trade_imports_inbound_customs_declarations.fifo"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+      SQS_ENDPOINT: http://localstack:4566
+    image: trade-imports-processor:latest
     ports:
       - "8080:8080"
   
@@ -62,36 +67,34 @@ services:
       MSSQL_SA_PASSWORD: "s4usag3s!"
   
   wiremock:
-    healthcheck:
-      interval: 5s
-      retries: 10
-      start_period: 5s
-      test: wget --spider -O /dev/null localhost:8080/__admin/mappings
-      timeout: 5s
+    environment:
+      TZ: Europe/London
     image: sheyenrath/wiremock.net:latest
     ports:
       - "9090:80"
 
-#  localstack:
-#    image: localstack/localstack:3.0.2
-#    ports:
-#      - '4566:4566' # LocalStack Gateway
-#      - '4510-4559:4510-4559' # external services port range
-#    env_file:
-#      - 'compose/aws.env'
-#    environment:
-#      DEBUG: ${DEBUG:-1}
-#      LS_LOG: WARN # Localstack DEBUG Level
-#      SERVICES: s3,sqs,sns,firehose
-#      LOCALSTACK_HOST: 127.0.0.1
-#    volumes:
-#      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-#      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
-#    healthcheck:
-#      test: ['CMD', 'curl', 'localhost:4566']
-#      interval: 5s
-#      start_period: 5s
-#      retries: 3
+  localstack:
+    image: localstack/localstack
+    ports:
+      - '4566:4566' # LocalStack Gateway
+      - '4510-4559:4510-4559' # external services port range
+    env_file:
+      - 'compose/aws.env'
+    environment:
+      DEBUG: ${DEBUG:-1}
+      LS_LOG: info # Localstack DEBUG Level
+      SERVICES: sqs
+      LOCALSTACK_HOST: 127.0.0.1
+      TZ: Europe/London
+    volumes:
+      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
+      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+    healthcheck:
+      test: cat /tmp/ready
+      interval: 5s
+      start_period: 5s
+      retries: 10
+
 #  redis:
 #    image: redis:7.2.3-alpine3.18
 #    ports:

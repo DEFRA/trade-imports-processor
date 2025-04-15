@@ -1,7 +1,3 @@
-#nullable enable
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -11,9 +7,7 @@ public static class VeterinaryInformationMapper
     public static IpaffsDataApi.VeterinaryInformation Map(VeterinaryInformation? from)
     {
         if (from is null)
-        {
             return default!;
-        }
         var to = new IpaffsDataApi.VeterinaryInformation();
         to.EstablishmentsOfOriginExternalReference = ExternalReferenceMapper.Map(
             from?.EstablishmentsOfOriginExternalReference

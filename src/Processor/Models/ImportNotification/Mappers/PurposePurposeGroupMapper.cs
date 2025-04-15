@@ -1,7 +1,3 @@
-#nullable enable
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -11,9 +7,7 @@ public static class PurposePurposeGroupEnumMapper
     public static IpaffsDataApi.PurposePurposeGroup? Map(PurposePurposeGroup? from)
     {
         if (from == null)
-        {
             return default!;
-        }
         return from switch
         {
             PurposePurposeGroup.ForImport => IpaffsDataApi.PurposePurposeGroup.ForImport,

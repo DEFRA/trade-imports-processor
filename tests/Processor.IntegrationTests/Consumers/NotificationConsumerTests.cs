@@ -13,18 +13,18 @@ namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
 public class NotificationConsumerTests : ServiceBusTestBase
 {
-    private readonly IWireMockAdminApi wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
+    private readonly IWireMockAdminApi _wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
 
     [Fact]
-    public async Task WhenNotificationSent_ThenNotificationReceivedAndRemovedFromServiceBus()
+    public async Task WhenNotificationSent_ThenNotificationProcessedAndSentToTheDataApi()
     {
         var importNotification = ImportNotificationFixture().Create();
 
-        await wireMockAdminApi.ResetMappingsAsync();
-        await wireMockAdminApi.ResetRequestsAsync();
+        await _wireMockAdminApi.ResetMappingsAsync();
+        await _wireMockAdminApi.ResetRequestsAsync();
 
         var createPath = $"/import-pre-notifications/{importNotification.ReferenceNumber}";
-        var mappingBuilder = wireMockAdminApi.GetMappingBuilder();
+        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
         mappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPut().WithPath(createPath))
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
@@ -44,7 +44,7 @@ public class NotificationConsumerTests : ServiceBusTestBase
                 try
                 {
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
-                    var requests = (await wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
+                    var requests = (await _wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
                         x.Request.Headers != null
                         && x.Request.Headers.ContainsKey(traceHeader)
                         && x.Request.Headers.TryGetValue(traceHeader, out var list)

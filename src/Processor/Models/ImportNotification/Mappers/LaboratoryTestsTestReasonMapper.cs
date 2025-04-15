@@ -1,7 +1,3 @@
-#nullable enable
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -11,9 +7,7 @@ public static class LaboratoryTestsTestReasonEnumMapper
     public static IpaffsDataApi.LaboratoryTestsTestReason? Map(LaboratoryTestsTestReason? from)
     {
         if (from == null)
-        {
             return default!;
-        }
         return from switch
         {
             LaboratoryTestsTestReason.Random => IpaffsDataApi.LaboratoryTestsTestReason.Random,

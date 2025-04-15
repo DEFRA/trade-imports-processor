@@ -1,8 +1,3 @@
-#nullable enable
-
-
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -12,9 +7,7 @@ public static class ImportNotificationTypeEnumMapper
     public static IpaffsDataApi.ImportNotificationType? Map(ImportNotificationType? from)
     {
         if (from == null)
-        {
             return default!;
-        }
         return from switch
         {
             ImportNotificationType.Cveda => IpaffsDataApi.ImportNotificationType.Cveda,

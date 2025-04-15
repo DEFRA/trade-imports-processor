@@ -1,6 +1,3 @@
-#nullable enable
-
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -10,9 +7,7 @@ public static class PartOneMapper
     public static IpaffsDataApi.PartOne Map(PartOne? from)
     {
         if (from is null)
-        {
             return default!;
-        }
         var to = new IpaffsDataApi.PartOne();
         to.TypeOfImp = PartOneTypeOfImpEnumMapper.Map(from?.TypeOfImp);
         to.PersonResponsible = PartyMapper.Map(from?.PersonResponsible);

@@ -1,108 +1,105 @@
-#nullable enable
-
-using System;
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 /// <summary>
-/// Purpose of consignment details
+///     Purpose of consignment details
 /// </summary>
-public partial class Purpose
+public class Purpose
 {
     /// <summary>
-    /// Does consignment conforms to UK laws
+    ///     Does consignment conforms to UK laws
     /// </summary>
     [JsonPropertyName("conformsToEU")]
     public bool? ConformsToEU { get; set; }
 
     /// <summary>
-    /// Detailed purpose of internal market purpose group
+    ///     Detailed purpose of internal market purpose group
     /// </summary>
     [JsonPropertyName("internalMarketPurpose")]
     public PurposeInternalMarketPurpose? InternalMarketPurpose { get; set; }
 
     /// <summary>
-    /// Country that consignment is transshipped through
+    ///     Country that consignment is transshipped through
     /// </summary>
     [JsonPropertyName("thirdCountryTranshipment")]
     public string? ThirdCountryTranshipment { get; set; }
 
     /// <summary>
-    /// Detailed purpose for non conforming purpose group
+    ///     Detailed purpose for non conforming purpose group
     /// </summary>
     [JsonPropertyName("forNonConforming")]
     public PurposeForNonConforming? ForNonConforming { get; set; }
 
     /// <summary>
-    /// There are 3 types of registration number based on the purpose of consignment. Customs registration number, Free zone registration number and Shipping supplier registration number.
+    ///     There are 3 types of registration number based on the purpose of consignment. Customs registration number, Free
+    ///     zone registration number and Shipping supplier registration number.
     /// </summary>
     [JsonPropertyName("regNumber")]
     public string? RegNumber { get; set; }
 
     /// <summary>
-    /// Ship name
+    ///     Ship name
     /// </summary>
     [JsonPropertyName("shipName")]
     public string? ShipName { get; set; }
 
     /// <summary>
-    /// Destination Ship port
+    ///     Destination Ship port
     /// </summary>
     [JsonPropertyName("shipPort")]
     public string? ShipPort { get; set; }
 
     /// <summary>
-    /// Exit Border Inspection Post
+    ///     Exit Border Inspection Post
     /// </summary>
     [JsonPropertyName("exitBIP")]
     public string? ExitBip { get; set; }
 
     /// <summary>
-    /// Country to which consignment is transited
+    ///     Country to which consignment is transited
     /// </summary>
     [JsonPropertyName("thirdCountry")]
     public string? ThirdCountry { get; set; }
 
     /// <summary>
-    /// Countries that consignment is transited through
+    ///     Countries that consignment is transited through
     /// </summary>
     [JsonPropertyName("transitThirdCountries")]
     public string[]? TransitThirdCountries { get; set; }
 
     /// <summary>
-    /// Specification of Import or admission purpose
+    ///     Specification of Import or admission purpose
     /// </summary>
     [JsonPropertyName("forImportOrAdmission")]
     public PurposeForImportOrAdmission? ForImportOrAdmission { get; set; }
 
     /// <summary>
-    /// Exit date when import or admission
+    ///     Exit date when import or admission
     /// </summary>
     [JsonPropertyName("exitDate")]
     public DateOnly? ExitDate { get; set; }
 
     /// <summary>
-    /// Final Border Inspection Post
+    ///     Final Border Inspection Post
     /// </summary>
     [JsonPropertyName("finalBIP")]
     public string? FinalBip { get; set; }
 
     /// <summary>
-    /// Purpose group of consignment (general purpose)
+    ///     Purpose group of consignment (general purpose)
     /// </summary>
     [JsonPropertyName("purposeGroup")]
     public PurposePurposeGroup? PurposeGroup { get; set; }
 
     /// <summary>
-    /// Estimated date at port of exit
+    ///     Estimated date at port of exit
     /// </summary>
     [JsonPropertyName("estimatedArrivalDateAtPortOfExit")]
     public DateOnly? EstimatedArrivalDateAtPortOfExit { get; set; }
 
     /// <summary>
-    /// Estimated time at port of exit
+    ///     Estimated time at port of exit
     /// </summary>
     [JsonPropertyName("estimatedArrivalTimeAtPortOfExit")]
     public TimeOnly? EstimatedArrivalTimeAtPortOfExit { get; set; }

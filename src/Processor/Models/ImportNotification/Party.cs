@@ -1,107 +1,104 @@
-#nullable enable
-
-using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
 /// <summary>
-/// Party details
+///     Party details
 /// </summary>
-public partial class Party
+public class Party
 {
     /// <summary>
-    /// IPAFFS ID of party
+    ///     IPAFFS ID of party
     /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
 
     /// <summary>
-    /// Name of party
+    ///     Name of party
     /// </summary>
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 
     /// <summary>
-    /// Company ID
+    ///     Company ID
     /// </summary>
     [JsonPropertyName("companyId")]
     public string? CompanyId { get; set; }
 
     /// <summary>
-    /// Contact ID (B2C)
+    ///     Contact ID (B2C)
     /// </summary>
     [JsonPropertyName("contactId")]
     public string? ContactId { get; set; }
 
     /// <summary>
-    /// Company name
+    ///     Company name
     /// </summary>
     [JsonPropertyName("companyName")]
     public string? CompanyName { get; set; }
 
     /// <summary>
-    /// Addresses
+    ///     Addresses
     /// </summary>
     [JsonPropertyName("address")]
     public string[]? Addresses { get; set; }
 
     /// <summary>
-    /// County
+    ///     County
     /// </summary>
     [JsonPropertyName("county")]
     public string? County { get; set; }
 
     /// <summary>
-    /// Post code of party
+    ///     Post code of party
     /// </summary>
     [JsonPropertyName("postCode")]
     public string? PostCode { get; set; }
 
     /// <summary>
-    /// Country of party
+    ///     Country of party
     /// </summary>
     [JsonPropertyName("country")]
     public string? Country { get; set; }
 
     /// <summary>
-    /// City
+    ///     City
     /// </summary>
     [JsonPropertyName("city")]
     public string? City { get; set; }
 
     /// <summary>
-    /// TRACES ID
+    ///     TRACES ID
     /// </summary>
     [JsonPropertyName("tracesID")]
     public int? TracesId { get; set; }
 
     /// <summary>
-    /// Type of party
+    ///     Type of party
     /// </summary>
     [JsonPropertyName("type")]
     public PartyType? Type { get; set; }
 
     /// <summary>
-    /// Approval number
+    ///     Approval number
     /// </summary>
     [JsonPropertyName("approvalNumber")]
     public string? ApprovalNumber { get; set; }
 
     /// <summary>
-    /// Phone number of party
+    ///     Phone number of party
     /// </summary>
     [JsonPropertyName("phone")]
     public string? Phone { get; set; }
 
     /// <summary>
-    /// Fax number of party
+    ///     Fax number of party
     /// </summary>
     [JsonPropertyName("fax")]
     public string? Fax { get; set; }
 
     /// <summary>
-    /// Email number of party
+    ///     Email number of party
     /// </summary>
     [JsonPropertyName("email")]
     public string? Email { get; set; }
