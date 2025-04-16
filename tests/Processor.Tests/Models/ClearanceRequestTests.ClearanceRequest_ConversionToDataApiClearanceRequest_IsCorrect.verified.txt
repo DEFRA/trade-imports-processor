@@ -1,0 +1,36 @@
+﻿{
+  ExternalCorrelationId: 12345,
+  MessageSentAt: 2025-04-15 12:00 Utc,
+  ExternalVersion: 1,
+  DeclarationUcr: 9GB311241319000-MOR-009867,
+  DeclarationType: S,
+  SubmitterTurn: GB391241319001,
+  DeclarantId: GB391241319001,
+  DeclarantName: GB391241319001,
+  DispatchCountryCode: MA,
+  GoodsLocationCode: DVRDOGFSB,
+  MasterUcr: MOOB74211124478,
+  Commodities: [
+    {
+      ItemNumber: 1,
+      CustomsProcedureCode: 4000000,
+      TaricCommodityCode: 0702000099,
+      GoodsDescription: Loads of sausages,
+      ConsigneeId: GB391241319002,
+      ConsigneeName: Tim Sausage,
+      NetMass: 5.0,
+      SupplementaryUnits: 0.0,
+      OriginCountryCode: MA,
+      Documents: [
+        {
+          DocumentCode: N002,
+          DocumentReference: {
+            Value: GBCHD2025.3338265
+          },
+          DocumentStatus: AG,
+          DocumentControl: P
+        }
+      ]
+    }
+  ]
+}

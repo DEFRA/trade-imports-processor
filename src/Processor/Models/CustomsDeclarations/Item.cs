@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
-public class Items
+public class Item
 {
     [JsonPropertyName("itemNumber")]
     public int? ItemNumber { get; set; }

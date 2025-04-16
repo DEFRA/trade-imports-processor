@@ -1,16 +1,10 @@
 using System.Text.Json.Serialization;
 using Defra.TradeImportsDataApi.Domain.Json;
 
-namespace Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
-public class Header
+public class ClearanceRequestHeader : Header
 {
-    [JsonPropertyName("entryReference")]
-    public string? EntryReference { get; set; }
-
-    [JsonPropertyName("entryVersionNumber")]
-    public int? EntryVersionNumber { get; set; }
-
     [JsonPropertyName("previousVersionNumber")]
     public int? PreviousVersionNumber { get; set; }
 

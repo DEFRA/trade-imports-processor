@@ -1,6 +1,6 @@
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
@@ -13,10 +13,10 @@ public static class ClearanceRequestFixtures
         return new Fixture();
     }
 
-    private static Header GenerateHeader(int version, string? mrn = null)
+    private static ClearanceRequestHeader GenerateHeader(int version, string? mrn = null)
     {
         return GetFixture()
-            .Build<Header>()
+            .Build<ClearanceRequestHeader>()
             .With(h => h.EntryReference, mrn ?? GenerateMrn())
             .With(h => h.EntryVersionNumber, version)
             .Create();
