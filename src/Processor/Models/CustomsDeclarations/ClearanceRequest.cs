@@ -45,6 +45,13 @@ public class ClearanceRequest
                     SupplementaryUnits = item.ItemSupplementaryUnits,
                     ThirdQuantity = item.ItemThirdQuantity,
                     OriginCountryCode = item.ItemOriginCountryCode,
+                    Checks = item
+                        .Checks?.Select(check => new DataApiCustomsDeclaration.CommodityCheck
+                        {
+                            CheckCode = check.CheckCode,
+                            DepartmentCode = check.DepartmentCode,
+                        })
+                        .ToArray(),
                     Documents = item
                         .Documents?.Select(doc => new DataApiCustomsDeclaration.ImportDocument
                         {
