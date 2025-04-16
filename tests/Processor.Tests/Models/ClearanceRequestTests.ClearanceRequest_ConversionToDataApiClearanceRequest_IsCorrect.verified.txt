@@ -30,6 +30,12 @@
           DocumentStatus: AG,
           DocumentControl: P
         }
+      ],
+      Checks: [
+        {
+          CheckCode: H218,
+          DepartmentCode: HMI
+        }
       ]
     }
   ]
