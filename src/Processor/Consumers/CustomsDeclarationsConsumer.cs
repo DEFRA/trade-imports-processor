@@ -1,122 +1,94 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using SlimMessageBus;
+using SlimMessageBus.Host.AmazonSQS;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
 public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> logger, ITradeImportsDataApiClient api)
-    : IConsumer<JsonElement>
+    : IConsumer<JsonElement>,
+        IConsumerWithContext
 {
+    private string MessageId => Context.GetTransportMessage().MessageId;
+
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
-        // Check header for message type, assume ClearanceRequest for now
-        var clearanceRequest = received.Deserialize<ClearanceRequest>();
-        if (clearanceRequest == null)
-        {
-            logger.LogWarning("Received invalid message {Received}", received);
-            throw new InvalidOperationException("Received invalid message");
-        }
+        var success = Context.Headers.TryGetValue("InboundHmrcMessageType", out var inboundHmrcMessageType);
+        if (!success || inboundHmrcMessageType == null)
+            throw new CustomsDeclarationMessageTypeException(MessageId);
 
-        logger.LogInformation("Received clearance request");
-
-        var mrn = clearanceRequest.Header.EntryReference!;
-
-        var newClearanceRequest = new DataApiCustomsDeclaration.ClearanceRequest
-        {
-            ExternalCorrelationId = clearanceRequest.ServiceHeader.CorrelationId,
-            MessageSentAt = clearanceRequest.ServiceHeader.ServiceCallTimestamp,
-            ExternalVersion = clearanceRequest.Header.EntryVersionNumber,
-            PreviousExternalVersion = clearanceRequest.Header.PreviousVersionNumber,
-            DeclarationUcr = clearanceRequest.Header.DeclarationUcr,
-            DeclarationPartNumber = clearanceRequest.Header.DeclarationPartNumber,
-            DeclarationType = clearanceRequest.Header.DeclarationType,
-            ArrivesAt = clearanceRequest.Header.ArrivalDateTime,
-            SubmitterTurn = clearanceRequest.Header.SubmitterTurn,
-            DeclarantId = clearanceRequest.Header.DeclarantId,
-            DeclarantName = clearanceRequest.Header.DeclarantName,
-            DispatchCountryCode = clearanceRequest.Header.DispatchCountryCode,
-            GoodsLocationCode = clearanceRequest.Header.GoodsLocationCode,
-            MasterUcr = clearanceRequest.Header.MasterUcr,
-            Commodities = clearanceRequest
-                .Items.Select(item => new DataApiCustomsDeclaration.Commodity
-                {
-                    ItemNumber = item.ItemNumber,
-                    CustomsProcedureCode = item.CustomsProcedureCode,
-                    TaricCommodityCode = item.TaricCommodityCode,
-                    GoodsDescription = item.GoodsDescription,
-                    ConsigneeId = item.ConsigneeId,
-                    ConsigneeName = item.ConsigneeName,
-                    NetMass = item.ItemNetMass,
-                    SupplementaryUnits = item.ItemSupplementaryUnits,
-                    ThirdQuantity = item.ItemThirdQuantity,
-                    OriginCountryCode = item.ItemOriginCountryCode,
-                    Documents = item
-                        .Documents?.Select(doc => new DataApiCustomsDeclaration.ImportDocument
-                        {
-                            DocumentCode = doc.DocumentCode,
-                            DocumentReference =
-                                doc.DocumentReference != null
-                                    ? new DataApiCustomsDeclaration.ImportDocumentReference(doc.DocumentReference)
-                                    : null,
-                            DocumentStatus = doc.DocumentStatus,
-                            DocumentControl = doc.DocumentControl,
-                            DocumentQuantity = doc.DocumentQuantity,
-                        })
-                        .ToArray(),
-                })
-                .ToArray(),
-        };
+        var customsDeclarationsMessage = received.Deserialize<CustomsDeclarationsMessage>();
+        if (customsDeclarationsMessage == null)
+            throw new CustomsDeclarationMessageException(MessageId);
+        var mrn = customsDeclarationsMessage.Header.EntryReference!;
 
         var existingCustomsDeclaration = await api.GetCustomsDeclaration(mrn, cancellationToken);
-        if (existingCustomsDeclaration == null)
-        {
-            logger.LogInformation("Creating new customs declaration {Mrn}", mrn);
-            var newCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration
-            {
-                ClearanceRequest = newClearanceRequest,
-            };
 
-            await api.PutCustomsDeclaration(mrn, newCustomsDeclaration, null, cancellationToken);
-            return;
-        }
-
-        if (
-            existingCustomsDeclaration.ClearanceRequest != null
-            && IsClearanceRequestOlderThan(newClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
-        )
+        var customsDeclaration = inboundHmrcMessageType switch
         {
-            logger.LogInformation(
-                "Skipping {Mrn} because new clearance request {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
+            InboundHmrcMessageType.ClearanceRequest => OnHandleClearanceRequest(
                 mrn,
-                newClearanceRequest.ExternalVersion,
-                existingCustomsDeclaration.ClearanceRequest.ExternalVersion
-            );
-            return;
-        }
-
-        var updatedCustomsDeclaration = new DataApiCustomsDeclaration.CustomsDeclaration
-        {
-            ClearanceDecision = existingCustomsDeclaration.ClearanceDecision,
-            ClearanceRequest = newClearanceRequest,
-            Finalisation = existingCustomsDeclaration.Finalisation,
+                received,
+                existingCustomsDeclaration
+            ),
+            _ => throw new CustomsDeclarationMessageTypeException(MessageId),
         };
 
-        logger.LogInformation("Updating existing customs declaration {Mrn}", mrn);
-        await api.PutCustomsDeclaration(
-            mrn,
-            updatedCustomsDeclaration,
-            existingCustomsDeclaration.ETag,
-            cancellationToken
-        );
+        if (customsDeclaration == null)
+            return;
+
+        logger.LogInformation("Updating existing customs declaration for {Mrn}", mrn);
+        await api.PutCustomsDeclaration(mrn, customsDeclaration, existingCustomsDeclaration?.ETag, cancellationToken);
     }
 
-    private static bool IsClearanceRequestOlderThan(
+    public required IConsumerContext Context { get; set; }
+
+    private DataApiCustomsDeclaration.CustomsDeclaration? OnHandleClearanceRequest(
+        string mrn,
+        JsonElement received,
+        CustomsDeclarationResponse? existingCustomsDeclaration
+    )
+    {
+        var clearanceRequest = received.Deserialize<ClearanceRequest>();
+        if (clearanceRequest == null)
+            throw new CustomsDeclarationMessageException(MessageId);
+
+        logger.LogInformation("Received clearance request for {MessageId}", MessageId);
+
+        var newClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
+
+        if (existingCustomsDeclaration == null)
+            return new DataApiCustomsDeclaration.CustomsDeclaration { ClearanceRequest = newClearanceRequest };
+
+        if (
+            existingCustomsDeclaration.ClearanceRequest == null
+            || IsClearanceRequestNewerThan(newClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
+        )
+            return new DataApiCustomsDeclaration.CustomsDeclaration
+            {
+                ClearanceDecision = existingCustomsDeclaration.ClearanceDecision,
+                ClearanceRequest = newClearanceRequest,
+                Finalisation = existingCustomsDeclaration.Finalisation,
+            };
+
+        logger.LogInformation(
+            "Skipping {Mrn} because new clearance request {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
+            mrn,
+            newClearanceRequest.ExternalVersion,
+            existingCustomsDeclaration.ClearanceRequest.ExternalVersion
+        );
+
+        return null;
+    }
+
+    private static bool IsClearanceRequestNewerThan(
         DataApiCustomsDeclaration.ClearanceRequest newClearanceRequest,
         DataApiCustomsDeclaration.ClearanceRequest existingClearanceRequest
     )
     {
-        return newClearanceRequest.ExternalVersion < existingClearanceRequest.ExternalVersion;
+        return newClearanceRequest.ExternalVersion > existingClearanceRequest.ExternalVersion;
     }
 }

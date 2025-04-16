@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Defra.TradeImportsDataApi.Domain.Json;
 
-namespace Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
 public class ClearanceRequestPostResult
 {

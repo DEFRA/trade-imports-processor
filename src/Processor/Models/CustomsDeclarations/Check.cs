@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Defra.TradeImportsProcessor.Processor.Models.ClearanceRequest;
+namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
 public class Check
 {

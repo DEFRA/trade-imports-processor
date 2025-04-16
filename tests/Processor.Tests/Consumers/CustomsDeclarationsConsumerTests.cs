@@ -1,13 +1,17 @@
 using System.Text.Json;
+using Amazon.SQS.Model;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SlimMessageBus.Host;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceDecisionFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
+using Assert = Xunit.Assert;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
@@ -21,10 +25,50 @@ public class CustomsDeclarationsConsumerTests
         ILogger<CustomsDeclarationsConsumer>
     >();
 
+    private readonly ConsumerContext _testConsumerContext = new()
+    {
+        Headers = new Dictionary<string, object> { { "InboundHmrcMessageType", "ClearanceRequest" } }.AsReadOnly(),
+        Properties = { new KeyValuePair<string, object>("Sqs_Message", new Message { MessageId = "12345" }) },
+    };
+
+    [Fact]
+    public async Task OnHandle_WhenCustomsDeclarationMessageReceived_ButItHasNoMessageType_AnExceptionIsThrown()
+    {
+        var unknownMessageTypeContext = new ConsumerContext
+        {
+            Headers = new Dictionary<string, object>().AsReadOnly(),
+            Properties = { new KeyValuePair<string, object>("Sqs_Message", new Message { MessageId = "12345" }) },
+        };
+
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = unknownMessageTypeContext };
+        var clearanceRequest = ClearanceRequestFixture().Create();
+
+        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(
+            () => consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
+        );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenCustomsDeclarationMessageReceived_ButItIsAnUnknownMessageType_AnExceptionIsThrown()
+    {
+        var unknownMessageTypeContext = new ConsumerContext
+        {
+            Headers = new Dictionary<string, object> { { "InboundHmrcMessageType", "Unknown" } }.AsReadOnly(),
+            Properties = { new KeyValuePair<string, object>("Sqs_Message", new Message { MessageId = "12345" }) },
+        };
+
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = unknownMessageTypeContext };
+        var clearanceRequest = ClearanceRequestFixture().Create();
+
+        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(
+            () => consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
+        );
+    }
+
     [Fact]
     public async Task OnHandle_WhenClearanceRequestReceived_AndNoCustomsDeclarationRecordExistsInTheDataApi_ThenItIsCreated()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
 
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
@@ -46,7 +90,7 @@ public class CustomsDeclarationsConsumerTests
     [Fact]
     public async Task OnHandle_WhenClearanceRequestReceived_AndACustomsDeclarationRecordAlreadyExists_ThenItIsUpdated()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
 
         var mrn = GenerateMrn();
         var clearanceDecision = DataApiClearanceDecisionFixture().Create();
@@ -86,7 +130,7 @@ public class CustomsDeclarationsConsumerTests
     [Fact]
     public async Task OnHandle_WhenClearanceRequestReceived_ButExistingClearanceRequestIsNewer_ThenItIsSkipped()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi);
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
 
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn, 1).Create();
