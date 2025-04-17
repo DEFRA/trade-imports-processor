@@ -4,6 +4,7 @@ using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SlimMessageBus.Host;
@@ -25,14 +26,21 @@ public class CustomsDeclarationsConsumerTests
         ILogger<CustomsDeclarationsConsumer>
     >();
 
-    private readonly ConsumerContext _testConsumerContext = new()
+    private static ConsumerContext GetConsumerContext(string inboundHmrcMessageType)
     {
-        Headers = new Dictionary<string, object> { { "InboundHmrcMessageType", "ClearanceRequest" } }.AsReadOnly(),
-        Properties = { new KeyValuePair<string, object>("Sqs_Message", new Message { MessageId = "12345" }) },
-    };
+        return new ConsumerContext
+        {
+            Headers = new Dictionary<string, object>
+            {
+                { "InboundHmrcMessageType", inboundHmrcMessageType },
+            }.AsReadOnly(),
+            Properties = { new KeyValuePair<string, object>("Sqs_Message", new Message { MessageId = "12345" }) },
+        };
+    }
 
     [Fact]
-    public async Task OnHandle_WhenCustomsDeclarationMessageReceived_ButItHasNoMessageType_AnExceptionIsThrown()
+    [Trait("CustomsDeclarations", "Common")]
+    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButItHasNoMessageType_AnExceptionIsThrown()
     {
         var unknownMessageTypeContext = new ConsumerContext
         {
@@ -49,7 +57,8 @@ public class CustomsDeclarationsConsumerTests
     }
 
     [Fact]
-    public async Task OnHandle_WhenCustomsDeclarationMessageReceived_ButItIsAnUnknownMessageType_AnExceptionIsThrown()
+    [Trait("CustomsDeclarations", "Common")]
+    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButItIsAnUnknownMessageType_AnExceptionIsThrown()
     {
         var unknownMessageTypeContext = new ConsumerContext
         {
@@ -66,9 +75,13 @@ public class CustomsDeclarationsConsumerTests
     }
 
     [Fact]
+    [Trait("CustomsDeclarations", "ClearanceRequest")]
     public async Task OnHandle_WhenClearanceRequestReceived_AndNoCustomsDeclarationRecordExistsInTheDataApi_ThenItIsCreated()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
+        };
 
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
@@ -81,16 +94,20 @@ public class CustomsDeclarationsConsumerTests
             .Received()
             .PutCustomsDeclaration(
                 mrn,
-                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(cd => cd.ClearanceRequest != null),
                 null,
                 _cancellationToken
             );
     }
 
     [Fact]
+    [Trait("CustomsDeclarations", "ClearanceRequest")]
     public async Task OnHandle_WhenClearanceRequestReceived_AndACustomsDeclarationRecordAlreadyExists_ThenItIsUpdated()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
+        };
 
         var mrn = GenerateMrn();
         var clearanceDecision = DataApiClearanceDecisionFixture().Create();
@@ -128,9 +145,13 @@ public class CustomsDeclarationsConsumerTests
     }
 
     [Fact]
+    [Trait("CustomsDeclarations", "ClearanceRequest")]
     public async Task OnHandle_WhenClearanceRequestReceived_ButExistingClearanceRequestIsNewer_ThenItIsSkipped()
     {
-        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = _testConsumerContext };
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
+        };
 
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn, 1).Create();
@@ -158,6 +179,77 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "Finalisation")]
+    public async Task OnHandle_WhenFinalisationReceived_AndNoCustomsDeclarationRecordExistsInTheDataApi_ThenItIsCreated()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
+        };
+
+        var mrn = GenerateMrn();
+        var finalisation = FinalisationFixture(mrn).Create();
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(finalisation), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutCustomsDeclaration(
+                mrn,
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(cd => cd.Finalisation != null),
+                null,
+                _cancellationToken
+            );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "Finalisation")]
+    public async Task OnHandle_WhenFinalisationReceived_AndACustomsDeclarationRecordAlreadyExists_ThenItIsUpdated()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
+        };
+
+        var mrn = GenerateMrn();
+        var finalisation = FinalisationFixture(mrn).Create();
+        var existingFinalisation = DataApiFinalisationFixture().Create();
+
+        var clearanceDecision = DataApiClearanceDecisionFixture().Create();
+        var clearanceRequest = DataApiClearanceRequestFixture().Create();
+        const string expectedEtag = "12345";
+
+        var response = new CustomsDeclarationResponse(
+            mrn,
+            clearanceRequest,
+            clearanceDecision,
+            existingFinalisation,
+            DateTime.Now,
+            DateTime.Now,
+            expectedEtag
+        );
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(finalisation), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutCustomsDeclaration(
+                mrn,
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(cd =>
+                    cd.ClearanceRequest == clearanceRequest
+                    && cd.ClearanceDecision == clearanceDecision
+                    && cd.Finalisation != null
+                ),
+                expectedEtag,
+                _cancellationToken
             );
     }
 }

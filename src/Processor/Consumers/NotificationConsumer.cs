@@ -68,14 +68,14 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         };
 
         var existingNotification = await api.GetImportPreNotification(
-            newNotification.ReferenceNumber!,
+            newNotification.ReferenceNumber,
             cancellationToken
         );
 
         if (existingNotification == null)
         {
             logger.LogInformation("Creating new notification {ReferenceNumber}", to.ReferenceNumber);
-            await api.PutImportPreNotification(newNotification.ReferenceNumber!, to, null, cancellationToken);
+            await api.PutImportPreNotification(newNotification.ReferenceNumber, to, null, cancellationToken);
             return;
         }
 
@@ -86,7 +86,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         {
             logger.LogInformation(
                 "Skipping {ReferenceNumber} because new notification is going back in time/progress",
-                newNotification.ReferenceNumber!
+                newNotification.ReferenceNumber
             );
             return;
         }
@@ -97,7 +97,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         );
 
         await api.PutImportPreNotification(
-            newNotification.ReferenceNumber!,
+            newNotification.ReferenceNumber,
             to,
             existingNotification.ETag,
             cancellationToken

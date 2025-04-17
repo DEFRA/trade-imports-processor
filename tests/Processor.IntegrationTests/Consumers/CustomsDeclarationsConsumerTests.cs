@@ -12,6 +12,7 @@ using WireMock.Client.Extensions;
 using Xunit.Abstractions;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
+using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
@@ -52,6 +53,40 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output) : SqsTes
             mrn,
             JsonSerializer.Serialize(clearanceRequest),
             WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+        );
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var requestsModel = new RequestModel { Methods = ["PUT"], Path = createPath };
+                var requests = await _wireMockAdminApi.FindRequestsAsync(requestsModel);
+                return requests.Count == 1;
+            })
+        );
+    }
+
+    [Fact]
+    public async Task WhenFinalisationSent_ThenFinalisationIsProcessedAndSentToTheDataApi()
+    {
+        var mrn = GenerateMrn();
+        var finalisation = FinalisationFixture(mrn).Create();
+
+        await _wireMockAdminApi.ResetMappingsAsync();
+        await _wireMockAdminApi.ResetRequestsAsync();
+
+        var createPath = $"/customs-declarations/{mrn}";
+        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        mappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath(createPath))
+                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
+        );
+        var status = await mappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(status.Guid);
+
+        await SendMessage(
+            mrn,
+            JsonSerializer.Serialize(finalisation),
+            WithInboundHmrcMessageType(InboundHmrcMessageType.Finalisation)
         );
 
         Assert.True(
