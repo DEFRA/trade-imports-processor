@@ -261,10 +261,10 @@ public class CustomsDeclarationsConsumerTests
         };
 
         var mrn = GenerateMrn();
-        var finalisation = FinalisationFixture(mrn)
+        var finalisation = FinalisationFixture(mrn, 1)
             .With(f => f.ServiceHeader, GenerateServiceHeader(DateTime.UtcNow.AddMinutes(-5)))
             .Create();
-        var existingFinalisation = DataApiFinalisationFixture().With(f => f.MessageSentAt, DateTime.UtcNow).Create();
+        var existingFinalisation = DataApiFinalisationFixture().With(f => f.ExternalVersion, 2).Create();
 
         var response = new CustomsDeclarationResponse(
             mrn,
