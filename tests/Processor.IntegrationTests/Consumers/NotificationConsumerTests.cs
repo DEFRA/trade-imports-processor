@@ -11,6 +11,7 @@ using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
+[Collection("UsesWireMockClient")]
 public class NotificationConsumerTests : ServiceBusTestBase
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
@@ -19,9 +20,6 @@ public class NotificationConsumerTests : ServiceBusTestBase
     public async Task WhenNotificationSent_ThenNotificationProcessedAndSentToTheDataApi()
     {
         var importNotification = ImportNotificationFixture().Create();
-
-        await _wireMockAdminApi.ResetMappingsAsync();
-        await _wireMockAdminApi.ResetRequestsAsync();
 
         var createPath = $"/import-pre-notifications/{importNotification.ReferenceNumber}";
         var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();

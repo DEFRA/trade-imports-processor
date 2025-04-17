@@ -2,10 +2,10 @@ using System.Net;
 using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
+using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
-using RestEase;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -16,9 +16,11 @@ using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
-public class CustomsDeclarationsConsumerTests(ITestOutputHelper output) : SqsTestBase(output)
+[Collection("UsesWireMockClient")]
+public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMockClient wireMockClient)
+    : SqsTestBase(output)
 {
-    private readonly IWireMockAdminApi _wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
+    private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
     private static Dictionary<string, MessageAttributeValue> WithInboundHmrcMessageType(string messageType)
     {
@@ -36,9 +38,6 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output) : SqsTes
     {
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
-
-        await _wireMockAdminApi.ResetMappingsAsync();
-        await _wireMockAdminApi.ResetRequestsAsync();
 
         var createPath = $"/customs-declarations/{mrn}";
         var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
