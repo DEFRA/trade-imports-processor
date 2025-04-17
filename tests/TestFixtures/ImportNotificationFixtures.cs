@@ -32,7 +32,7 @@ public static class ImportNotificationFixtures
         return GetFixture()
             .Build<ImportNotification>()
             .With(i => i.ReferenceNumber, GenerateReferenceNumber())
-            .With(i => i.LastUpdated, DateTime.Now)
+            .With(i => i.LastUpdated, DateTime.UtcNow)
             .With(i => i.Status, ImportNotificationStatus.InProgress);
     }
 
@@ -43,7 +43,7 @@ public static class ImportNotificationFixtures
         return fixture
             .Build<IpaffsDataApi.ImportPreNotification>()
             .With(i => i.ReferenceNumber, GenerateReferenceNumber())
-            .With(i => i.UpdatedSource, DateTime.Now.AddMinutes(-5))
+            .With(i => i.UpdatedSource, DateTime.UtcNow.AddMinutes(-5))
             .With(i => i.Status, IpaffsDataApi.ImportNotificationStatus.InProgress);
     }
 }

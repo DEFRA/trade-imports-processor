@@ -12,6 +12,7 @@ namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
 
 public class NotificationConsumerTests
 {
+    private const string ExpectedEtag = "12345";
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private readonly ITradeImportsDataApiClient _mockApi = Substitute.For<ITradeImportsDataApiClient>();
     private readonly ILogger<NotificationConsumer> _mockLogger = Substitute.For<ILogger<NotificationConsumer>>();
@@ -24,7 +25,7 @@ public class NotificationConsumerTests
         var importNotification = ImportNotificationFixture().Create();
 
         _mockApi
-            .GetImportPreNotification(importNotification.ReferenceNumber!, _cancellationToken)
+            .GetImportPreNotification(importNotification.ReferenceNumber, _cancellationToken)
             .Returns(null as ImportPreNotificationResponse);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
@@ -32,7 +33,7 @@ public class NotificationConsumerTests
         await _mockApi
             .Received()
             .PutImportPreNotification(
-                importNotification.ReferenceNumber!,
+                importNotification.ReferenceNumber,
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 null,
                 _cancellationToken
@@ -46,24 +47,23 @@ public class NotificationConsumerTests
 
         var importNotification = ImportNotificationFixture().Create();
         var dataApiImportNotification = DataApiImportNotificationFixture().Create();
-        const string expectedEtag = "12345";
         var response = new ImportPreNotificationResponse(
             dataApiImportNotification,
             DateTime.Now,
             DateTime.Now,
-            expectedEtag
+            ExpectedEtag
         );
 
-        _mockApi.GetImportPreNotification(importNotification.ReferenceNumber!, _cancellationToken).Returns(response);
+        _mockApi.GetImportPreNotification(importNotification.ReferenceNumber, _cancellationToken).Returns(response);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
             .Received()
             .PutImportPreNotification(
-                importNotification.ReferenceNumber!,
+                importNotification.ReferenceNumber,
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
-                expectedEtag,
+                ExpectedEtag,
                 _cancellationToken
             );
     }
@@ -84,7 +84,7 @@ public class NotificationConsumerTests
         await _mockApi
             .Received()
             .PutImportPreNotification(
-                importNotification.ReferenceNumber!,
+                importNotification.ReferenceNumber,
                 Arg.Any<IpaffsDataApi.ImportPreNotification>(),
                 null,
                 _cancellationToken
@@ -128,7 +128,7 @@ public class NotificationConsumerTests
         var existingNotification = DataApiImportNotificationFixture().With(i => i.UpdatedSource, DateTime.Now).Create();
 
         _mockApi
-            .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
             .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
@@ -159,7 +159,7 @@ public class NotificationConsumerTests
         var existingNotification = DataApiImportNotificationFixture().With(i => i.Status, existingStatus).Create();
 
         _mockApi
-            .GetImportPreNotification(newNotification.ReferenceNumber!, _cancellationToken)
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
             .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);

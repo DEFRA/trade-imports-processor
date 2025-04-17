@@ -12,39 +12,59 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
     : IConsumer<JsonElement>,
         IConsumerWithContext
 {
+    private const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
     private string MessageId => Context.GetTransportMessage().MessageId;
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
-        var success = Context.Headers.TryGetValue("InboundHmrcMessageType", out var inboundHmrcMessageType);
-        if (!success || inboundHmrcMessageType == null)
+        var success = Context.Headers.TryGetValue(InboundHmrcMessageTypeHeader, out var inboundHmrcMessageType);
+        var customsDeclarationsMessage = received.Deserialize<CustomsDeclarationsMessage>();
+
+        if (!success || inboundHmrcMessageType == null || customsDeclarationsMessage == null)
             throw new CustomsDeclarationMessageTypeException(MessageId);
 
-        var customsDeclarationsMessage = received.Deserialize<CustomsDeclarationsMessage>();
-        if (customsDeclarationsMessage == null)
-            throw new CustomsDeclarationMessageException(MessageId);
-        var mrn = customsDeclarationsMessage.Header.EntryReference!;
-
+        var mrn = customsDeclarationsMessage.Header.EntryReference;
         var existingCustomsDeclaration = await api.GetCustomsDeclaration(mrn, cancellationToken);
 
-        var customsDeclaration = inboundHmrcMessageType switch
+        var updatedCustomsDeclaration = inboundHmrcMessageType switch
         {
             InboundHmrcMessageType.ClearanceRequest => OnHandleClearanceRequest(
                 mrn,
                 received,
                 existingCustomsDeclaration
             ),
+            InboundHmrcMessageType.Finalisation => OnHandleFinalisation(mrn, received, existingCustomsDeclaration),
             _ => throw new CustomsDeclarationMessageTypeException(MessageId),
         };
 
-        if (customsDeclaration == null)
+        if (updatedCustomsDeclaration == null)
             return;
 
-        logger.LogInformation("Updating existing customs declaration for {Mrn}", mrn);
-        await api.PutCustomsDeclaration(mrn, customsDeclaration, existingCustomsDeclaration?.ETag, cancellationToken);
+        logger.LogInformation(
+            "{Action} customs declaration for {Mrn}",
+            existingCustomsDeclaration != null ? "Updating" : "Creating",
+            mrn
+        );
+        await api.PutCustomsDeclaration(
+            mrn,
+            updatedCustomsDeclaration,
+            existingCustomsDeclaration?.ETag,
+            cancellationToken
+        );
     }
 
     public required IConsumerContext Context { get; set; }
+
+    private T DeserializeMessage<T>(JsonElement received, string mrn)
+        where T : class
+    {
+        var result = received.Deserialize<T>();
+        if (result == null)
+            throw new CustomsDeclarationMessageException(MessageId);
+        logger.LogInformation("Received {Type} for {Mrn}", typeof(T).Name, mrn);
+
+        return result;
+    }
 
     private DataApiCustomsDeclaration.CustomsDeclaration? OnHandleClearanceRequest(
         string mrn,
@@ -52,33 +72,56 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
         CustomsDeclarationResponse? existingCustomsDeclaration
     )
     {
-        var clearanceRequest = received.Deserialize<ClearanceRequest>();
-        if (clearanceRequest == null)
-            throw new CustomsDeclarationMessageException(MessageId);
-
-        logger.LogInformation("Received clearance request for {MessageId}", MessageId);
-
-        var newClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
-
-        if (existingCustomsDeclaration == null)
-            return new DataApiCustomsDeclaration.CustomsDeclaration { ClearanceRequest = newClearanceRequest };
+        var clearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)
+            DeserializeMessage<ClearanceRequest>(received, mrn);
 
         if (
-            existingCustomsDeclaration.ClearanceRequest == null
-            || IsClearanceRequestNewerThan(newClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
+            existingCustomsDeclaration?.ClearanceRequest == null
+            || IsClearanceRequestNewerThan(clearanceRequest, existingCustomsDeclaration.ClearanceRequest)
         )
             return new DataApiCustomsDeclaration.CustomsDeclaration
             {
-                ClearanceDecision = existingCustomsDeclaration.ClearanceDecision,
-                ClearanceRequest = newClearanceRequest,
-                Finalisation = existingCustomsDeclaration.Finalisation,
+                ClearanceDecision = existingCustomsDeclaration?.ClearanceDecision,
+                ClearanceRequest = clearanceRequest,
+                Finalisation = existingCustomsDeclaration?.Finalisation,
             };
 
         logger.LogInformation(
-            "Skipping {Mrn} because new clearance request {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
+            "Skipping {Mrn} because new {Type} {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
             mrn,
-            newClearanceRequest.ExternalVersion,
+            nameof(ClearanceRequest),
+            clearanceRequest.ExternalVersion,
             existingCustomsDeclaration.ClearanceRequest.ExternalVersion
+        );
+
+        return null;
+    }
+
+    private DataApiCustomsDeclaration.CustomsDeclaration? OnHandleFinalisation(
+        string mrn,
+        JsonElement received,
+        CustomsDeclarationResponse? existingCustomsDeclaration
+    )
+    {
+        var finalisation = (DataApiCustomsDeclaration.Finalisation)DeserializeMessage<Finalisation>(received, mrn);
+
+        if (
+            existingCustomsDeclaration?.Finalisation == null
+            || IsFinalisationMessageNewerThan(finalisation, existingCustomsDeclaration.Finalisation)
+        )
+            return new DataApiCustomsDeclaration.CustomsDeclaration
+            {
+                ClearanceDecision = existingCustomsDeclaration?.ClearanceDecision,
+                ClearanceRequest = existingCustomsDeclaration?.ClearanceRequest,
+                Finalisation = finalisation,
+            };
+
+        logger.LogInformation(
+            "Skipping {Mrn} because new {Type} {NewFinalisationSentAt} is older than existing {ExistingFinalisationSentAt}",
+            mrn,
+            nameof(Finalisation),
+            finalisation.MessageSentAt,
+            existingCustomsDeclaration.Finalisation.MessageSentAt
         );
 
         return null;
@@ -90,5 +133,13 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
     )
     {
         return newClearanceRequest.ExternalVersion > existingClearanceRequest.ExternalVersion;
+    }
+
+    private static bool IsFinalisationMessageNewerThan(
+        DataApiCustomsDeclaration.Finalisation newFinalisation,
+        DataApiCustomsDeclaration.Finalisation existingFinalisation
+    )
+    {
+        return newFinalisation.MessageSentAt > existingFinalisation.MessageSentAt;
     }
 }

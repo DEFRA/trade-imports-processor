@@ -5,8 +5,8 @@ namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 public class Header
 {
     [JsonPropertyName("entryReference")]
-    public string? EntryReference { get; set; }
+    public required string EntryReference { get; init; }
 
     [JsonPropertyName("entryVersionNumber")]
-    public int? EntryVersionNumber { get; set; }
+    public required int EntryVersionNumber { get; init; }
 }
