@@ -33,6 +33,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
                 received,
                 existingCustomsDeclaration
             ),
+            InboundHmrcMessageType.InboundError => null,
             InboundHmrcMessageType.Finalisation => OnHandleFinalisation(mrn, received, existingCustomsDeclaration),
             _ => throw new CustomsDeclarationMessageTypeException(MessageId),
         };

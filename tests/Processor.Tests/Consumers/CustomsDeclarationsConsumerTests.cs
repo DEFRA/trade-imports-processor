@@ -5,6 +5,7 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.TestFixtures;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SlimMessageBus.Host;
@@ -12,6 +13,7 @@ using static Defra.TradeImportsProcessor.TestFixtures.ClearanceDecisionFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
+using static Defra.TradeImportsProcessor.TestFixtures.InboundErrorFixtures;
 using Assert = Xunit.Assert;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
@@ -170,6 +172,32 @@ public class CustomsDeclarationsConsumerTests
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "InboundError")]
+    public async Task OnHandle_WhenInboundErrorReceived_ItGoesInTheBin()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
+        };
+
+        var mrn = GenerateMrn();
+        var inboundError = InboundErrorFixture().Create();
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(inboundError), _cancellationToken);
 
         await _mockApi
             .DidNotReceiveWithAnyArgs()
