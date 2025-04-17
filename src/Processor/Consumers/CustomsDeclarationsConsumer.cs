@@ -140,6 +140,6 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
         DataApiCustomsDeclaration.Finalisation existingFinalisation
     )
     {
-        return newFinalisation.MessageSentAt > existingFinalisation.MessageSentAt;
+        return newFinalisation.ExternalVersion > existingFinalisation.ExternalVersion;
     }
 }
