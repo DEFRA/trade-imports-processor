@@ -22,14 +22,6 @@ public static class FinalisationFixtures
             .Create();
     }
 
-    private static ServiceHeader GenerateServiceHeader(DateTime? serviceCallTimestamp = null)
-    {
-        return GetFixture()
-            .Build<ServiceHeader>()
-            .With(sh => sh.ServiceCallTimestamp, serviceCallTimestamp ?? DateTime.UtcNow)
-            .Create();
-    }
-
     public static IPostprocessComposer<Finalisation> FinalisationFixture(string? mrn = null)
     {
         return GetFixture()

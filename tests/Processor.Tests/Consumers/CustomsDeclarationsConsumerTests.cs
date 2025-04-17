@@ -19,6 +19,7 @@ namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
 
 public class CustomsDeclarationsConsumerTests
 {
+    private const string ExpectedEtag = "12345";
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private readonly ITradeImportsDataApiClient _mockApi = Substitute.For<ITradeImportsDataApiClient>();
 
@@ -114,7 +115,6 @@ public class CustomsDeclarationsConsumerTests
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
         var finalisation = DataApiFinalisationFixture().Create();
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
-        const string expectedEtag = "12345";
 
         var response = new CustomsDeclarationResponse(
             mrn,
@@ -123,7 +123,7 @@ public class CustomsDeclarationsConsumerTests
             finalisation,
             DateTime.Now,
             DateTime.Now,
-            expectedEtag
+            ExpectedEtag
         );
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
@@ -139,7 +139,7 @@ public class CustomsDeclarationsConsumerTests
                     && d.ClearanceDecision == clearanceDecision
                     && d.Finalisation == finalisation
                 ),
-                expectedEtag,
+                ExpectedEtag,
                 _cancellationToken
             );
     }
@@ -156,7 +156,6 @@ public class CustomsDeclarationsConsumerTests
         var mrn = GenerateMrn();
         var clearanceRequest = ClearanceRequestFixture(mrn, 1).Create();
         var existingClearanceRequest = DataApiClearanceRequestFixture().With(cr => cr.ExternalVersion, 2).Create();
-        const string expectedEtag = "12345";
 
         var response = new CustomsDeclarationResponse(
             mrn,
@@ -165,7 +164,7 @@ public class CustomsDeclarationsConsumerTests
             null,
             DateTime.Now,
             DateTime.Now,
-            expectedEtag
+            ExpectedEtag
         );
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
@@ -223,7 +222,6 @@ public class CustomsDeclarationsConsumerTests
 
         var clearanceDecision = DataApiClearanceDecisionFixture().Create();
         var clearanceRequest = DataApiClearanceRequestFixture().Create();
-        const string expectedEtag = "12345";
 
         var response = new CustomsDeclarationResponse(
             mrn,
@@ -232,7 +230,7 @@ public class CustomsDeclarationsConsumerTests
             existingFinalisation,
             DateTime.Now,
             DateTime.Now,
-            expectedEtag
+            ExpectedEtag
         );
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
@@ -248,8 +246,47 @@ public class CustomsDeclarationsConsumerTests
                     && cd.ClearanceDecision == clearanceDecision
                     && cd.Finalisation != null
                 ),
-                expectedEtag,
+                ExpectedEtag,
                 _cancellationToken
+            );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "Finalisation")]
+    public async Task OnHandle_WhenFinalisationReceived_ButExistingFinalisationIsNewer_ThenItIsSkipped()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
+        };
+
+        var mrn = GenerateMrn();
+        var finalisation = FinalisationFixture(mrn)
+            .With(f => f.ServiceHeader, GenerateServiceHeader(DateTime.UtcNow.AddMinutes(-5)))
+            .Create();
+        var existingFinalisation = DataApiFinalisationFixture().With(f => f.MessageSentAt, DateTime.UtcNow).Create();
+
+        var response = new CustomsDeclarationResponse(
+            mrn,
+            null,
+            null,
+            existingFinalisation,
+            DateTime.Now,
+            DateTime.Now,
+            ExpectedEtag
+        );
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(finalisation), _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
             );
     }
 }
