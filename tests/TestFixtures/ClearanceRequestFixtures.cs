@@ -24,7 +24,10 @@ public static class ClearanceRequestFixtures
 
     public static IPostprocessComposer<ClearanceRequest> ClearanceRequestFixture(string? mrn = null, int version = 2)
     {
-        return GetFixture().Build<ClearanceRequest>().With(c => c.Header, GenerateHeader(version, mrn));
+        return GetFixture()
+            .Build<ClearanceRequest>()
+            .With(c => c.Header, GenerateHeader(version, mrn))
+            .With(c => c.ServiceHeader, ServiceHeaderFixture().Create());
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.ClearanceRequest> DataApiClearanceRequestFixture()

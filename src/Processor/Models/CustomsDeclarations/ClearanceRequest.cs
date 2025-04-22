@@ -1,15 +1,15 @@
 using System.Text.Json.Serialization;
+using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
+using FluentValidation;
+using FluentValidation.Results;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
-public class ClearanceRequest
+public class ClearanceRequest : CustomsDeclarationsBase
 {
     [JsonPropertyName("header")]
     public required ClearanceRequestHeader Header { get; init; }
-
-    [JsonPropertyName("serviceHeader")]
-    public required ServiceHeader ServiceHeader { get; init; }
 
     [JsonPropertyName("items")]
     public required Item[] Items { get; init; }

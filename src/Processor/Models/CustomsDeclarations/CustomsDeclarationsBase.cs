@@ -4,8 +4,8 @@ using FluentValidation.Results;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
-public class CustomsDeclarationsMessage : CustomsDeclarationsBase
+public class CustomsDeclarationsBase
 {
-    [JsonPropertyName("header")]
-    public required Header Header { get; init; }
+    [JsonPropertyName("serviceHeader")]
+    public required ServiceHeader ServiceHeader { get; init; }
 }

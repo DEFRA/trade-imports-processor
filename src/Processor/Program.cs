@@ -1,7 +1,10 @@
 using Defra.TradeImportsProcessor.Processor.Extensions;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
+using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
@@ -51,6 +54,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.Services.AddHealthChecks();
 
     builder.Services.AddProcessorConfiguration(builder.Configuration);
+    builder.Services.AddValidators();
 
     builder.Services.AddDataApiHttpClient();
     builder.Services.AddHttpProxyClient();

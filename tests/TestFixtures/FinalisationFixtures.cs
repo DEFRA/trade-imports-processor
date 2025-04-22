@@ -28,7 +28,7 @@ public static class FinalisationFixtures
         return GetFixture()
             .Build<Finalisation>()
             .With(f => f.Header, GenerateHeader(version, mrn))
-            .With(f => f.ServiceHeader, GenerateServiceHeader());
+            .With(f => f.ServiceHeader, ServiceHeaderFixture().Create());
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.Finalisation> DataApiFinalisationFixture(
