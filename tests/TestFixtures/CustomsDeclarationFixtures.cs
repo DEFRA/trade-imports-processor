@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using AutoFixture;
+using AutoFixture.Dsl;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
@@ -27,11 +28,16 @@ public static class CustomsDeclarationFixtures
         return year + countryCode + randomIdentifier;
     }
 
-    public static ServiceHeader GenerateServiceHeader(DateTime? serviceCallTimestamp = null)
+    public static IPostprocessComposer<ServiceHeader> ServiceHeaderFixture(DateTime? serviceCallTimestamp = null)
     {
-        return GetFixture()
+        var fixture = GetFixture();
+        var correlationId = fixture.Create<string>()[..20];
+
+        return fixture
             .Build<ServiceHeader>()
+            .With(sh => sh.DestinationSystem, "ALVS")
             .With(sh => sh.ServiceCallTimestamp, serviceCallTimestamp ?? DateTime.UtcNow)
-            .Create();
+            .With(sh => sh.SourceSystem, "CDS")
+            .With(sh => sh.CorrelationId, correlationId);
     }
 }

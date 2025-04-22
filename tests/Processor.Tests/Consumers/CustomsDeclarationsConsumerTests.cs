@@ -5,7 +5,6 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
-using Defra.TradeImportsProcessor.TestFixtures;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SlimMessageBus.Host;
@@ -290,7 +289,7 @@ public class CustomsDeclarationsConsumerTests
 
         var mrn = GenerateMrn();
         var finalisation = FinalisationFixture(mrn, 1)
-            .With(f => f.ServiceHeader, GenerateServiceHeader(DateTime.UtcNow.AddMinutes(-5)))
+            .With(f => f.ServiceHeader, ServiceHeaderFixture(DateTime.UtcNow.AddMinutes(-5)).Create())
             .Create();
         var existingFinalisation = DataApiFinalisationFixture().With(f => f.ExternalVersion, 2).Create();
 

@@ -16,7 +16,7 @@ public class Finalisation
         return new DataApiCustomsDeclaration.Finalisation
         {
             ExternalCorrelationId = finalisation.ServiceHeader.CorrelationId,
-            MessageSentAt = finalisation.ServiceHeader.ServiceCallTimestamp,
+            MessageSentAt = finalisation.ServiceHeader.ServiceCallTimestamp!,
             ExternalVersion = finalisation.Header.EntryVersionNumber,
             DecisionNumber = finalisation.Header.DecisionNumber,
             FinalState = (DataApiCustomsDeclaration.FinalState)int.Parse(finalisation.Header.FinalState),

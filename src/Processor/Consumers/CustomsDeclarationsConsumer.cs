@@ -24,6 +24,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
             throw new CustomsDeclarationMessageTypeException(MessageId);
 
         var mrn = customsDeclarationsMessage.Header.EntryReference;
+
         var existingCustomsDeclaration = await api.GetCustomsDeclaration(mrn, cancellationToken);
 
         var updatedCustomsDeclaration = inboundHmrcMessageType switch

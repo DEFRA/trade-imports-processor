@@ -5,7 +5,10 @@ using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
+using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
+using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using SlimMessageBus.Host;
@@ -137,6 +140,14 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
+
+        return services;
+    }
+
+    public static IServiceCollection AddValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<ClearanceRequestValidatorInput>, ClearanceRequestValidator>();
+        services.AddScoped<IValidator<ServiceHeader>, ServiceHeaderValidator>();
 
         return services;
     }
