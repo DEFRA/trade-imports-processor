@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
+using CommodityCheck = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.CommodityCheck;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Validation.CustomsDeclarations;
 
@@ -231,9 +232,59 @@ public class ClearanceRequestValidatorTests
 
         var errors = FindWithErrorCode(result, "ALVSVAL313");
 
-        // TO-DO: This error message is being reviewed
         Assert.NotNull(errors);
         Assert.Contains("The DeclarationUCR field must have a value.", errors.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL317_WhenTwoChecksByTheSameAuthorityAreOnTheSameCommodity()
+    {
+        var commodities = new List<Commodity>
+        {
+            new() { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" }] },
+            new()
+            {
+                ItemNumber = 2,
+                Checks =
+                [
+                    new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" },
+                    new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI" },
+                ],
+            },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var errors = FindWithErrorCode(result, "ALVSVAL317");
+
+        Assert.NotNull(errors);
+        Assert.Contains("Item 2 has more than one Item Check defined for the same authority.", errors.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL318_WhenADocumentIsNotProvidedForCommodity()
+    {
+        var commodities = new List<Commodity>
+        {
+            new() { ItemNumber = 1, Documents = [new ImportDocument { DocumentCode = "C633" }] },
+            new() { ItemNumber = 2 },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        Assert.NotNull(FindWithErrorCode(result, "ALVSVAL318"));
     }
 
     [Theory]
@@ -278,5 +329,69 @@ public class ClearanceRequestValidatorTests
         );
 
         Assert.Null(FindWithErrorCode(result, "ALVSVAL324"));
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL326_WhenThePreviousVersionIsGreaterThanCurrent()
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.ExternalVersion, 1)
+            .With(c => c.PreviousExternalVersion, 2)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        Assert.NotNull(FindWithErrorCode(result, "ALVSVAL326"));
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL328_WhenAnIuuCheckIsSpecifiedButHasNoPoaoCheck()
+    {
+        var commodities = new List<Commodity>
+        {
+            new() { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA" }] },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var errors = FindWithErrorCode(result, "ALVSVAL328");
+
+        Assert.NotNull(errors);
+        Assert.Contains("An IUU document has been specified for ItemNumber 1.", errors.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL328_WhenIuuCheckANdPoaoCheckIsSpecified()
+    {
+        var commodities = new List<Commodity>
+        {
+            new()
+            {
+                ItemNumber = 1,
+                Checks =
+                [
+                    new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" },
+                    new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA" },
+                ],
+            },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        Assert.Null(FindWithErrorCode(result, "ALVSVAL328"));
     }
 }
