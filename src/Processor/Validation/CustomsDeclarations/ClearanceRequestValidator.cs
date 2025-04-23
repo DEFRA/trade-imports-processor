@@ -1,4 +1,5 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using FluentValidation;
 using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
 using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalisation;
@@ -22,6 +23,31 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
         "9115",
         "C085",
     ];
+
+    private static IEnumerable<DocumentChecks> GetDocumentCheck(ClearanceRequest clearanceRequest)
+    {
+        return (clearanceRequest.Commodities ?? [])
+            .Select(c =>
+                (c.Documents ?? [])
+                    .Where(doc => clearanceRequest.ExternalCorrelationId != null && c.ItemNumber != null)
+                    .Select(doc => new DocumentChecks
+                    {
+                        Document = doc,
+                        ExternalCorrelationId = clearanceRequest.ExternalCorrelationId!,
+                        ItemNumber = (int)c.ItemNumber!,
+                    })
+            )
+            .SelectMany(c => c);
+    }
+
+    private static IEnumerable<CommodityValidationCheck> GetCommodityValidationChecks(ClearanceRequest clearanceRequest)
+    {
+        return (clearanceRequest.Commodities ?? []).Select(commodity => new CommodityValidationCheck
+        {
+            Commodity = commodity,
+            ExternalCorrelationId = clearanceRequest.ExternalCorrelationId!,
+        });
+    }
 
     public ClearanceRequestValidator()
     {
@@ -85,22 +111,11 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             }
         );
 
-        RuleForEach(p =>
-                (p.NewClearanceRequest.Commodities ?? Array.Empty<Commodity>())
-                    .Select(c =>
-                        (c.Documents ?? Array.Empty<ImportDocument>())
-                            .Where(doc => p.NewClearanceRequest.ExternalCorrelationId != null && c.ItemNumber != null)
-                            .Select(doc => new CommodityImportDocument
-                            {
-                                Document = doc,
-                                ExternalCorrelationId = p.NewClearanceRequest.ExternalCorrelationId!,
-                                ItemNumber = (int)c.ItemNumber!,
-                            })
-                    )
-                    .SelectMany(c => c)
+        RuleForEach(p => GetDocumentCheck(p.NewClearanceRequest))
+            .Must(check =>
+                check.Document.DocumentCode != null && ValidDocumentCodes.Contains(check.Document.DocumentCode)
             )
-            .Must(c => c.Document.DocumentCode != null && ValidDocumentCodes.Contains(c.Document.DocumentCode))
-            .OverridePropertyName("CommoditiesDocumentCode")
+            .OverridePropertyName("DocumentCode")
             .WithState(_ => "ALVSVAL308")
             .WithMessage(
                 (p, c) =>
@@ -122,6 +137,37 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                 $"The DeclarationUCR field must have a value.  Your service request with Correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             );
 
+        RuleFor(p => GetCommodityValidationChecks(p.NewClearanceRequest))
+            .ForEach(p =>
+            {
+                p.Must(c =>
+                    {
+                        var hasMoreThanOneDepartmentCheck = (c.Commodity.Checks ?? [])
+                            .GroupBy(check => check.DepartmentCode)
+                            .Any(g => g.Count() > 1);
+
+                        return !hasMoreThanOneDepartmentCheck;
+                    })
+                    .WithState(_ => "ALVSVAL317")
+                    .WithMessage(
+                        (_, cvc) =>
+                            $"Item {cvc.Commodity.ItemNumber} has more than one Item Check defined for the same authority. You can only provide one. Your service request with Correlation ID {cvc.ExternalCorrelationId} has been terminated."
+                    );
+            });
+
+        RuleFor(p => GetCommodityValidationChecks(p.NewClearanceRequest))
+            .ForEach(p =>
+            {
+                p.Must(c => c.Commodity.Documents?.Length > 0)
+                    .WithState(_ => "ALVSVAL318")
+                    .WithMessage(
+                        (_, cvc) =>
+                            $"Item {cvc.Commodity.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {cvc.ExternalCorrelationId} has been terminated."
+                    );
+            });
+
+        // Here goes 320 and 321
+
         When(
             p => p.ExistingFinalisation is not null,
             () =>
@@ -134,13 +180,33 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                     );
             }
         );
-    }
 
-    private sealed record CommodityImportDocument
-    {
-        public required string ExternalCorrelationId { get; init; }
-        public required int ItemNumber { get; init; }
-        public required ImportDocument Document { get; init; }
+        RuleFor(p => p.NewClearanceRequest)
+            .Must(p => p.PreviousExternalVersion < p.ExternalVersion)
+            .OverridePropertyName("PreviousExternalVersion")
+            .WithState(_ => "ALVSVAL326")
+            .WithMessage(
+                (_, p) =>
+                    $"The previous version number {p.PreviousExternalVersion} on the entry document must be less than the entry version number. Your service request with Correlation ID {p.ExternalCorrelationId} has been terminated."
+            );
+
+        RuleFor(p => GetCommodityValidationChecks(p.NewClearanceRequest))
+            .ForEach(p =>
+            {
+                p.Must(c =>
+                    {
+                        var checkCodes = (c.Commodity.Checks ?? []).Select(check => check.CheckCode).ToList();
+                        var hasIuuCheckCode = checkCodes.Contains("H224");
+                        var hasPoaoCheckCode = checkCodes.Contains("H222");
+
+                        return !hasIuuCheckCode || hasPoaoCheckCode;
+                    })
+                    .WithState(_ => "ALVSVAL328")
+                    .WithMessage(
+                        (_, cvc) =>
+                            $"An IUU document has been specified for ItemNumber {cvc.Commodity.ItemNumber}. Request a manual clearance if the item does not require a CHED P. Your request with correlation ID {cvc.ExternalCorrelationId} has been terminated."
+                    );
+            });
     }
 
     private static bool NotBeADuplicateEntryVersionNumber(
