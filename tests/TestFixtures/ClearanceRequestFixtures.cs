@@ -1,6 +1,8 @@
+using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
@@ -8,9 +10,24 @@ namespace Defra.TradeImportsProcessor.TestFixtures;
 
 public static class ClearanceRequestFixtures
 {
+    private static readonly ClearanceRequestValidator s_validator = new();
+
     private static Fixture GetFixture()
     {
         return new Fixture();
+    }
+
+    private static string GetRandomDocumentCode()
+    {
+        return s_validator.ValidDocumentCodes.ToList()[
+            RandomNumberGenerator.GetInt32(0, s_validator.ValidDocumentCodes.Count)
+        ];
+    }
+
+    private static T[] Repeat<T>(Func<T> func)
+    {
+        var numberRepetitions = RandomNumberGenerator.GetInt32(1, 10);
+        return Enumerable.Range(0, numberRepetitions).Select(_ => func()).ToArray();
     }
 
     private static ClearanceRequestHeader GenerateHeader(int version, string? mrn = null)
@@ -27,11 +44,39 @@ public static class ClearanceRequestFixtures
         return GetFixture()
             .Build<ClearanceRequest>()
             .With(c => c.Header, GenerateHeader(version, mrn))
-            .With(c => c.ServiceHeader, ServiceHeaderFixture().Create());
+            .With(c => c.ServiceHeader, ServiceHeaderFixture().Create())
+            .With(c => c.Items, Repeat(() => ItemFixture().Create()));
+    }
+
+    private static IPostprocessComposer<Item> ItemFixture()
+    {
+        return GetFixture().Build<Item>().With(i => i.Documents, Repeat(() => DocumentFixture().Create()));
+    }
+
+    private static IPostprocessComposer<Document> DocumentFixture()
+    {
+        return GetFixture().Build<Document>().With(d => d.DocumentCode, GetRandomDocumentCode());
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.ClearanceRequest> DataApiClearanceRequestFixture()
     {
-        return GetFixture().Build<DataApiCustomsDeclaration.ClearanceRequest>().With(c => c.ExternalVersion, 1);
+        return GetFixture()
+            .Build<DataApiCustomsDeclaration.ClearanceRequest>()
+            .With(c => c.ExternalVersion, 1)
+            .With(c => c.Commodities, Repeat(() => DataApiCommodityFixture().Create()));
+    }
+
+    private static IPostprocessComposer<DataApiCustomsDeclaration.Commodity> DataApiCommodityFixture()
+    {
+        return GetFixture()
+            .Build<DataApiCustomsDeclaration.Commodity>()
+            .With(c => c.Documents, Repeat(() => DataApiImportDocument().Create()));
+    }
+
+    private static IPostprocessComposer<DataApiCustomsDeclaration.ImportDocument> DataApiImportDocument()
+    {
+        return GetFixture()
+            .Build<DataApiCustomsDeclaration.ImportDocument>()
+            .With(d => d.DocumentCode, GetRandomDocumentCode());
     }
 }
