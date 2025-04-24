@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,13 +6,10 @@
     <AssemblyName>Defra.TradeImportsProcessor.TestFixtures</AssemblyName>
     <RootNamespace>Defra.TradeImportsProcessor.TestFixtures</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Processor\Processor.csproj"/>
+    <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.1"/>
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
   </ItemGroup>
-
 </Project>

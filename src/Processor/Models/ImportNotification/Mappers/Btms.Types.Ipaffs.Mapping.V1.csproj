@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,10 +6,8 @@
     <AssemblyName>Mapping</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Btms.Model\Btms.Model.csproj" />
     <ProjectReference Include="..\V1\V1.csproj" />
   </ItemGroup>
-
 </Project>

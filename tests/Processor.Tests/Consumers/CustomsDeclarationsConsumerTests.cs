@@ -53,8 +53,8 @@ public class CustomsDeclarationsConsumerTests
         var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = unknownMessageTypeContext };
         var clearanceRequest = ClearanceRequestFixture().Create();
 
-        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(
-            () => consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
+        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(() =>
+            consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
         );
     }
 
@@ -71,8 +71,8 @@ public class CustomsDeclarationsConsumerTests
         var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi) { Context = unknownMessageTypeContext };
         var clearanceRequest = ClearanceRequestFixture().Create();
 
-        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(
-            () => consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
+        await Assert.ThrowsAsync<CustomsDeclarationMessageTypeException>(() =>
+            consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken)
         );
     }
 
