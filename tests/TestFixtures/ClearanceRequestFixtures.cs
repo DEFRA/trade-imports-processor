@@ -19,9 +19,9 @@ public static class ClearanceRequestFixtures
 
     private static string GetRandomDocumentCode()
     {
-        return s_validator.ValidDocumentCodes.ToList()[
-            RandomNumberGenerator.GetInt32(0, s_validator.ValidDocumentCodes.Count)
-        ];
+        var validDocumentCodes = s_validator.CommodityDocumentCheckMap.Select(c => c.DocumentCode).Distinct().ToList();
+
+        return validDocumentCodes[RandomNumberGenerator.GetInt32(0, validDocumentCodes.Count)];
     }
 
     private static T[] Repeat<T>(Func<T> func)
