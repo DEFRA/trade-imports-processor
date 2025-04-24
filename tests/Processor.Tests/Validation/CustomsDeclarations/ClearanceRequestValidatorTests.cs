@@ -158,7 +158,7 @@ public class ClearanceRequestValidatorTests
     [Fact]
     public void Validate_Returns_ALVSVAL308_WhenADocumentCodeIsInvalidOnACommodity()
     {
-        var validDocumentCodes = _validator.ValidDocumentCodes.ToList();
+        var validDocumentCodes = _validator.CommodityDocumentCheckMap.Select(c => c.DocumentCode).Distinct().ToList();
 
         var commodities = new List<Commodity>
         {
@@ -175,16 +175,11 @@ public class ClearanceRequestValidatorTests
             new() { ItemNumber = 3 },
         };
 
-        for (var i = 0; i < _validator.ValidDocumentCodes.Count; i++)
-        {
-            commodities.Add(
-                new Commodity
-                {
-                    ItemNumber = i + 3,
-                    Documents = [new ImportDocument { DocumentCode = validDocumentCodes[i] }],
-                }
-            );
-        }
+        commodities.AddRange(
+            validDocumentCodes.Select(
+                (t, i) => new Commodity { ItemNumber = i + 3, Documents = [new ImportDocument { DocumentCode = t }] }
+            )
+        );
 
         var newClearanceRequest = DataApiClearanceRequestFixture()
             .With(c => c.Commodities, commodities.ToArray())
@@ -285,6 +280,80 @@ public class ClearanceRequestValidatorTests
         );
 
         Assert.NotNull(FindWithErrorCode(result, "ALVSVAL318"));
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL320_WhenTheCheckCodesSpecified_ButAreNotRelevantToTheDocumentCodes()
+    {
+        var commodities = new List<Commodity>
+        {
+            new()
+            {
+                ItemNumber = 1,
+                Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }],
+                Documents = [new ImportDocument { DocumentCode = "C640" }],
+            },
+            new()
+            {
+                ItemNumber = 2,
+                Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }],
+                Documents = [new ImportDocument { DocumentCode = "N853" }],
+            },
+            new()
+            {
+                ItemNumber = 3,
+                Checks = [new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" }],
+                Documents = [new ImportDocument { DocumentCode = "9115" }],
+            },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL320").ToList();
+
+        Assert.Equal(2, errors.Count);
+        Assert.Contains(
+            "Document code C640 is not appropriate for the check code requested on ItemNumber 1",
+            errors[0].ErrorMessage
+        );
+        Assert.Contains(
+            "Document code 9115 is not appropriate for the check code requested on ItemNumber 3",
+            errors[1].ErrorMessage
+        );
+    }
+
+    [Fact]
+    public void Validate_Returns_ALVSVAL321_WhenCheckCodesAreSpecified_ButNoDocumentCodesAreSpecified()
+    {
+        var commodities = new List<Commodity>
+        {
+            new()
+            {
+                ItemNumber = 1,
+                Checks = [new CommodityCheck { CheckCode = "H221", DepartmentCode = "AHVLA" }],
+                Documents = [new ImportDocument { DocumentCode = "C640" }],
+            },
+            new() { ItemNumber = 2, Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }] },
+        };
+
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.Commodities, commodities.ToArray())
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL321").ToList();
+
+        Assert.Single(errors);
+        Assert.Contains("Check code H222 on ItemNumber 2 must have a document code.", errors[0].ErrorMessage);
     }
 
     [Theory]
