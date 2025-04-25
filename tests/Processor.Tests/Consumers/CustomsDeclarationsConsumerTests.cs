@@ -116,12 +116,14 @@ public class CustomsDeclarationsConsumerTests
         var clearanceRequest = ClearanceRequestFixture(mrn).Create();
         var finalisation = DataApiFinalisationFixture().Create();
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
+        var inboundError = DataApiInboundErrorFixture().Create();
 
         var response = new CustomsDeclarationResponse(
             mrn,
             existingClearanceRequest,
             clearanceDecision,
             finalisation,
+            inboundError,
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag
@@ -136,8 +138,9 @@ public class CustomsDeclarationsConsumerTests
             .PutCustomsDeclaration(
                 mrn,
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
-                    d.ClearanceRequest != null
+                    d.InboundError == inboundError
                     && d.ClearanceDecision == clearanceDecision
+                    && d.ClearanceRequest != null
                     && d.Finalisation == finalisation
                 ),
                 ExpectedEtag,
@@ -163,6 +166,7 @@ public class CustomsDeclarationsConsumerTests
             existingClearanceRequest,
             null,
             null,
+            null,
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag
@@ -184,7 +188,7 @@ public class CustomsDeclarationsConsumerTests
 
     [Fact]
     [Trait("CustomsDeclarations", "InboundError")]
-    public async Task OnHandle_WhenInboundErrorReceived_ItGoesInTheBin()
+    public async Task OnHandle_WhenInboundErrorReceived_AndNoOtherInboundErrorsExist_ItAddsANewOne()
     {
         var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
         {
@@ -192,17 +196,63 @@ public class CustomsDeclarationsConsumerTests
         };
 
         var mrn = GenerateMrn();
-        var inboundError = InboundErrorFixture().Create();
+        var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
+        var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(inboundError), _cancellationToken);
 
         await _mockApi
-            .DidNotReceiveWithAnyArgs()
+            .Received()
             .PutCustomsDeclaration(
                 Arg.Any<string>(),
-                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
+                    d.InboundError!.Notifications![0].ExternalCorrelationId == inboundError.ServiceHeader.CorrelationId
+                    && d.InboundError!.Notifications![0].ExternalVersion == inboundError.Header.EntryVersionNumber
+                    && d.InboundError!.Notifications![0].Errors![0].Code == inboundError.Errors[0].errorCode
+                    && d.InboundError!.Notifications![0].Errors![0].Message == inboundError.Errors[0].errorMessage
+                ),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenInboundErrorReceived_AndOtherInboundErrorsExist_ItAddsItToTheExistingOnes()
+    {
+        var consumer = new CustomsDeclarationsConsumer(_mockLogger, _mockApi)
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
+        };
+
+        var mrn = GenerateMrn();
+        var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
+        var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
+        var existingInboundErrors = DataApiInboundErrorFixture().Create();
+
+        var response = new CustomsDeclarationResponse(
+            mrn,
+            null,
+            null,
+            null,
+            existingInboundErrors,
+            DateTime.Now,
+            DateTime.Now,
+            ExpectedEtag
+        );
+
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(inboundError), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
+                    d.InboundError!.Notifications!.Length == existingInboundErrors!.Notifications!.Length + 1
+                ),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
@@ -249,12 +299,14 @@ public class CustomsDeclarationsConsumerTests
 
         var clearanceDecision = DataApiClearanceDecisionFixture().Create();
         var clearanceRequest = DataApiClearanceRequestFixture().Create();
+        var inboundError = DataApiInboundErrorFixture().Create();
 
         var response = new CustomsDeclarationResponse(
             mrn,
             clearanceRequest,
             clearanceDecision,
             existingFinalisation,
+            inboundError,
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag
@@ -272,6 +324,7 @@ public class CustomsDeclarationsConsumerTests
                     cd.ClearanceRequest == clearanceRequest
                     && cd.ClearanceDecision == clearanceDecision
                     && cd.Finalisation != null
+                    && cd.InboundError == inboundError
                 ),
                 ExpectedEtag,
                 _cancellationToken
@@ -298,6 +351,7 @@ public class CustomsDeclarationsConsumerTests
             null,
             null,
             existingFinalisation,
+            null,
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag

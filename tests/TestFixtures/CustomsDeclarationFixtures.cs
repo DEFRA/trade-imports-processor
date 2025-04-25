@@ -28,6 +28,14 @@ public static class CustomsDeclarationFixtures
         return year + countryCode + randomIdentifier;
     }
 
+    public static IPostprocessComposer<Header> HeaderFixture(string? mrn = null)
+    {
+        return GetFixture()
+            .Build<Header>()
+            .With(h => h.EntryReference, mrn ?? GenerateMrn())
+            .With(h => h.EntryVersionNumber, 1);
+    }
+
     public static IPostprocessComposer<ServiceHeader> ServiceHeaderFixture(DateTime? serviceCallTimestamp = null)
     {
         var fixture = GetFixture();

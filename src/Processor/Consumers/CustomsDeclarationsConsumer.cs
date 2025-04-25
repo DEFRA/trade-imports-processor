@@ -34,7 +34,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
                 received,
                 existingCustomsDeclaration
             ),
-            InboundHmrcMessageType.InboundError => null,
+            InboundHmrcMessageType.InboundError => OnHandleInboundError(mrn, received, existingCustomsDeclaration),
             InboundHmrcMessageType.Finalisation => OnHandleFinalisation(mrn, received, existingCustomsDeclaration),
             _ => throw new CustomsDeclarationMessageTypeException(MessageId),
         };
@@ -86,6 +86,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
                 ClearanceDecision = existingCustomsDeclaration?.ClearanceDecision,
                 ClearanceRequest = clearanceRequest,
                 Finalisation = existingCustomsDeclaration?.Finalisation,
+                InboundError = existingCustomsDeclaration?.InboundError,
             };
 
         logger.LogInformation(
@@ -97,6 +98,31 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
         );
 
         return null;
+    }
+
+    private DataApiCustomsDeclaration.CustomsDeclaration? OnHandleInboundError(
+        string mrn,
+        JsonElement received,
+        CustomsDeclarationResponse? existingCustomsDeclaration
+    )
+    {
+        var inboundErrorNotifications = (DataApiCustomsDeclaration.InboundErrorNotification)
+            DeserializeMessage<InboundError>(received, mrn);
+        var existingErrorNotifications = existingCustomsDeclaration?.InboundError?.Notifications ?? [];
+        var updatedInboundError = new DataApiCustomsDeclaration.InboundError
+        {
+            Notifications = new List<DataApiCustomsDeclaration.InboundErrorNotification> { inboundErrorNotifications }
+                .Concat(existingErrorNotifications)
+                .ToArray(),
+        };
+
+        return new DataApiCustomsDeclaration.CustomsDeclaration
+        {
+            ClearanceDecision = existingCustomsDeclaration?.ClearanceDecision,
+            ClearanceRequest = existingCustomsDeclaration?.ClearanceRequest,
+            Finalisation = existingCustomsDeclaration?.Finalisation,
+            InboundError = updatedInboundError,
+        };
     }
 
     private DataApiCustomsDeclaration.CustomsDeclaration? OnHandleFinalisation(
@@ -116,6 +142,7 @@ public class CustomsDeclarationsConsumer(ILogger<CustomsDeclarationsConsumer> lo
                 ClearanceDecision = existingCustomsDeclaration?.ClearanceDecision,
                 ClearanceRequest = existingCustomsDeclaration?.ClearanceRequest,
                 Finalisation = finalisation,
+                InboundError = existingCustomsDeclaration?.InboundError,
             };
 
         logger.LogInformation(
