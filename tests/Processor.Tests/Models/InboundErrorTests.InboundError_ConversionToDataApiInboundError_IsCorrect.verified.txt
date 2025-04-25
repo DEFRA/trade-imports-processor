@@ -1,0 +1,10 @@
+﻿{
+  ExternalCorrelationId: 12345,
+  ExternalVersion: 1,
+  Errors: [
+    {
+      Code: T04ST,
+      Message: It has been overcooked.
+    }
+  ]
+}

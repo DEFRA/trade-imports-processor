@@ -1,7 +1,4 @@
 using System.Text.Json.Serialization;
-using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
-using FluentValidation;
-using FluentValidation.Results;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
