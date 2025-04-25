@@ -7,7 +7,7 @@
     <RootNamespace>Defra.TradeImportsProcessor.Processor.IntegrationTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.400.137" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.400.139" />
     <PackageReference Include="Azure.Messaging.Servicebus" Version="7.19.0" />
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
