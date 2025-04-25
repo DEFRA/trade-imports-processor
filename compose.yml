@@ -47,7 +47,6 @@ services:
       ENVIRONMENT: local
       PORT: 8080
       DataApi__BaseAddress: "http://wiremock"
-      CustomsDeclarationsConsumer_QueueName: "trade_imports_inbound_customs_declarations.fifo"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       SQS_ENDPOINT: http://localstack:4566
     image: trade-imports-processor:latest
