@@ -15,7 +15,10 @@ public static class InboundErrorFixtures
 
     public static IPostprocessComposer<InboundError> InboundErrorFixture(string? mrn = null)
     {
-        return GetFixture().Build<InboundError>().With(e => e.Header, HeaderFixture(mrn).Create());
+        return GetFixture()
+            .Build<InboundError>()
+            .With(e => e.Header, HeaderFixture(mrn).Create())
+            .With(e => e.ServiceHeader, ServiceHeaderFixture().Create());
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.InboundError> DataApiInboundErrorFixture()

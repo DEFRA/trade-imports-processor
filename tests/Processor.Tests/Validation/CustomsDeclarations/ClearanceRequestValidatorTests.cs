@@ -305,6 +305,20 @@ public class ClearanceRequestValidatorTests
                 Checks = [new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" }],
                 Documents = [new ImportDocument { DocumentCode = "9115" }],
             },
+            new()
+            {
+                ItemNumber = 4,
+                Checks =
+                [
+                    new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" },
+                    new CommodityCheck { CheckCode = "H219", DepartmentCode = "HMI" },
+                ],
+                Documents =
+                [
+                    new ImportDocument { DocumentCode = "9115" },
+                    new ImportDocument { DocumentCode = "N853" },
+                ],
+            },
         };
 
         var newClearanceRequest = DataApiClearanceRequestFixture()
@@ -421,6 +435,7 @@ public class ClearanceRequestValidatorTests
         var commodities = new List<Commodity>
         {
             new() { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA" }] },
+            new() { ItemNumber = 2, Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }] },
         };
 
         var newClearanceRequest = DataApiClearanceRequestFixture()
@@ -431,10 +446,10 @@ public class ClearanceRequestValidatorTests
             new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
         );
 
-        var errors = FindWithErrorCode(result, "ALVSVAL328");
+        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL328").ToList();
 
-        Assert.NotNull(errors);
-        Assert.Contains("An IUU document has been specified for ItemNumber 1.", errors.ErrorMessage);
+        Assert.Single(errors);
+        Assert.Contains("An IUU document has been specified for ItemNumber 1.", errors[0].ErrorMessage);
     }
 
     [Fact]
