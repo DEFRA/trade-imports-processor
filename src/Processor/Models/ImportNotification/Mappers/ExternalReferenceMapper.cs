@@ -9,11 +9,11 @@ public static class ExternalReferenceMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.ExternalReference();
-        to.System = ExternalReferenceSystemEnumMapper.Map(from?.System);
-        to.Reference = from?.Reference;
-        to.ExactMatch = from?.ExactMatch;
-        to.VerifiedByImporter = from?.VerifiedByImporter;
-        to.VerifiedByInspector = from?.VerifiedByInspector;
+        to.System = ExternalReferenceSystemEnumMapper.Map(from.System);
+        to.Reference = from.Reference;
+        to.ExactMatch = from.ExactMatch;
+        to.VerifiedByImporter = from.VerifiedByImporter;
+        to.VerifiedByInspector = from.VerifiedByInspector;
         return to;
     }
 }

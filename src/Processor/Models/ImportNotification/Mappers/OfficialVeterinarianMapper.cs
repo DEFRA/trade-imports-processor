@@ -9,12 +9,12 @@ public static class OfficialVeterinarianMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.OfficialVeterinarian();
-        to.FirstName = from?.FirstName;
-        to.LastName = from?.LastName;
-        to.Email = from?.Email;
-        to.Phone = from?.Phone;
-        to.Fax = from?.Fax;
-        to.Signed = from?.Signed;
+        to.FirstName = from.FirstName;
+        to.LastName = from.LastName;
+        to.Email = from.Email;
+        to.Phone = from.Phone;
+        to.Fax = from.Fax;
+        to.Signed = from.Signed;
         return to;
     }
 }

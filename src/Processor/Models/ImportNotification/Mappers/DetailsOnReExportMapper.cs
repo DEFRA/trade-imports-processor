@@ -9,12 +9,12 @@ public static class DetailsOnReExportMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.DetailsOnReExport();
-        to.Date = from?.Date;
-        to.MeansOfTransportNo = from?.MeansOfTransportNo;
-        to.TransportType = DetailsOnReExportTransportTypeEnumMapper.Map(from?.TransportType);
-        to.Document = from?.Document;
-        to.CountryOfReDispatching = from?.CountryOfReDispatching;
-        to.ExitBip = from?.ExitBip;
+        to.Date = from.Date;
+        to.MeansOfTransportNo = from.MeansOfTransportNo;
+        to.TransportType = DetailsOnReExportTransportTypeEnumMapper.Map(from.TransportType);
+        to.Document = from.Document;
+        to.CountryOfReDispatching = from.CountryOfReDispatching;
+        to.ExitBip = from.ExitBip;
         return to;
     }
 }

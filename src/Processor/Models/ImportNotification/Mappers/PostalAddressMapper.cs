@@ -9,13 +9,13 @@ public static class PostalAddressMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.PostalAddress();
-        to.AddressLine1 = from?.AddressLine1;
-        to.AddressLine2 = from?.AddressLine2;
-        to.AddressLine3 = from?.AddressLine3;
-        to.AddressLine4 = from?.AddressLine4;
-        to.County = from?.County;
-        to.CityOrTown = from?.CityOrTown;
-        to.PostalCode = from?.PostalCode;
+        to.AddressLine1 = from.AddressLine1;
+        to.AddressLine2 = from.AddressLine2;
+        to.AddressLine3 = from.AddressLine3;
+        to.AddressLine4 = from.AddressLine4;
+        to.County = from.County;
+        to.CityOrTown = from.CityOrTown;
+        to.PostalCode = from.PostalCode;
         return to;
     }
 }

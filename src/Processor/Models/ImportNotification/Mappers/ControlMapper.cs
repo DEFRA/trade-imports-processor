@@ -9,10 +9,10 @@ public static class ControlMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.Control();
-        to.FeedbackInformation = FeedbackInformationMapper.Map(from?.FeedbackInformation);
-        to.DetailsOnReExport = DetailsOnReExportMapper.Map(from?.DetailsOnReExport);
-        to.OfficialInspector = OfficialInspectorMapper.Map(from?.OfficialInspector);
-        to.ConsignmentLeave = ControlConsignmentLeaveEnumMapper.Map(from?.ConsignmentLeave);
+        to.FeedbackInformation = FeedbackInformationMapper.Map(from.FeedbackInformation);
+        to.DetailsOnReExport = DetailsOnReExportMapper.Map(from.DetailsOnReExport);
+        to.OfficialInspector = OfficialInspectorMapper.Map(from.OfficialInspector);
+        to.ConsignmentLeave = ControlConsignmentLeaveEnumMapper.Map(from.ConsignmentLeave);
         return to;
     }
 }

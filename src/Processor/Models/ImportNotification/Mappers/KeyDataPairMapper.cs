@@ -9,8 +9,8 @@ public static class KeyDataPairMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.KeyDataPair();
-        to.Key = from?.Key;
-        to.Data = from?.Data;
+        to.Key = from.Key;
+        to.Data = from.Data;
         return to;
     }
 }

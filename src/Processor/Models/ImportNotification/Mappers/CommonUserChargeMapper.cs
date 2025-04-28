@@ -9,7 +9,7 @@ public static class CommonUserChargeMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.CommonUserCharge();
-        to.WasSentToTradeCharge = from?.WasSentToTradeCharge;
+        to.WasSentToTradeCharge = from.WasSentToTradeCharge;
         return to;
     }
 }

@@ -10,22 +10,20 @@ public static class VeterinaryInformationMapper
             return default!;
         var to = new IpaffsDataApi.VeterinaryInformation();
         to.EstablishmentsOfOriginExternalReference = ExternalReferenceMapper.Map(
-            from?.EstablishmentsOfOriginExternalReference
+            from.EstablishmentsOfOriginExternalReference
         );
         to.EstablishmentsOfOrigins = from
-            ?.EstablishmentsOfOrigins?.Select(x => ApprovedEstablishmentMapper.Map(x))
+            .EstablishmentsOfOrigins?.Select(x => ApprovedEstablishmentMapper.Map(x))
             .ToArray();
-        to.VeterinaryDocument = from?.VeterinaryDocument;
-        to.VeterinaryDocumentIssuedOn = from?.VeterinaryDocumentIssueDate;
-        to.AccompanyingDocumentNumbers = from?.AccompanyingDocumentNumbers;
-        to.AccompanyingDocuments = from
-            ?.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x))
-            .ToArray();
+        to.VeterinaryDocument = from.VeterinaryDocument;
+        to.VeterinaryDocumentIssuedOn = from.VeterinaryDocumentIssueDate;
+        to.AccompanyingDocumentNumbers = from.AccompanyingDocumentNumbers;
+        to.AccompanyingDocuments = from.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x)).ToArray();
         to.CatchCertificateAttachments = from
-            ?.CatchCertificateAttachments?.Select(x => CatchCertificateAttachmentMapper.Map(x))
+            .CatchCertificateAttachments?.Select(x => CatchCertificateAttachmentMapper.Map(x))
             .ToArray();
         to.IdentificationDetails = from
-            ?.IdentificationDetails?.Select(x => IdentificationDetailsMapper.Map(x))
+            .IdentificationDetails?.Select(x => IdentificationDetailsMapper.Map(x))
             .ToArray();
         return to;
     }

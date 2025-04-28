@@ -9,8 +9,8 @@ public static class InternationalTelephoneMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.InternationalTelephone();
-        to.CountryCode = from?.CountryCode;
-        to.SubscriberNumber = from?.SubscriberNumber;
+        to.CountryCode = from.CountryCode;
+        to.SubscriberNumber = from.SubscriberNumber;
         return to;
     }
 }

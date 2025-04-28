@@ -9,8 +9,8 @@ public static class CatchCertificateAttachmentMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.CatchCertificateAttachment();
-        to.AttachmentId = from?.AttachmentId;
-        to.NumberOfCatchCertificates = from?.NumberOfCatchCertificates;
+        to.AttachmentId = from.AttachmentId;
+        to.NumberOfCatchCertificates = from.NumberOfCatchCertificates;
         to.CatchCertificateDetails = from
             ?.CatchCertificateDetails?.Select(x => CatchCertificateDetailsMapper.Map(x))
             .ToArray();

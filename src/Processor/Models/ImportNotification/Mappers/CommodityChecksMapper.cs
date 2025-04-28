@@ -9,9 +9,9 @@ public static class CommodityChecksMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.CommodityChecks();
-        to.UniqueComplementId = from?.UniqueComplementId;
-        to.Checks = from?.Checks?.Select(x => InspectionCheckMapper.Map(x)).ToArray();
-        to.ValidityPeriod = from?.ValidityPeriod;
+        to.UniqueComplementId = from.UniqueComplementId;
+        to.Checks = from.Checks?.Select(x => InspectionCheckMapper.Map(x)).ToArray();
+        to.ValidityPeriod = from.ValidityPeriod;
         return to;
     }
 }
