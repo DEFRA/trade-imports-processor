@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
@@ -8,6 +9,7 @@ using FluentValidation.Results;
 using SlimMessageBus;
 using SlimMessageBus.Host.AmazonSQS;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
@@ -22,16 +24,43 @@ public class CustomsDeclarationsConsumer(
     private const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
     private string MessageId => Context.GetTransportMessage().MessageId;
 
-    private void LogValidationErrors(
+    private async Task ReportValidationErrors(
         CustomsDeclarationsMessage customsDeclarationsMessage,
         ValidationResult validationResult,
-        string messageType
+        string messageType,
+        CancellationToken cancellationToken
     )
     {
+        var mrn = customsDeclarationsMessage.Header.EntryReference;
+
+        var existingValidationErrors = await api.GetProcessingError(mrn, cancellationToken);
+
+        var processingErrorNotification = new DataApiErrors.ErrorNotification
+        {
+            ExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
+            ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
+            Errors = validationResult
+                .Errors.Select(error => new DataApiErrors.ErrorItem
+                {
+                    Code = error.ErrorCode,
+                    Message = error.ErrorMessage,
+                })
+                .ToArray(),
+        };
+
+        var updatedValidationErrors = new ProcessingError
+        {
+            Notifications = (existingValidationErrors?.ProcessingError.Notifications ?? [])
+                .Append(processingErrorNotification)
+                .ToArray(),
+        };
+
+        await api.PutProcessingError(mrn, updatedValidationErrors, existingValidationErrors?.ETag, cancellationToken);
+
         validationResult.Errors.ForEach(error =>
             logger.LogInformation(
                 "Mrn {Mrn} Version {Version} Type {MessageType} failed validation with {ErrorCode}: {ErrorMessage}",
-                customsDeclarationsMessage.Header.EntryReference,
+                mrn,
                 customsDeclarationsMessage.Header.EntryVersionNumber,
                 messageType,
                 error.ErrorCode,
@@ -72,7 +101,12 @@ public class CustomsDeclarationsConsumer(
         );
         if (!serviceHeaderValidation.IsValid)
         {
-            LogValidationErrors(customsDeclarationsMessage, serviceHeaderValidation, inboundHmrcMessageType);
+            await ReportValidationErrors(
+                customsDeclarationsMessage,
+                serviceHeaderValidation,
+                inboundHmrcMessageType,
+                cancellationToken
+            );
             return;
         }
 
@@ -99,7 +133,12 @@ public class CustomsDeclarationsConsumer(
 
         if (validationError != null)
         {
-            LogValidationErrors(customsDeclarationsMessage, validationError, inboundHmrcMessageType);
+            await ReportValidationErrors(
+                customsDeclarationsMessage,
+                validationError,
+                inboundHmrcMessageType,
+                cancellationToken
+            );
             return;
         }
 
@@ -181,13 +220,12 @@ public class CustomsDeclarationsConsumer(
         CustomsDeclarationResponse? existingCustomsDeclaration
     )
     {
-        var inboundErrorNotifications = (DataApiCustomsDeclaration.InboundErrorNotification)
+        var inboundErrorNotifications = (DataApiErrors.ErrorNotification)
             DeserializeMessage<InboundError>(received, mrn);
-        var existingErrorNotifications = existingCustomsDeclaration?.InboundError?.Notifications ?? [];
         var updatedInboundError = new DataApiCustomsDeclaration.InboundError
         {
-            Notifications = new List<DataApiCustomsDeclaration.InboundErrorNotification> { inboundErrorNotifications }
-                .Concat(existingErrorNotifications)
+            Notifications = (existingCustomsDeclaration?.InboundError?.Notifications ?? [])
+                .Append(inboundErrorNotifications)
                 .ToArray(),
         };
 

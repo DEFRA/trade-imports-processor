@@ -68,6 +68,39 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
     }
 
     [Fact]
+    public async Task WhenClearanceRequestSent_ButTheValidationFails_ThenAnErrorIsSentToTheDataApi()
+    {
+        var mrn = GenerateMrn();
+        var clearanceRequest = ClearanceRequestFixture(mrn)
+            .With(c => c.ServiceHeader, ServiceHeaderFixture().With(s => s.DestinationSystem, "POTATO").Create())
+            .Create();
+
+        var processingErrorCreatePath = $"/processing-errors/{mrn}";
+        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        mappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath(processingErrorCreatePath))
+                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
+        );
+        var status = await mappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(status.Guid);
+
+        await SendMessage(
+            mrn,
+            JsonSerializer.Serialize(clearanceRequest),
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+        );
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var requestsModel = new RequestModel { Methods = ["PUT"], Path = processingErrorCreatePath };
+                var requests = await _wireMockAdminApi.FindRequestsAsync(requestsModel);
+                return requests.Count == 1;
+            })
+        );
+    }
+
+    [Fact]
     public async Task WhenFinalisationSent_ThenFinalisationIsProcessedAndSentToTheDataApi()
     {
         var mrn = GenerateMrn();
