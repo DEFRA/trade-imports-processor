@@ -107,7 +107,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
         );
         var putMappingBuilderResult = await putMappingBuilder.BuildAndPostAsync();
-        Assert.Null(putMappingBuilderResult);
+        Assert.Null(putMappingBuilderResult.Error);
 
         await SendMessage(
             mrn,
