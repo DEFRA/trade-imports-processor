@@ -1,5 +1,5 @@
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
-using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
 
@@ -21,7 +21,7 @@ public class InboundErrorTests
             Errors = [new InboundErrorItem { errorCode = "T04ST", errorMessage = "It has been overcooked." }],
         };
 
-        var dataApiInboundError = (DataApiCustomsDeclaration.InboundErrorNotification)inboundError;
+        var dataApiInboundError = (DataApiErrors.ErrorNotification)inboundError;
 
         await Verify(dataApiInboundError).DontScrubDateTimes();
     }

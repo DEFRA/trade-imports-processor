@@ -2,6 +2,8 @@ using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.Errors;
+using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
@@ -139,9 +141,31 @@ public class CustomsDeclarationsConsumerTests
             ErrorCode = "ALVSVAL999",
         };
 
+        var existingProcessingNotifications = new ProcessingError
+        {
+            Notifications =
+            [
+                new ErrorNotification
+                {
+                    ExternalCorrelationId = "ANOTHER-CORRELATION-ID",
+                    ExternalVersion = 1,
+                    Errors = [new ErrorItem { Code = "PREVIOUSCODE", Message = "An error message" }],
+                },
+            ],
+        };
+        var existingProcessingErrorResponse = new ProcessingErrorResponse(
+            mrn,
+            existingProcessingNotifications,
+            DateTime.Now,
+            DateTime.Now,
+            ExpectedEtag
+        );
+
         _serviceHeaderValidation
             .ValidateAsync(Arg.Any<ServiceHeader>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [validationError] });
+
+        _mockApi.GetProcessingError(mrn, _cancellationToken).Returns(existingProcessingErrorResponse);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken);
 
@@ -153,6 +177,19 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
+            );
+        await _mockApi
+            .Received()
+            .PutProcessingError(
+                mrn,
+                Arg.Is<ProcessingError>(e =>
+                    e.Notifications != null
+                    && e.Notifications.Length == 2
+                    && e.Notifications[0].Errors[0].Code == "PREVIOUSCODE"
+                    && e.Notifications[1].Errors[0].Code == validationError.ErrorCode
+                ),
+                Arg.Any<string>(),
+                _cancellationToken
             );
     }
 

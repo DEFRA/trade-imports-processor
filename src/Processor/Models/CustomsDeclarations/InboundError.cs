@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 
@@ -14,14 +14,14 @@ public class InboundError
     [JsonPropertyName("errors")]
     public required InboundErrorItem[] Errors { get; init; }
 
-    public static explicit operator DataApiCustomsDeclaration.InboundErrorNotification(InboundError inboundError)
+    public static explicit operator DataApiErrors.ErrorNotification(InboundError inboundError)
     {
-        return new DataApiCustomsDeclaration.InboundErrorNotification
+        return new DataApiErrors.ErrorNotification
         {
             ExternalCorrelationId = inboundError.ServiceHeader.CorrelationId,
             ExternalVersion = inboundError.Header.EntryVersionNumber,
             Errors = inboundError
-                .Errors.Select(error => new DataApiCustomsDeclaration.InboundErrorItem
+                .Errors.Select(error => new DataApiErrors.ErrorItem
                 {
                     Code = error.errorCode,
                     Message = error.errorMessage,
