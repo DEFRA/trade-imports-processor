@@ -9,8 +9,8 @@ public static class SplitConsignmentMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.SplitConsignment();
-        to.ValidReferenceNumber = from?.ValidReferenceNumber;
-        to.RejectedReferenceNumber = from?.RejectedReferenceNumber;
+        to.ValidReferenceNumber = from.ValidReferenceNumber;
+        to.RejectedReferenceNumber = from.RejectedReferenceNumber;
         return to;
     }
 }

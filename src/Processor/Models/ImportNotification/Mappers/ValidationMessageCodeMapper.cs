@@ -9,8 +9,8 @@ public static class ValidationMessageCodeMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.ValidationMessageCode();
-        to.Field = from?.Field;
-        to.Code = from?.Code;
+        to.Field = from.Field;
+        to.Code = from.Code;
         return to;
     }
 }

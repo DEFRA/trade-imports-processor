@@ -9,8 +9,8 @@ public static class RiskAssessmentResultMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.RiskAssessmentResult();
-        to.CommodityResults = from?.CommodityResults?.Select(x => CommodityRiskResultMapper.Map(x)).ToArray();
-        to.AssessedOn = from?.AssessmentDateTime;
+        to.CommodityResults = from.CommodityResults?.Select(x => CommodityRiskResultMapper.Map(x)).ToArray();
+        to.AssessedOn = from.AssessmentDateTime;
         return to;
     }
 }

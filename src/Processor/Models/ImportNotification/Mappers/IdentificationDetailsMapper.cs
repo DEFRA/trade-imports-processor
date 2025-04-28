@@ -9,8 +9,8 @@ public static class IdentificationDetailsMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.IdentificationDetails();
-        to.IdentificationDetail = from?.IdentificationDetail;
-        to.IdentificationDescription = from?.IdentificationDescription;
+        to.IdentificationDetail = from.IdentificationDetail;
+        to.IdentificationDescription = from.IdentificationDescription;
         return to;
     }
 }

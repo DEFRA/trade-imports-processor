@@ -9,12 +9,12 @@ public static class LaboratoryTestResultMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.LaboratoryTestResult();
-        to.SampleUseByDate = from?.SampleUseByDate;
-        to.ReleasedOn = from?.ReleasedDate;
-        to.LaboratoryTestMethod = from?.LaboratoryTestMethod;
-        to.Results = from?.Results;
-        to.Conclusion = LaboratoryTestResultConclusionEnumMapper.Map(from?.Conclusion);
-        to.LabTestCreatedOn = from?.LabTestCreatedDate;
+        to.SampleUseByDate = from.SampleUseByDate;
+        to.ReleasedOn = from.ReleasedDate;
+        to.LaboratoryTestMethod = from.LaboratoryTestMethod;
+        to.Results = from.Results;
+        to.Conclusion = LaboratoryTestResultConclusionEnumMapper.Map(from.Conclusion);
+        to.LabTestCreatedOn = from.LabTestCreatedDate;
         return to;
     }
 }
