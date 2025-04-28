@@ -24,14 +24,16 @@ public class CustomsDeclarationsConsumer(
 
     private void LogValidationErrors(
         CustomsDeclarationsMessage customsDeclarationsMessage,
-        ValidationResult validationResult
+        ValidationResult validationResult,
+        string messageType
     )
     {
         validationResult.Errors.ForEach(error =>
             logger.LogInformation(
-                "Mrn {Mrn} Version {Version} failed validation with {ErrorCode}: {ErrorMessage}",
+                "Mrn {Mrn} Version {Version} Type {MessageType} failed validation with {ErrorCode}: {ErrorMessage}",
                 customsDeclarationsMessage.Header.EntryReference,
                 customsDeclarationsMessage.Header.EntryVersionNumber,
+                messageType,
                 error.ErrorCode,
                 error.ErrorMessage
             )
@@ -57,7 +59,8 @@ public class CustomsDeclarationsConsumer(
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
-        var success = Context.Headers.TryGetValue(InboundHmrcMessageTypeHeader, out var inboundHmrcMessageType);
+        var success = Context.Headers.TryGetValue(InboundHmrcMessageTypeHeader, out var inboundHmrcMessageTypeObject);
+        var inboundHmrcMessageType = inboundHmrcMessageTypeObject?.ToString();
         var customsDeclarationsMessage = received.Deserialize<CustomsDeclarationsMessage>();
 
         if (!success || inboundHmrcMessageType == null || customsDeclarationsMessage == null)
@@ -69,7 +72,7 @@ public class CustomsDeclarationsConsumer(
         );
         if (!serviceHeaderValidation.IsValid)
         {
-            LogValidationErrors(customsDeclarationsMessage, serviceHeaderValidation);
+            LogValidationErrors(customsDeclarationsMessage, serviceHeaderValidation, inboundHmrcMessageType);
             return;
         }
 
@@ -96,7 +99,7 @@ public class CustomsDeclarationsConsumer(
 
         if (validationError != null)
         {
-            LogValidationErrors(customsDeclarationsMessage, validationError);
+            LogValidationErrors(customsDeclarationsMessage, validationError, inboundHmrcMessageType);
             return;
         }
 
