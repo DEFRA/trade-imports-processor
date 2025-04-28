@@ -9,11 +9,11 @@ public static class BillingInformationMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.BillingInformation();
-        to.IsConfirmed = from?.IsConfirmed;
-        to.EmailAddress = from?.EmailAddress;
-        to.PhoneNumber = from?.PhoneNumber;
-        to.ContactName = from?.ContactName;
-        to.PostalAddress = PostalAddressMapper.Map(from?.PostalAddress);
+        to.IsConfirmed = from.IsConfirmed;
+        to.EmailAddress = from.EmailAddress;
+        to.PhoneNumber = from.PhoneNumber;
+        to.ContactName = from.ContactName;
+        to.PostalAddress = PostalAddressMapper.Map(from.PostalAddress);
         return to;
     }
 }

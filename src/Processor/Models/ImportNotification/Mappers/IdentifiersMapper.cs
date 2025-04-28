@@ -9,10 +9,10 @@ public static class IdentifiersMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.Identifiers();
-        to.SpeciesNumber = from?.SpeciesNumber;
-        to.Data = from?.Data;
-        to.IsPlaceOfDestinationThePermanentAddress = from?.IsPlaceOfDestinationThePermanentAddress;
-        to.PermanentAddress = EconomicOperatorMapper.Map(from?.PermanentAddress);
+        to.SpeciesNumber = from.SpeciesNumber;
+        to.Data = from.Data;
+        to.IsPlaceOfDestinationThePermanentAddress = from.IsPlaceOfDestinationThePermanentAddress;
+        to.PermanentAddress = EconomicOperatorMapper.Map(from.PermanentAddress);
         return to;
     }
 }

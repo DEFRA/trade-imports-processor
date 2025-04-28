@@ -9,11 +9,11 @@ public static class ImpactOfTransportOnAnimalsMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.ImpactOfTransportOnAnimals();
-        to.NumberOfDeadAnimals = from?.NumberOfDeadAnimals;
-        to.NumberOfDeadAnimalsUnit = from?.NumberOfDeadAnimalsUnit;
-        to.NumberOfUnfitAnimals = from?.NumberOfUnfitAnimals;
-        to.NumberOfUnfitAnimalsUnit = from?.NumberOfUnfitAnimalsUnit;
-        to.NumberOfBirthOrAbortion = from?.NumberOfBirthOrAbortion;
+        to.NumberOfDeadAnimals = from.NumberOfDeadAnimals;
+        to.NumberOfDeadAnimalsUnit = from.NumberOfDeadAnimalsUnit;
+        to.NumberOfUnfitAnimals = from.NumberOfUnfitAnimals;
+        to.NumberOfUnfitAnimalsUnit = from.NumberOfUnfitAnimalsUnit;
+        to.NumberOfBirthOrAbortion = from.NumberOfBirthOrAbortion;
         return to;
     }
 }

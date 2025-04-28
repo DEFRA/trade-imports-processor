@@ -9,9 +9,9 @@ public static class InspectionOverrideMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.InspectionOverride();
-        to.OriginalDecision = from?.OriginalDecision;
-        to.OverriddenOn = from?.OverriddenOn;
-        to.OverriddenBy = UserInformationMapper.Map(from?.OverriddenBy);
+        to.OriginalDecision = from.OriginalDecision;
+        to.OverriddenOn = from.OverriddenOn;
+        to.OverriddenBy = UserInformationMapper.Map(from.OverriddenBy);
         return to;
     }
 }

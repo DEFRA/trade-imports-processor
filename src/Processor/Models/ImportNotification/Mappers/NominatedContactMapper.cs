@@ -9,9 +9,9 @@ public static class NominatedContactMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.NominatedContact();
-        to.Name = from?.Name;
-        to.Email = from?.Email;
-        to.Telephone = from?.Telephone;
+        to.Name = from.Name;
+        to.Email = from.Email;
+        to.Telephone = from.Telephone;
         return to;
     }
 }

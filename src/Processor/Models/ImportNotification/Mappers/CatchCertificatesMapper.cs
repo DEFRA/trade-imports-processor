@@ -9,8 +9,8 @@ public static class CatchCertificatesMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.CatchCertificates();
-        to.CertificateNumber = from?.CertificateNumber;
-        to.Weight = from?.Weight;
+        to.CertificateNumber = from.CertificateNumber;
+        to.Weight = from.Weight;
         return to;
     }
 }

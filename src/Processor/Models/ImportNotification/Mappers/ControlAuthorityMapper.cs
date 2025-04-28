@@ -9,13 +9,13 @@ public static class ControlAuthorityMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.ControlAuthority();
-        to.OfficialVeterinarian = OfficialVeterinarianMapper.Map(from?.OfficialVeterinarian);
-        to.CustomsReferenceNo = from?.CustomsReferenceNo;
-        to.ContainerResealed = from?.ContainerResealed;
-        to.NewSealNumber = from?.NewSealNumber;
-        to.IuuFishingReference = from?.IuuFishingReference;
-        to.IuuCheckRequired = from?.IuuCheckRequired;
-        to.IuuOption = ControlAuthorityIuuOptionEnumMapper.Map(from?.IuuOption);
+        to.OfficialVeterinarian = OfficialVeterinarianMapper.Map(from.OfficialVeterinarian);
+        to.CustomsReferenceNo = from.CustomsReferenceNo;
+        to.ContainerResealed = from.ContainerResealed;
+        to.NewSealNumber = from.NewSealNumber;
+        to.IuuFishingReference = from.IuuFishingReference;
+        to.IuuCheckRequired = from.IuuCheckRequired;
+        to.IuuOption = ControlAuthorityIuuOptionEnumMapper.Map(from.IuuOption);
         return to;
     }
 }

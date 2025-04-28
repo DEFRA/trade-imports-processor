@@ -9,9 +9,9 @@ public static class PhsiMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.Phsi();
-        to.DocumentCheck = from?.DocumentCheck;
-        to.IdentityCheck = from?.IdentityCheck;
-        to.PhysicalCheck = from?.PhysicalCheck;
+        to.DocumentCheck = from.DocumentCheck;
+        to.IdentityCheck = from.IdentityCheck;
+        to.PhysicalCheck = from.PhysicalCheck;
         return to;
     }
 }

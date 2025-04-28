@@ -11,7 +11,7 @@ public static class RouteMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.Route();
-        to.TransitingStates = from?.TransitingStates;
+        to.TransitingStates = from.TransitingStates;
         return to;
     }
 }

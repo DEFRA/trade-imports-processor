@@ -9,12 +9,12 @@ public static class InspectionCheckMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.InspectionCheck();
-        to.Type = InspectionCheckTypeEnumMapper.Map(from?.Type);
-        to.Status = InspectionCheckStatusEnumMapper.Map(from?.Status);
-        to.Reason = from?.Reason;
-        to.OtherReason = from?.OtherReason;
-        to.IsSelectedForChecks = from?.IsSelectedForChecks;
-        to.HasChecksComplete = from?.HasChecksComplete;
+        to.Type = InspectionCheckTypeEnumMapper.Map(from.Type);
+        to.Status = InspectionCheckStatusEnumMapper.Map(from.Status);
+        to.Reason = from.Reason;
+        to.OtherReason = from.OtherReason;
+        to.IsSelectedForChecks = from.IsSelectedForChecks;
+        to.HasChecksComplete = from.HasChecksComplete;
         return to;
     }
 }

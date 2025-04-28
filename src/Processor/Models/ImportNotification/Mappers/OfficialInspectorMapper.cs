@@ -9,13 +9,13 @@ public static class OfficialInspectorMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.OfficialInspector();
-        to.FirstName = from?.FirstName;
-        to.LastName = from?.LastName;
-        to.Email = from?.Email;
-        to.Phone = from?.Phone;
-        to.Fax = from?.Fax;
-        to.Address = AddressMapper.Map(from?.Address);
-        to.Signed = from?.Signed;
+        to.FirstName = from.FirstName;
+        to.LastName = from.LastName;
+        to.Email = from.Email;
+        to.Phone = from.Phone;
+        to.Fax = from.Fax;
+        to.Address = AddressMapper.Map(from.Address);
+        to.Signed = from.Signed;
         return to;
     }
 }

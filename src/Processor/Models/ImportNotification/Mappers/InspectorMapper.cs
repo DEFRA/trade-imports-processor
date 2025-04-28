@@ -9,9 +9,9 @@ public static class InspectorMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.Inspector();
-        to.Name = from?.Name;
-        to.Phone = from?.Phone;
-        to.Email = from?.Email;
+        to.Name = from.Name;
+        to.Phone = from.Phone;
+        to.Email = from.Email;
         return to;
     }
 }
