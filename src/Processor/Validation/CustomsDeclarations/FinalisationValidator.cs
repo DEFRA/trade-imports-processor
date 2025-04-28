@@ -10,10 +10,8 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         RuleFor(p => p.NewFinalisation)
             .Must(
                 (p, f) =>
-                    (
-                        f.FinalState != FinalState.CancelledAfterArrival
-                        && f.FinalState != FinalState.CancelledWhilePreLodged
-                    )
+                    f.FinalState != FinalState.CancelledAfterArrival
+                    && f.FinalState != FinalState.CancelledWhilePreLodged
                     && f.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion
             )
             .WithState(_ => "ALVSVAL401")

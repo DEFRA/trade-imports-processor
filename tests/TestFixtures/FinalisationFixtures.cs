@@ -13,21 +13,20 @@ public static class FinalisationFixtures
         return new Fixture();
     }
 
-    private static FinalisationHeader GenerateHeader(int version, string? mrn)
+    public static IPostprocessComposer<FinalisationHeader> FinalisationHeaderFixture(int version, string? mrn)
     {
         return GetFixture()
             .Build<FinalisationHeader>()
             .With(f => f.FinalState, "0")
             .With(f => f.EntryReference, mrn ?? GenerateMrn())
-            .With(h => h.EntryVersionNumber, version)
-            .Create();
+            .With(h => h.EntryVersionNumber, version);
     }
 
     public static IPostprocessComposer<Finalisation> FinalisationFixture(string? mrn = null, int version = 2)
     {
         return GetFixture()
             .Build<Finalisation>()
-            .With(f => f.Header, GenerateHeader(version, mrn))
+            .With(f => f.Header, FinalisationHeaderFixture(version, mrn).Create())
             .With(f => f.ServiceHeader, ServiceHeaderFixture().Create());
     }
 

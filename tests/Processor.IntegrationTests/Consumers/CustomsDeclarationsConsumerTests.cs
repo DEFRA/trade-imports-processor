@@ -2,6 +2,8 @@ using System.Net;
 using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
+using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -69,16 +71,43 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
     public async Task WhenFinalisationSent_ThenFinalisationIsProcessedAndSentToTheDataApi()
     {
         var mrn = GenerateMrn();
-        var finalisation = FinalisationFixture(mrn).Create();
+        var clearanceRequest = DataApiClearanceRequestFixture().Create();
+        var finalisationHeader = FinalisationHeaderFixture((int)clearanceRequest.ExternalVersion!, mrn)
+            .With(h => h.FinalState, ((int)FinalState.Cleared).ToString())
+            .Create();
+        var finalisation = FinalisationFixture(mrn).With(f => f.Header, finalisationHeader).Create();
+
+        var getCustomsDeclarationResponse = new CustomsDeclarationResponse(
+            mrn,
+            clearanceRequest,
+            null,
+            null,
+            null,
+            DateTime.Now,
+            DateTime.Now,
+            "12345"
+        );
 
         var createPath = $"/customs-declarations/{mrn}";
-        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
-        mappingBuilder.Given(m =>
+        var getMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        getMappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingGet().WithPath(createPath))
+                .WithResponse(rsp =>
+                {
+                    rsp.WithBody(JsonSerializer.Serialize(getCustomsDeclarationResponse));
+                    rsp.WithStatusCode(HttpStatusCode.OK);
+                })
+        );
+        var getMappingBuilderResult = await getMappingBuilder.BuildAndPostAsync();
+        Assert.Null(getMappingBuilderResult.Error);
+
+        var putMappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        putMappingBuilder.Given(m =>
             m.WithRequest(req => req.UsingPut().WithPath(createPath))
                 .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
         );
-        var status = await mappingBuilder.BuildAndPostAsync();
-        Assert.NotNull(status.Guid);
+        var putMappingBuilderResult = await putMappingBuilder.BuildAndPostAsync();
+        Assert.Null(putMappingBuilderResult);
 
         await SendMessage(
             mrn,

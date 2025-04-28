@@ -192,7 +192,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                             map.DocumentCode == s.Subject.Document.DocumentCode
                         );
                         return OrEmpty(s.Subject.Commodity.Checks)
-                            .All(check => relevantDocumentChecks.Any(map => map.CheckCode == check.CheckCode));
+                            .Any(check => relevantDocumentChecks.Any(map => map.CheckCode == check.CheckCode));
                     })
                     .WithState(_ => "ALVSVAL320")
                     .WithMessage(
@@ -253,7 +253,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                         var hasIuuCheckCode = checkCodes.Contains("H224");
                         var hasPoaoCheckCode = checkCodes.Contains("H222");
 
-                        return !hasIuuCheckCode || hasPoaoCheckCode;
+                        return (hasIuuCheckCode && hasPoaoCheckCode) || !hasIuuCheckCode;
                     })
                     .WithState(_ => "ALVSVAL328")
                     .WithMessage(
