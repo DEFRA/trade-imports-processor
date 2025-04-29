@@ -8,5 +8,5 @@ public class Header
     public required string EntryReference { get; init; }
 
     [JsonPropertyName("entryVersionNumber")]
-    public required int EntryVersionNumber { get; init; }
+    public int EntryVersionNumber { get; init; }
 }

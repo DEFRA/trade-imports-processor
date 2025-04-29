@@ -36,6 +36,31 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         };
     }
 
+    private async Task<Func<Task>> WithProcessingErrorEndpoint(string mrn)
+    {
+        var processingErrorCreatePath = $"/processing-errors/{mrn}";
+
+        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        mappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath(processingErrorCreatePath))
+                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
+        );
+        var status = await mappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(status.Guid);
+
+        return async () =>
+            Assert.True(
+                await AsyncWaiter.WaitForAsync(
+                    async () =>
+                    {
+                        var requestsModel = new RequestModel { Methods = ["PUT"], Path = processingErrorCreatePath };
+                        return (await _wireMockAdminApi.FindRequestsAsync(requestsModel)).Count == 0;
+                    },
+                    5
+                )
+            );
+    }
+
     [Fact]
     public async Task WhenClearanceRequestSent_ThenClearanceRequestIsProcessedAndSentToTheDataApi()
     {
@@ -51,6 +76,8 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
+        var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
+
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(clearanceRequest),
@@ -65,6 +92,8 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
                 return requests.Count == 1;
             })
         );
+
+        await errorEndpointWasNotCalled();
     }
 
     [Fact]
@@ -142,6 +171,8 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         var putMappingBuilderResult = await putMappingBuilder.BuildAndPostAsync();
         Assert.Null(putMappingBuilderResult.Error);
 
+        var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
+
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(finalisation),
@@ -156,6 +187,8 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
                 return requests.Count == 1;
             })
         );
+
+        await errorEndpointWasNotCalled();
     }
 
     [Fact]
@@ -173,6 +206,8 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
+        var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
+
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(inboundError),
@@ -187,5 +222,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
                 return requests.Count == 1;
             })
         );
+
+        await errorEndpointWasNotCalled();
     }
 }

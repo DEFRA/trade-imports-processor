@@ -1,3 +1,8 @@
+compose-down:
+	docker compose down
+	docker stop processor-asb-backend || true
+	docker stop processor-sqledge || true
+
 dependencies:
 	dotnet tool restore
 

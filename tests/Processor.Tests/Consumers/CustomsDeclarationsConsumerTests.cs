@@ -37,7 +37,9 @@ public class CustomsDeclarationsConsumerTests
     private readonly IValidator<FinalisationValidatorInput> _finalisationValidator = Substitute.For<
         IValidator<FinalisationValidatorInput>
     >();
-    private readonly IValidator<ServiceHeader> _serviceHeaderValidation = Substitute.For<IValidator<ServiceHeader>>();
+    private readonly IValidator<CustomsDeclarationsMessage> _customsDeclarationsMessageValidation = Substitute.For<
+        IValidator<CustomsDeclarationsMessage>
+    >();
 
     public CustomsDeclarationsConsumerTests()
     {
@@ -47,8 +49,8 @@ public class CustomsDeclarationsConsumerTests
         _finalisationValidator
             .ValidateAsync(Arg.Any<FinalisationValidatorInput>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
-        _serviceHeaderValidation
-            .ValidateAsync(Arg.Any<ServiceHeader>(), Arg.Any<CancellationToken>())
+        _customsDeclarationsMessageValidation
+            .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
     }
 
@@ -78,8 +80,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = unknownMessageTypeContext,
@@ -105,8 +107,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = unknownMessageTypeContext,
@@ -126,19 +128,26 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
         };
 
         var mrn = GenerateMrn();
-        var clearanceRequest = ClearanceRequestFixture(mrn).Create();
+        const int version = 1;
+        var clearanceRequest = ClearanceRequestFixture(mrn, version).Create();
 
-        var validationError = new ValidationFailure("DestinationSystem", "Error Message", "Space")
+        var cdsError = new ValidationFailure("DestinationSystem", "Error Message", "Space")
         {
-            ErrorCode = "ALVSVAL999",
+            ErrorCode = "DestinationSystem",
+            CustomState = "ALVSVAL999",
+        };
+        var validationError = new ValidationFailure("DeclarationUcr", "Too long", "....")
+        {
+            ErrorCode = "DeclarationUcr",
+            ErrorMessage = "Too long",
         };
 
         var existingProcessingNotifications = new ProcessingError
@@ -161,9 +170,9 @@ public class CustomsDeclarationsConsumerTests
             ExpectedEtag
         );
 
-        _serviceHeaderValidation
-            .ValidateAsync(Arg.Any<ServiceHeader>(), Arg.Any<CancellationToken>())
-            .Returns(new ValidationResult { Errors = [validationError] });
+        _customsDeclarationsMessageValidation
+            .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult { Errors = [cdsError, validationError] });
 
         _mockApi.GetProcessingError(mrn, _cancellationToken).Returns(existingProcessingErrorResponse);
 
@@ -186,7 +195,9 @@ public class CustomsDeclarationsConsumerTests
                     e.Notifications != null
                     && e.Notifications.Length == 2
                     && e.Notifications[0].Errors[0].Code == "PREVIOUSCODE"
-                    && e.Notifications[1].Errors[0].Code == validationError.ErrorCode
+                    && e.Notifications[1].ExternalVersion == version
+                    && e.Notifications[1].ExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
+                    && e.Notifications[1].Errors[0].Code == (string)cdsError.CustomState
                 ),
                 Arg.Any<string>(),
                 _cancellationToken
@@ -201,8 +212,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -240,8 +251,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -272,8 +283,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -324,8 +335,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -368,8 +379,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
@@ -390,8 +401,8 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
                     d.InboundError!.Notifications![0].ExternalCorrelationId == inboundError.ServiceHeader.CorrelationId
                     && d.InboundError!.Notifications![0].ExternalVersion == inboundError.Header.EntryVersionNumber
-                    && d.InboundError!.Notifications![0].Errors![0].Code == inboundError.Errors[0].errorCode
-                    && d.InboundError!.Notifications![0].Errors![0].Message == inboundError.Errors[0].errorMessage
+                    && d.InboundError!.Notifications![0].Errors[0].Code == inboundError.Errors[0].errorCode
+                    && d.InboundError!.Notifications![0].Errors[0].Message == inboundError.Errors[0].errorMessage
                 ),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -406,8 +417,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
@@ -453,8 +464,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -487,8 +498,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -540,8 +551,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -584,8 +595,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -637,8 +648,8 @@ public class CustomsDeclarationsConsumerTests
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
-            _finalisationValidator,
-            _serviceHeaderValidation
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),

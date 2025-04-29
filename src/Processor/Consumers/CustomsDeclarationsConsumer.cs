@@ -17,8 +17,8 @@ public class CustomsDeclarationsConsumer(
     ILogger<CustomsDeclarationsConsumer> logger,
     ITradeImportsDataApiClient api,
     IValidator<ClearanceRequestValidatorInput> clearanceRequestValidator,
-    IValidator<FinalisationValidatorInput> finalisationValidator,
-    IValidator<ServiceHeader> serviceHeaderValidator
+    IValidator<CustomsDeclarationsMessage> customsDeclarationsMessageValidator,
+    IValidator<FinalisationValidatorInput> finalisationValidator
 ) : IConsumer<JsonElement>, IConsumerWithContext
 {
     private const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
@@ -35,14 +35,26 @@ public class CustomsDeclarationsConsumer(
 
         var existingValidationErrors = await api.GetProcessingError(mrn, cancellationToken);
 
+        validationResult.Errors.ForEach(error =>
+            logger.LogInformation(
+                "Mrn {Mrn} Version {Version} Type {MessageType} failed validation with {ErrorCode}: {ErrorMessage}",
+                mrn,
+                customsDeclarationsMessage.Header.EntryVersionNumber,
+                messageType,
+                error.ErrorCode,
+                error.ErrorMessage
+            )
+        );
+
         var processingErrorNotification = new DataApiErrors.ErrorNotification
         {
             ExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
             ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
             Errors = validationResult
-                .Errors.Select(error => new DataApiErrors.ErrorItem
+                .Errors.Where(error => error.CustomState != null)
+                .Select(error => new DataApiErrors.ErrorItem
                 {
-                    Code = error.ErrorCode,
+                    Code = (string)error.CustomState,
                     Message = error.ErrorMessage,
                 })
                 .ToArray(),
@@ -56,17 +68,6 @@ public class CustomsDeclarationsConsumer(
         };
 
         await api.PutProcessingError(mrn, updatedValidationErrors, existingValidationErrors?.ETag, cancellationToken);
-
-        validationResult.Errors.ForEach(error =>
-            logger.LogInformation(
-                "Mrn {Mrn} Version {Version} Type {MessageType} failed validation with {ErrorCode}: {ErrorMessage}",
-                mrn,
-                customsDeclarationsMessage.Header.EntryVersionNumber,
-                messageType,
-                error.ErrorCode,
-                error.ErrorMessage
-            )
-        );
     }
 
     private static DataApiCustomsDeclaration.CustomsDeclaration UpdatedCustomsDeclaration<T>(
@@ -95,15 +96,15 @@ public class CustomsDeclarationsConsumer(
         if (!success || inboundHmrcMessageType == null || customsDeclarationsMessage == null)
             throw new CustomsDeclarationMessageTypeException(MessageId);
 
-        var serviceHeaderValidation = await serviceHeaderValidator.ValidateAsync(
-            customsDeclarationsMessage.ServiceHeader,
+        var customsDeclarationsMessageValidation = await customsDeclarationsMessageValidator.ValidateAsync(
+            customsDeclarationsMessage,
             cancellationToken
         );
-        if (!serviceHeaderValidation.IsValid)
+        if (!customsDeclarationsMessageValidation.IsValid)
         {
             await ReportValidationErrors(
                 customsDeclarationsMessage,
-                serviceHeaderValidation,
+                customsDeclarationsMessageValidation,
                 inboundHmrcMessageType,
                 cancellationToken
             );
@@ -187,7 +188,6 @@ public class CustomsDeclarationsConsumer(
                 Mrn = mrn,
                 NewClearanceRequest = clearanceRequest,
                 ExistingClearanceRequest = existingCustomsDeclaration?.ClearanceRequest,
-                ExistingFinalisation = existingCustomsDeclaration?.Finalisation,
             },
             cancellationToken
         );
