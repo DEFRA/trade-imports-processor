@@ -147,8 +147,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<ClearanceRequestValidatorInput>, ClearanceRequestValidator>();
+        services.AddScoped<IValidator<CustomsDeclarationsMessage>, CustomsDeclarationsMessageValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
-        services.AddScoped<IValidator<ServiceHeader>, ServiceHeaderValidator>();
 
         return services;
     }

@@ -1,5 +1,6 @@
 using AutoFixture;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.Results;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
@@ -100,15 +101,14 @@ public class FinalisationValidatorTests
     }
 
     [Fact]
-    public void Validate_Returns_ALVSVAL404_WhenANewFinalisationAttemptsToCancelAnImportButItHasAlreadyBeenCancelled()
+    public void Validate_Returns_ALVSVAL501_WhenACancelledFinalisationHasAlreadyBeenReceivedAndANewCancellationIsSent()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
-            .With(f => f.ExternalVersion, 2)
             .With(f => f.FinalState, FinalState.CancelledAfterArrival)
             .Create();
         var existingFinalisation = DataApiFinalisationFixture()
-            .With(f => f.FinalState, FinalState.CancelledWhilePreLodged)
+            .With(f => f.FinalState, FinalState.CancelledAfterArrival)
             .Create();
         var mrn = GenerateMrn();
 
@@ -122,17 +122,17 @@ public class FinalisationValidatorTests
             }
         );
 
-        var error = FindWithErrorCode(result, "ALVSVAL404");
+        var error = FindWithErrorCode(result, "ALVSVAL501");
 
         Assert.NotNull(error);
         Assert.Contains(
-            $"An attempt to cancel EntryReference {mrn} EntryVersionNumber 2 was made but the import declaration was cancelled.",
+            $"An attempt to cancel EntryReference {mrn} EntryVersionNumber 1 was made but the import declaration was cancelled.",
             error.ErrorMessage
         );
     }
 
     [Fact]
-    public void Validate_Returns_ALVSVAL405_WhenANewFinalisationAttemptsToCancelButItIsOutOfDate()
+    public void Validate_Returns_ALVSVAL506_WhenANewFinalisationAttemptsToCancelButItIsOutOfDate()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
@@ -152,7 +152,7 @@ public class FinalisationValidatorTests
             }
         );
 
-        var error = FindWithErrorCode(result, "ALVSVAL405");
+        var error = FindWithErrorCode(result, "ALVSVAL506");
 
         Assert.NotNull(error);
         Assert.Contains(

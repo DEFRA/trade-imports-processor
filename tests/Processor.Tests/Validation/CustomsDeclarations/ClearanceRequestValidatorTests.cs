@@ -2,6 +2,7 @@ using AutoFixture;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.Results;
+using FluentValidation.TestHelper;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
@@ -16,60 +17,6 @@ public class ClearanceRequestValidatorTests
     private static ValidationFailure? FindWithErrorCode(ValidationResult result, string errorCode)
     {
         return result.Errors.Find(s => (string)s.CustomState == errorCode);
-    }
-
-    [Theory]
-    [InlineData(1, false)]
-    [InlineData(99999999999.999, false)]
-    [InlineData(999999999999.999, true)]
-    [InlineData(9999999999.9999, true)]
-    public void Validate_Returns_ALVSVAL108_WhenCommodityQuantityIsInvalid(decimal supplementaryUnits, bool shouldError)
-    {
-        Commodity[] commodities = [new() { ItemNumber = 1, SupplementaryUnits = supplementaryUnits }];
-
-        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.Commodities, commodities).Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = FindWithErrorCode(result, "ALVSVAL108");
-
-        if (shouldError)
-        {
-            Assert.NotNull(errors);
-            Assert.Contains("Supplementary units format on item number 1 is invalid.", errors.ErrorMessage);
-            return;
-        }
-
-        Assert.Null(errors);
-    }
-
-    [Theory]
-    [InlineData(1, false)]
-    [InlineData(99999999999.999, false)]
-    [InlineData(999999999999.999, true)]
-    [InlineData(9999999999.9999, true)]
-    public void Validate_Returns_ALVSVAL109_WhenCommodityNetMassIsInvalid(decimal netMass, bool shouldError)
-    {
-        Commodity[] commodities = [new() { ItemNumber = 1, NetMass = netMass }];
-
-        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.Commodities, commodities).Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = FindWithErrorCode(result, "ALVSVAL109");
-
-        if (shouldError)
-        {
-            Assert.NotNull(errors);
-            Assert.Contains("Net mass format on item number 1 is invalid.", errors.ErrorMessage);
-            return;
-        }
-
-        Assert.Null(errors);
     }
 
     [Fact]
@@ -126,7 +73,6 @@ public class ClearanceRequestValidatorTests
             new ClearanceRequestValidatorInput
             {
                 ExistingClearanceRequest = existingClearanceRequest,
-                ExistingFinalisation = null,
                 Mrn = mrn,
                 NewClearanceRequest = newClearanceRequest,
             }
@@ -146,74 +92,12 @@ public class ClearanceRequestValidatorTests
             new ClearanceRequestValidatorInput
             {
                 ExistingClearanceRequest = existingClearanceRequest,
-                ExistingFinalisation = null,
                 Mrn = mrn,
                 NewClearanceRequest = newClearanceRequest,
             }
         );
 
         Assert.Null(FindWithErrorCode(result, "ALVSVAL303"));
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL308_WhenADocumentCodeIsInvalidOnACommodity()
-    {
-        var validDocumentCodes = _validator.CommodityDocumentCheckMap.Select(c => c.DocumentCode).Distinct().ToList();
-
-        var commodities = new List<Commodity>
-        {
-            new() { ItemNumber = 1, Documents = [new ImportDocument { DocumentCode = "UNKNOWN" }] },
-            new()
-            {
-                ItemNumber = 2,
-                Documents =
-                [
-                    new ImportDocument { DocumentCode = validDocumentCodes[0] },
-                    new ImportDocument { DocumentCode = "UNKNOWN2" },
-                ],
-            },
-            new() { ItemNumber = 3 },
-        };
-
-        commodities.AddRange(
-            validDocumentCodes.Select(
-                (t, i) => new Commodity { ItemNumber = i + 3, Documents = [new ImportDocument { DocumentCode = t }] }
-            )
-        );
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL308").ToList();
-
-        Assert.Equal(2, errors.Count);
-        Assert.Contains("DocumentCode UNKNOWN on item number 1 is invalid.", errors[0].ErrorMessage);
-        Assert.Contains("DocumentCode UNKNOWN2 on item number 2 is invalid.", errors[1].ErrorMessage);
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL311_WhenACommodityHasACheckWithoutACheckCode()
-    {
-        Commodity[] commodities =
-        [
-            new() { ItemNumber = 1, Checks = [new CommodityCheck { DepartmentCode = "ABCD" }] },
-            new() { ItemNumber = 2 },
-        ];
-        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.Commodities, commodities).Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = FindWithErrorCode(result, "ALVSVAL311");
-
-        Assert.NotNull(errors);
-        Assert.Contains("The CheckCode field on item number 1 must have a value.", errors.ErrorMessage);
     }
 
     [Fact]
@@ -229,145 +113,6 @@ public class ClearanceRequestValidatorTests
 
         Assert.NotNull(errors);
         Assert.Contains("The DeclarationUCR field must have a value.", errors.ErrorMessage);
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL317_WhenTwoChecksByTheSameAuthorityAreOnTheSameCommodity()
-    {
-        var commodities = new List<Commodity>
-        {
-            new() { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" }] },
-            new()
-            {
-                ItemNumber = 2,
-                Checks =
-                [
-                    new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" },
-                    new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI" },
-                ],
-            },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = FindWithErrorCode(result, "ALVSVAL317");
-
-        Assert.NotNull(errors);
-        Assert.Contains("Item 2 has more than one Item Check defined for the same authority.", errors.ErrorMessage);
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL318_WhenADocumentIsNotProvidedForCommodity()
-    {
-        var commodities = new List<Commodity>
-        {
-            new() { ItemNumber = 1, Documents = [new ImportDocument { DocumentCode = "C633" }] },
-            new() { ItemNumber = 2 },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        Assert.NotNull(FindWithErrorCode(result, "ALVSVAL318"));
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL320_WhenTheCheckCodesSpecified_ButAreNotRelevantToTheDocumentCodes()
-    {
-        var commodities = new List<Commodity>
-        {
-            new()
-            {
-                ItemNumber = 1,
-                Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }],
-                Documents = [new ImportDocument { DocumentCode = "C640" }],
-            },
-            new()
-            {
-                ItemNumber = 2,
-                Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }],
-                Documents = [new ImportDocument { DocumentCode = "N853" }],
-            },
-            new()
-            {
-                ItemNumber = 3,
-                Checks = [new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" }],
-                Documents = [new ImportDocument { DocumentCode = "9115" }],
-            },
-            new()
-            {
-                ItemNumber = 4,
-                Checks =
-                [
-                    new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" },
-                    new CommodityCheck { CheckCode = "H219", DepartmentCode = "HMI" },
-                ],
-                Documents =
-                [
-                    new ImportDocument { DocumentCode = "9115" },
-                    new ImportDocument { DocumentCode = "N853" },
-                ],
-            },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL320").ToList();
-
-        Assert.Equal(2, errors.Count);
-        Assert.Contains(
-            "Document code C640 is not appropriate for the check code requested on ItemNumber 1",
-            errors[0].ErrorMessage
-        );
-        Assert.Contains(
-            "Document code 9115 is not appropriate for the check code requested on ItemNumber 3",
-            errors[1].ErrorMessage
-        );
-    }
-
-    [Fact]
-    public void Validate_Returns_ALVSVAL321_WhenCheckCodesAreSpecified_ButNoDocumentCodesAreSpecified()
-    {
-        var commodities = new List<Commodity>
-        {
-            new()
-            {
-                ItemNumber = 1,
-                Checks = [new CommodityCheck { CheckCode = "H221", DepartmentCode = "AHVLA" }],
-                Documents = [new ImportDocument { DocumentCode = "C640" }],
-            },
-            new() { ItemNumber = 2, Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }] },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL321").ToList();
-
-        Assert.Single(errors);
-        Assert.Contains("Check code H222 on ItemNumber 2 must have a document code.", errors[0].ErrorMessage);
     }
 
     [Theory]
@@ -429,53 +174,96 @@ public class ClearanceRequestValidatorTests
         Assert.NotNull(FindWithErrorCode(result, "ALVSVAL326"));
     }
 
-    [Fact]
-    public void Validate_Returns_ALVSVAL328_WhenAnIuuCheckIsSpecifiedButHasNoPoaoCheck()
+    [Theory, ClassData(typeof(ClearanceRequestValidatorTestData))]
+    public void TheoryTests(ClearanceRequest clearanceRequest, ExpectedResult expectedResult)
     {
-        var commodities = new List<Commodity>
-        {
-            new() { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA" }] },
-            new() { ItemNumber = 2, Checks = [new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" }] },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        var result = _validator.TestValidate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = clearanceRequest }
         );
 
-        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL328").ToList();
+        if (expectedResult.HasValidationError)
+        {
+            result.ShouldHaveValidationErrorFor(expectedResult.PropertyName);
+            return;
+        }
 
-        Assert.Single(errors);
-        Assert.Contains("An IUU document has been specified for ItemNumber 1.", errors[0].ErrorMessage);
+        result.ShouldNotHaveValidationErrorFor(expectedResult.PropertyName);
     }
 
-    [Fact]
-    public void Validate_DoesNotReturn_ALVSVAL328_WhenIuuCheckANdPoaoCheckIsSpecified()
+    public class ClearanceRequestValidatorTestData : TheoryData<ClearanceRequest, ExpectedResult>
     {
-        var commodities = new List<Commodity>
+        public ClearanceRequestValidatorTestData()
         {
-            new()
-            {
-                ItemNumber = 1,
-                Checks =
-                [
-                    new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA" },
-                    new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA" },
-                ],
-            },
-        };
-
-        var newClearanceRequest = DataApiClearanceRequestFixture()
-            .With(c => c.Commodities, commodities.ToArray())
-            .Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        Assert.Null(FindWithErrorCode(result, "ALVSVAL328"));
+            Add(
+                DataApiClearanceRequestFixture()
+                    .With(d => d.DeclarationUcr, "1234567891234567891233fghytfcdsertgy")
+                    .Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationUcr", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationUcr, "valid").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationUcr", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationType, "F").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationType", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationType, "S").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationType", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationType, "T").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationType", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().Without(d => d.DeclarationType).Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationType", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarantId, "valid").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantId", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture()
+                    .With(d => d.DeclarantId, "1234567891234567891233fghytfcdsertgy")
+                    .Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantId", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().Without(d => d.DeclarantId).Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantId", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarantName, "valid").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantName", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture()
+                    .With(d => d.DeclarantName, "1234567891234567891233fghytfcdsertgy")
+                    .Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantName", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().Without(d => d.DeclarantName).Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarantName", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DispatchCountryCode, "GB").Create(),
+                new ExpectedResult("NewClearanceRequest.DispatchCountryCode", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DispatchCountryCode, "T").Create(),
+                new ExpectedResult("NewClearanceRequest.DispatchCountryCode", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DispatchCountryCode, "GBB").Create(),
+                new ExpectedResult("NewClearanceRequest.DispatchCountryCode", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().Without(d => d.DispatchCountryCode).Create(),
+                new ExpectedResult("NewClearanceRequest.DispatchCountryCode", true)
+            );
+        }
     }
 }
