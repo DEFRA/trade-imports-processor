@@ -27,13 +27,12 @@ public class CustomsDeclarationsConsumer(
     private async Task ReportValidationErrors(
         CustomsDeclarationsMessage customsDeclarationsMessage,
         ValidationResult validationResult,
+        string messageBody,
         string messageType,
         CancellationToken cancellationToken
     )
     {
         var mrn = customsDeclarationsMessage.Header.EntryReference;
-
-        var existingValidationErrors = await api.GetProcessingError(mrn, cancellationToken);
 
         validationResult.Errors.ForEach(error =>
             logger.LogInformation(
@@ -46,18 +45,27 @@ public class CustomsDeclarationsConsumer(
             )
         );
 
+        var existingValidationErrors = await api.GetProcessingError(mrn, cancellationToken);
+
+        var alvsValErrors = validationResult
+            .Errors.Where(error => error.CustomState != null)
+            .Select(error => new DataApiErrors.ErrorItem
+            {
+                Code = (string)error.CustomState,
+                Message = error.ErrorMessage,
+            })
+            .ToArray();
+
+        if (alvsValErrors.Length == 0)
+            return;
+
         var processingErrorNotification = new DataApiErrors.ErrorNotification
         {
+            Created = DateTime.UtcNow,
             ExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
             ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
-            Errors = validationResult
-                .Errors.Where(error => error.CustomState != null)
-                .Select(error => new DataApiErrors.ErrorItem
-                {
-                    Code = (string)error.CustomState,
-                    Message = error.ErrorMessage,
-                })
-                .ToArray(),
+            Errors = alvsValErrors,
+            Message = messageBody,
         };
 
         var updatedValidationErrors = new ProcessingError
@@ -105,6 +113,7 @@ public class CustomsDeclarationsConsumer(
             await ReportValidationErrors(
                 customsDeclarationsMessage,
                 customsDeclarationsMessageValidation,
+                received.GetRawText(),
                 inboundHmrcMessageType,
                 cancellationToken
             );
@@ -137,6 +146,7 @@ public class CustomsDeclarationsConsumer(
             await ReportValidationErrors(
                 customsDeclarationsMessage,
                 validationError,
+                received.GetRawText(),
                 inboundHmrcMessageType,
                 cancellationToken
             );

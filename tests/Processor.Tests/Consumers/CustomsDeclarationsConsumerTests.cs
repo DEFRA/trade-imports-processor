@@ -122,7 +122,7 @@ public class CustomsDeclarationsConsumerTests
 
     [Fact]
     [Trait("CustomsDeclarations", "Common")]
-    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButFailsServiceHeaderValidation_ItIsSkipped()
+    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButFailsValidation_ItIsSkipped()
     {
         var consumer = new CustomsDeclarationsConsumer(
             _mockLogger,
@@ -156,9 +156,11 @@ public class CustomsDeclarationsConsumerTests
             [
                 new ErrorNotification
                 {
+                    Created = DateTime.UtcNow,
                     ExternalCorrelationId = "ANOTHER-CORRELATION-ID",
                     ExternalVersion = 1,
                     Errors = [new ErrorItem { Code = "PREVIOUSCODE", Message = "An error message" }],
+                    Message = "The Last Error",
                 },
             ],
         };
@@ -176,7 +178,9 @@ public class CustomsDeclarationsConsumerTests
 
         _mockApi.GetProcessingError(mrn, _cancellationToken).Returns(existingProcessingErrorResponse);
 
-        await consumer.OnHandle(JsonSerializer.SerializeToElement(clearanceRequest), _cancellationToken);
+        var messageBody = JsonSerializer.SerializeToElement(clearanceRequest);
+
+        await consumer.OnHandle(messageBody, _cancellationToken);
 
         await _mockApi.DidNotReceive().GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>());
         await _mockApi
@@ -195,12 +199,67 @@ public class CustomsDeclarationsConsumerTests
                     e.Notifications != null
                     && e.Notifications.Length == 2
                     && e.Notifications[0].Errors[0].Code == "PREVIOUSCODE"
+                    && e.Notifications[1].Created != null
                     && e.Notifications[1].ExternalVersion == version
                     && e.Notifications[1].ExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
                     && e.Notifications[1].Errors[0].Code == (string)cdsError.CustomState
+                    && e.Notifications[1].Errors[0].Message == cdsError.ErrorMessage
+                    && e.Notifications[1].Message == messageBody.GetRawText()
                 ),
                 Arg.Any<string>(),
                 _cancellationToken
+            );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButFailsNonALVSVALValidation_ItDoesNotReportItToTheDataApi()
+    {
+        var consumer = new CustomsDeclarationsConsumer(
+            _mockLogger,
+            _mockApi,
+            _clearanceRequestValidator,
+            _customsDeclarationsMessageValidation,
+            _finalisationValidator
+        )
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
+        };
+
+        var mrn = GenerateMrn();
+        var clearanceRequest = ClearanceRequestFixture(mrn).Create();
+
+        var validationError = new ValidationFailure("DeclarationUcr", "Too long", "....")
+        {
+            ErrorCode = "DeclarationUcr",
+            ErrorMessage = "Too long",
+        };
+
+        _customsDeclarationsMessageValidation
+            .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult { Errors = [validationError] });
+
+        _mockApi.GetProcessingError(mrn, _cancellationToken).Returns(null as ProcessingErrorResponse);
+
+        var messageBody = JsonSerializer.SerializeToElement(clearanceRequest);
+
+        await consumer.OnHandle(messageBody, _cancellationToken);
+
+        await _mockApi.DidNotReceive().GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _mockApi
+            .DidNotReceive()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+        await _mockApi
+            .DidNotReceive()
+            .PutProcessingError(
+                Arg.Any<string>(),
+                Arg.Any<ProcessingError>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
             );
     }
 
