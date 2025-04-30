@@ -18,7 +18,13 @@ public static class InboundErrorFixtures
         return GetFixture()
             .Build<InboundError>()
             .With(e => e.Header, HeaderFixture(mrn).Create())
-            .With(e => e.ServiceHeader, ServiceHeaderFixture().Create());
+            .With(e => e.ServiceHeader, ServiceHeaderFixture().Create())
+            .With(e => e.Errors, [InboundErrorItemFixture().Create()]);
+    }
+
+    private static IPostprocessComposer<InboundErrorItem> InboundErrorItemFixture()
+    {
+        return GetFixture().Build<InboundErrorItem>().With(e => e.errorCode, "HMRCVAL101");
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.InboundError> DataApiInboundErrorFixture()
