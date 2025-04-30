@@ -78,7 +78,6 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
     private static bool BeAValidCancellationRequest(FinalisationValidatorInput p, FinalState finalState)
     {
         var isCancellation = finalState is FinalState.CancelledAfterArrival or FinalState.CancelledWhilePreLodged;
-
         return !isCancellation || p.ExistingClearanceRequest.ExternalVersion == p.NewFinalisation.ExternalVersion;
     }
 }

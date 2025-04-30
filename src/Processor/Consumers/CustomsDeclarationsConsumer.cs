@@ -18,6 +18,7 @@ public class CustomsDeclarationsConsumer(
     ITradeImportsDataApiClient api,
     IValidator<ClearanceRequestValidatorInput> clearanceRequestValidator,
     IValidator<CustomsDeclarationsMessage> customsDeclarationsMessageValidator,
+    IValidator<DataApiErrors.ErrorNotification> errorNotificationValidator,
     IValidator<FinalisationValidatorInput> finalisationValidator
 ) : IConsumer<JsonElement>, IConsumerWithContext
 {
@@ -131,7 +132,12 @@ public class CustomsDeclarationsConsumer(
                 existingCustomsDeclaration,
                 cancellationToken
             ),
-            InboundHmrcMessageType.InboundError => OnHandleInboundError(mrn, received, existingCustomsDeclaration),
+            InboundHmrcMessageType.InboundError => await OnHandleInboundError(
+                mrn,
+                received,
+                existingCustomsDeclaration,
+                cancellationToken
+            ),
             InboundHmrcMessageType.Finalisation => await OnHandleFinalisation(
                 mrn,
                 received,
@@ -224,14 +230,26 @@ public class CustomsDeclarationsConsumer(
         return (null, null);
     }
 
-    private (DataApiCustomsDeclaration.CustomsDeclaration, ValidationResult?) OnHandleInboundError(
+    private async Task<(DataApiCustomsDeclaration.CustomsDeclaration?, ValidationResult?)> OnHandleInboundError(
         string mrn,
         JsonElement received,
-        CustomsDeclarationResponse? existingCustomsDeclaration
+        CustomsDeclarationResponse? existingCustomsDeclaration,
+        CancellationToken cancellationToken
     )
     {
         var inboundErrorNotifications = (DataApiErrors.ErrorNotification)
             DeserializeMessage<InboundError>(received, mrn);
+
+        var validationResult = await errorNotificationValidator.ValidateAsync(
+            inboundErrorNotifications,
+            cancellationToken
+        );
+
+        if (!validationResult.IsValid)
+        {
+            return (null, validationResult);
+        }
+
         var updatedInboundError = new DataApiCustomsDeclaration.InboundError
         {
             Notifications = (existingCustomsDeclaration?.InboundError?.Notifications ?? [])

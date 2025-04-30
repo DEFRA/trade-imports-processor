@@ -34,11 +34,15 @@ public class CustomsDeclarationsConsumerTests
     private readonly IValidator<ClearanceRequestValidatorInput> _clearanceRequestValidator = Substitute.For<
         IValidator<ClearanceRequestValidatorInput>
     >();
-    private readonly IValidator<FinalisationValidatorInput> _finalisationValidator = Substitute.For<
-        IValidator<FinalisationValidatorInput>
-    >();
     private readonly IValidator<CustomsDeclarationsMessage> _customsDeclarationsMessageValidation = Substitute.For<
         IValidator<CustomsDeclarationsMessage>
+    >();
+
+    private readonly IValidator<ErrorNotification> _errorNotificationValidator = Substitute.For<
+        IValidator<ErrorNotification>
+    >();
+    private readonly IValidator<FinalisationValidatorInput> _finalisationValidator = Substitute.For<
+        IValidator<FinalisationValidatorInput>
     >();
 
     public CustomsDeclarationsConsumerTests()
@@ -46,11 +50,14 @@ public class CustomsDeclarationsConsumerTests
         _clearanceRequestValidator
             .ValidateAsync(Arg.Any<ClearanceRequestValidatorInput>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
-        _finalisationValidator
-            .ValidateAsync(Arg.Any<FinalisationValidatorInput>(), Arg.Any<CancellationToken>())
-            .Returns(new ValidationResult { Errors = [] });
         _customsDeclarationsMessageValidation
             .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult { Errors = [] });
+        _errorNotificationValidator
+            .ValidateAsync(Arg.Any<ErrorNotification>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult { Errors = [] });
+        _finalisationValidator
+            .ValidateAsync(Arg.Any<FinalisationValidatorInput>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
     }
 
@@ -81,6 +88,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -108,6 +116,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -129,6 +138,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -219,6 +229,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -272,6 +283,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -311,6 +323,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -343,6 +356,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -395,6 +409,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -432,13 +447,14 @@ public class CustomsDeclarationsConsumerTests
 
     [Fact]
     [Trait("CustomsDeclarations", "InboundError")]
-    public async Task OnHandle_WhenInboundErrorReceived_AndNoOtherInboundErrorsExist_ItAddsANewOne()
+    public async Task OnHandle_WhenInboundErrorReceived_ButFailsInboundErrorValidation_ItIsSkipped()
     {
         var consumer = new CustomsDeclarationsConsumer(
             _mockLogger,
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -447,6 +463,57 @@ public class CustomsDeclarationsConsumerTests
 
         var mrn = GenerateMrn();
         var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
+        var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
+
+        var validationResult = new ValidationResult
+        {
+            Errors =
+            [
+                new ValidationFailure("Errors", "Invalid Error Code", "CODE")
+                {
+                    ErrorCode = "Errors",
+                    ErrorMessage =
+                        "The error code CODE is not valid for correlation ID "
+                        + inboundError.ServiceHeader.CorrelationId,
+                },
+            ],
+        };
+
+        _errorNotificationValidator
+            .ValidateAsync(Arg.Any<ErrorNotification>(), Arg.Any<CancellationToken>())
+            .Returns(validationResult);
+        _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(inboundError), _cancellationToken);
+
+        await _mockApi
+            .DidNotReceive()
+            .PutCustomsDeclaration(
+                Arg.Any<string>(),
+                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "InboundError")]
+    public async Task OnHandle_WhenInboundErrorReceived_AndNoOtherInboundErrorsExist_ItAddsANewOne()
+    {
+        var consumer = new CustomsDeclarationsConsumer(
+            _mockLogger,
+            _mockApi,
+            _clearanceRequestValidator,
+            _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
+            _finalisationValidator
+        )
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
+        };
+
+        var mrn = GenerateMrn();
+        var inboundErrorItem = new InboundErrorItem { errorCode = "HMRCVAL101", errorMessage = "An error" };
         var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
@@ -477,6 +544,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -524,6 +592,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -558,6 +627,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -611,6 +681,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -655,6 +726,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {
@@ -708,6 +780,7 @@ public class CustomsDeclarationsConsumerTests
             _mockApi,
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
             _finalisationValidator
         )
         {

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
@@ -148,6 +149,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IValidator<ClearanceRequestValidatorInput>, ClearanceRequestValidator>();
         services.AddScoped<IValidator<CustomsDeclarationsMessage>, CustomsDeclarationsMessageValidator>();
+        services.AddScoped<IValidator<ErrorNotification>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
 
         return services;
