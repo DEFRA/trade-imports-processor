@@ -18,6 +18,7 @@ public class InboundError
     {
         return new DataApiErrors.ErrorNotification
         {
+            Created = inboundError.ServiceHeader.ServiceCallTimestamp,
             ExternalCorrelationId = inboundError.ServiceHeader.CorrelationId,
             ExternalVersion = inboundError.Header.EntryVersionNumber,
             Errors = inboundError
