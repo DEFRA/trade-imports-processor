@@ -17,49 +17,49 @@ public class Decision
     ///     Filled if consignmentAcceptable is set to false
     /// </summary>
     [JsonPropertyName("notAcceptableAction")]
-    public DecisionNotAcceptableAction? NotAcceptableAction { get; set; }
+    public string? NotAcceptableAction { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to destruction
     /// </summary>
     [JsonPropertyName("notAcceptableActionDestructionReason")]
-    public DecisionNotAcceptableActionDestructionReason? NotAcceptableActionDestructionReason { get; set; }
+    public string? NotAcceptableActionDestructionReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to entry refusal
     /// </summary>
     [JsonPropertyName("notAcceptableActionEntryRefusalReason")]
-    public DecisionNotAcceptableActionEntryRefusalReason? NotAcceptableActionEntryRefusalReason { get; set; }
+    public string? NotAcceptableActionEntryRefusalReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to quarantine imposed
     /// </summary>
     [JsonPropertyName("notAcceptableActionQuarantineImposedReason")]
-    public DecisionNotAcceptableActionQuarantineImposedReason? NotAcceptableActionQuarantineImposedReason { get; set; }
+    public string? NotAcceptableActionQuarantineImposedReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to special treatment
     /// </summary>
     [JsonPropertyName("notAcceptableActionSpecialTreatmentReason")]
-    public DecisionNotAcceptableActionSpecialTreatmentReason? NotAcceptableActionSpecialTreatmentReason { get; set; }
+    public string? NotAcceptableActionSpecialTreatmentReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to industrial processing
     /// </summary>
     [JsonPropertyName("notAcceptableActionIndustrialProcessingReason")]
-    public DecisionNotAcceptableActionIndustrialProcessingReason? NotAcceptableActionIndustrialProcessingReason { get; set; }
+    public string? NotAcceptableActionIndustrialProcessingReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to re-dispatch
     /// </summary>
     [JsonPropertyName("notAcceptableActionReDispatchReason")]
-    public DecisionNotAcceptableActionReDispatchReason? NotAcceptableActionReDispatchReason { get; set; }
+    public string? NotAcceptableActionReDispatchReason { get; set; }
 
     /// <summary>
     ///     Filled if not acceptable action is set to use for other purposes
     /// </summary>
     [JsonPropertyName("notAcceptableActionUseForOtherPurposesReason")]
-    public DecisionNotAcceptableActionUseForOtherPurposesReason? NotAcceptableActionUseForOtherPurposesReason { get; set; }
+    public string? NotAcceptableActionUseForOtherPurposesReason { get; set; }
 
     /// <summary>
     ///     Filled when notAcceptableAction is equal to destruction
@@ -119,7 +119,7 @@ public class Decision
     ///     Filled if consignment is set to acceptable and decision type is Specific Warehouse
     /// </summary>
     [JsonPropertyName("specificWarehouseNonConformingConsignment")]
-    public DecisionSpecificWarehouseNonConformingConsignment? SpecificWarehouseNonConformingConsignment { get; set; }
+    public string? SpecificWarehouseNonConformingConsignment { get; set; }
 
     /// <summary>
     ///     Deadline when consignment has to leave borders
@@ -131,25 +131,25 @@ public class Decision
     ///     Detailed decision for consignment
     /// </summary>
     [JsonPropertyName("decision")]
-    public DecisionDecision? DecisionEnum { get; set; }
+    public string? DecisionEnum { get; set; }
 
     /// <summary>
     ///     Decision over purpose of free circulation in country
     /// </summary>
     [JsonPropertyName("freeCirculationPurpose")]
-    public DecisionFreeCirculationPurpose? FreeCirculationPurpose { get; set; }
+    public string? FreeCirculationPurpose { get; set; }
 
     /// <summary>
     ///     Decision over purpose of definitive import
     /// </summary>
     [JsonPropertyName("definitiveImportPurpose")]
-    public DecisionDefinitiveImportPurpose? DefinitiveImportPurpose { get; set; }
+    public string? DefinitiveImportPurpose { get; set; }
 
     /// <summary>
     ///     Decision channeled option based on (article8, article15)
     /// </summary>
     [JsonPropertyName("ifChanneledOption")]
-    public DecisionIfChanneledOption? IfChanneledOption { get; set; }
+    public string? IfChanneledOption { get; set; }
 
     /// <summary>
     ///     Custom warehouse registered number

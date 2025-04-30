@@ -8,8 +8,8 @@
     DisplayName: 40cfe371811e66d3e37dd709c7151f43734a994cbc2919ba22edd51a5c7ce7cb,
     UserId: Guid_1
   },
-  ImportNotificationType: Ced,
-  Status: Validated,
+  ImportNotificationType: CED,
+  Status: VALIDATED,
   IsHighRiskEuImport: false,
   PartOne: {
     PersonResponsible: {
@@ -30,8 +30,8 @@
     },
     Consignor: {
       Id: Guid_4,
-      Type: Exporter,
-      Status: Nonapproved,
+      Type: exporter,
+      Status: nonapproved,
       CompanyName: 0c37ea33df2de8754c9912a8cdaf9e6d8784ea63c39933e0d06675c600c2922a,
       Address: {
         City: 5bfc2e5513a487037e6abb8404385b6e0a5a1b6a05d038588f9efef0a46c85f1,
@@ -47,8 +47,8 @@
     },
     Consignee: {
       Id: Guid_5,
-      Type: Consignee,
-      Status: Nonapproved,
+      Type: consignee,
+      Status: nonapproved,
       CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
       Address: {
         City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
@@ -64,8 +64,8 @@
     },
     Importer: {
       Id: Guid_5,
-      Type: Consignee,
-      Status: Nonapproved,
+      Type: consignee,
+      Status: nonapproved,
       CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
       Address: {
         City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
@@ -81,8 +81,8 @@
     },
     PlaceOfDestination: {
       Id: Guid_5,
-      Type: Consignee,
-      Status: Nonapproved,
+      Type: consignee,
+      Status: nonapproved,
       CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
       Address: {
         City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
@@ -98,7 +98,7 @@
     },
     IsGvmsRoute: false,
     Purpose: {
-      PurposeGroup: ForImport
+      PurposeGroup: For Import
     },
     PointOfEntry: GBLHR4P,
     MeansOfTransport: {},
@@ -111,7 +111,7 @@
     VeterinaryInformation: {
       AccompanyingDocuments: [
         {
-          DocumentType: CommercialInvoice,
+          DocumentType: commercialInvoice,
           DocumentReference: 087957,
           DocumentIssuedOn: 2024-12-27
         }
@@ -130,7 +130,7 @@
       Telephone: 01211 121333,
       Email: dave@theimporter
     },
-    ProvideCtcMrn: No,
+    ProvideCtcMrn: NO,
     ArrivesAt: 2024-12-28 19:24
   },
   DecisionBy: {
@@ -141,8 +141,8 @@
   PartTwo: {
     Decision: {
       ConsignmentAcceptable: true,
-      ConsignmentDecision: AcceptableForInternalMarket,
-      FreeCirculationPurpose: HumanConsumption
+      ConsignmentDecision: Acceptable for Internal Market,
+      FreeCirculationPurpose: Human Consumption
     },
     ConsignmentCheck: {
       DocumentCheckResult: Satisfactory,
@@ -178,7 +178,7 @@
     CountryOfOrigin: KE,
     IsLowRiskArticle72Country: false,
     ConsignedCountry: KE,
-    CommodityIntendedFor: Human
+    CommodityIntendedFor: human
   },
   Commodities: [
     {

@@ -9,7 +9,7 @@ public static class PartOneMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.PartOne();
-        to.TypeOfImp = PartOneTypeOfImpEnumMapper.Map(from.TypeOfImp);
+        to.TypeOfImp = from.TypeOfImp;
         to.PersonResponsible = PartyMapper.Map(from.PersonResponsible);
         to.CustomsReferenceNumber = from.CustomsReferenceNumber;
         to.ContainsWoodPackaging = from.ContainsWoodPackaging;
@@ -59,7 +59,7 @@ public static class PartOneMapper
         to.IsChargeable = from.IsChargeable;
         to.WasChargeable = from.WasChargeable;
         to.CommonUserCharge = CommonUserChargeMapper.Map(from.CommonUserCharge);
-        to.ProvideCtcMrn = PartOneProvideCtcMrnEnumMapper.Map(from.ProvideCtcMrn);
+        to.ProvideCtcMrn = from.ProvideCtcMrn;
         to.ArrivesAt = DateTimeMapper.Map(from.ArrivalDate, from.ArrivalTime);
         to.DepartedOn = DateTimeMapper.Map(from.DepartureDate, from.DepartureTime);
         return to;

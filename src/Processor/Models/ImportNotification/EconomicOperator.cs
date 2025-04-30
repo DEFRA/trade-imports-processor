@@ -17,13 +17,13 @@ public class EconomicOperator
     ///     Type of organisation
     /// </summary>
     [JsonPropertyName("type")]
-    public EconomicOperatorType? Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     ///     Status of organisation
     /// </summary>
     [JsonPropertyName("status")]
-    public EconomicOperatorStatus? Status { get; set; }
+    public string? Status { get; set; }
 
     /// <summary>
     ///     Name of organisation

@@ -1,10 +1,9 @@
 ﻿using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-using ImportNotificationStatus = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotificationStatus;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
+using IpaffsDataApiConstants = Defra.TradeImportsDataApi.Domain.Ipaffs.Constants;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
 
@@ -57,7 +56,7 @@ public static class ImportNotificationFixtures
             .Build<ImportNotification>()
             .With(i => i.ReferenceNumber, GenerateReferenceNumber())
             .With(i => i.LastUpdated, DateTime.UtcNow)
-            .With(i => i.Status, ImportNotificationStatus.InProgress)
+            .With(i => i.Status, IpaffsDataApiConstants.ImportNotificationStatus.InProgress)
             .With(i => i.PartOne, PartOneFixture().Create());
     }
 }

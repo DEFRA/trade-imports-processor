@@ -12,13 +12,13 @@ public class JourneyRiskCategorisationResult
     ///     Risk Level is defined using enum values High,Medium,Low
     /// </summary>
     [JsonPropertyName("riskLevel")]
-    public JourneyRiskCategorisationResultRiskLevel? RiskLevel { get; set; }
+    public string? RiskLevel { get; set; }
 
     /// <summary>
     ///     Indicator of whether the risk level was determined by the system or by the user
     /// </summary>
     [JsonPropertyName("riskLevelMethod")]
-    public JourneyRiskCategorisationResultRiskLevelMethod? RiskLevelMethod { get; set; }
+    public string? RiskLevelMethod { get; set; }
 
     /// <summary>
     ///     The date and time the risk level has been set for a notification

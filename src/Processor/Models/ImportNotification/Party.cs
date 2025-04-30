@@ -77,7 +77,7 @@ public class Party
     ///     Type of party
     /// </summary>
     [JsonPropertyName("type")]
-    public PartyType? Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     ///     Approval number

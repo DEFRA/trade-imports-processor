@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.Ipaffs.Constants;
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using SlimMessageBus;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
@@ -85,8 +85,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool ShouldNotProcess(ImportNotification notification)
     {
-        return notification.Status == ImportNotificationStatus.Amend
-            || notification.Status == ImportNotificationStatus.Draft
+        return ImportNotificationStatus.IsAmend(notification.Status)
+            || ImportNotificationStatus.IsDraft(notification.Status)
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
@@ -95,10 +95,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        return newNotification.Status == ImportNotificationStatus.InProgress
-            && existingNotification.Status
-                is DataApiIpaffs.ImportNotificationStatus.Validated
-                    or DataApiIpaffs.ImportNotificationStatus.Rejected
-                    or DataApiIpaffs.ImportNotificationStatus.PartiallyRejected;
+        return ImportNotificationStatus.IsInProgress(newNotification.Status)
+            && (
+                existingNotification.StatusIsValidated()
+                || existingNotification.StatusIsRejected()
+                || existingNotification.StatusIsPartiallyRejected()
+            );
     }
 }

@@ -11,7 +11,7 @@ public class PartThree
     ///     Control status enum
     /// </summary>
     [JsonPropertyName("controlStatus")]
-    public PartThreeControlStatus? ControlStatus { get; set; }
+    public string? ControlStatus { get; set; }
 
     /// <summary>
     ///     Control details

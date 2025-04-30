@@ -47,5 +47,5 @@ public class ControlAuthority
     ///     Result of Illegal, Unreported and Unregulated (IUU) check
     /// </summary>
     [JsonPropertyName("iuuOption")]
-    public ControlAuthorityIuuOption? IuuOption { get; set; }
+    public string? IuuOption { get; set; }
 }

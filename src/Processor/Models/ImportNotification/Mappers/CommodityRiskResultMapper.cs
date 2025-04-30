@@ -9,11 +9,11 @@ public static class CommodityRiskResultMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.CommodityRiskResult();
-        to.RiskDecision = CommodityRiskResultRiskDecisionEnumMapper.Map(from.RiskDecision);
-        to.ExitRiskDecision = CommodityRiskResultExitRiskDecisionMapper.Map(from.ExitRiskDecision);
-        to.HmiDecision = CommodityRiskResultHmiDecisionMapper.Map(from.HmiDecision);
-        to.PhsiDecision = CommodityRiskResultPhsiDecisionEnumMapper.Map(from.PhsiDecision);
-        to.PhsiClassification = CommodityRiskResultPhsiClassificationEnumMapper.Map(from.PhsiClassification);
+        to.RiskDecision = from.RiskDecision;
+        to.ExitRiskDecision = from.ExitRiskDecision;
+        to.HmiDecision = from.HmiDecision;
+        to.PhsiDecision = from.PhsiDecision;
+        to.PhsiClassification = from.PhsiClassification;
         to.Phsi = PhsiMapper.Map(from.Phsi);
         to.UniqueId = from.UniqueId;
         to.EppoCode = from.EppoCode;

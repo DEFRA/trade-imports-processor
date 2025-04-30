@@ -47,7 +47,7 @@ public class Applicant
     ///     Type of analysis
     /// </summary>
     [JsonPropertyName("analysisType")]
-    public ApplicantAnalysisType? AnalysisType { get; set; }
+    public string? AnalysisType { get; set; }
 
     /// <summary>
     ///     Number of samples analysed
@@ -65,7 +65,7 @@ public class Applicant
     ///     Conservation of sample
     /// </summary>
     [JsonPropertyName("conservationOfSample")]
-    public ApplicantConservationOfSample? ConservationOfSample { get; set; }
+    public string? ConservationOfSample { get; set; }
 
     /// <summary>
     ///     inspector

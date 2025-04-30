@@ -17,7 +17,7 @@ public class Purpose
     ///     Detailed purpose of internal market purpose group
     /// </summary>
     [JsonPropertyName("internalMarketPurpose")]
-    public PurposeInternalMarketPurpose? InternalMarketPurpose { get; set; }
+    public string? InternalMarketPurpose { get; set; }
 
     /// <summary>
     ///     Country that consignment is transshipped through
@@ -29,7 +29,7 @@ public class Purpose
     ///     Detailed purpose for non conforming purpose group
     /// </summary>
     [JsonPropertyName("forNonConforming")]
-    public PurposeForNonConforming? ForNonConforming { get; set; }
+    public string? ForNonConforming { get; set; }
 
     /// <summary>
     ///     There are 3 types of registration number based on the purpose of consignment. Customs registration number, Free
@@ -72,7 +72,7 @@ public class Purpose
     ///     Specification of Import or admission purpose
     /// </summary>
     [JsonPropertyName("forImportOrAdmission")]
-    public PurposeForImportOrAdmission? ForImportOrAdmission { get; set; }
+    public string? ForImportOrAdmission { get; set; }
 
     /// <summary>
     ///     Exit date when import or admission
@@ -90,7 +90,7 @@ public class Purpose
     ///     Purpose group of consignment (general purpose)
     /// </summary>
     [JsonPropertyName("purposeGroup")]
-    public PurposePurposeGroup? PurposeGroup { get; set; }
+    public string? PurposeGroup { get; set; }
 
     /// <summary>
     ///     Estimated date at port of exit

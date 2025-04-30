@@ -9,7 +9,7 @@ public static class PartThreeMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.PartThree();
-        to.ControlStatus = PartThreeControlStatusEnumMapper.Map(from.ControlStatus);
+        to.ControlStatus = from.ControlStatus;
         to.Control = ControlMapper.Map(from.Control);
         to.ConsignmentValidations = from
             .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))

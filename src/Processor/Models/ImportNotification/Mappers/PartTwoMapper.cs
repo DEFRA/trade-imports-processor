@@ -31,7 +31,7 @@ public static class PartTwoMapper
         to.AccompanyingDocuments = from.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x)).ToArray();
         to.PhsiAutoCleared = from.PhsiAutoCleared;
         to.HmiAutoCleared = from.HmiAutoCleared;
-        to.InspectionRequired = InspectionRequiredEnumMapper.Map(from.InspectionRequired);
+        to.InspectionRequired = from.InspectionRequired;
         to.InspectionOverride = InspectionOverrideMapper.Map(from.InspectionOverride);
         to.AutoClearedOn = from.AutoClearedDateTime;
         return to;

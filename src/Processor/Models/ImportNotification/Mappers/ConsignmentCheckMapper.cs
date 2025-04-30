@@ -16,16 +16,12 @@ public static class ConsignmentCheckMapper
         to.DocumentCheckResult = from.DocumentCheckResult;
         to.NationalRequirements = from.NationalRequirements;
         to.IdentityCheckDone = from.IdentityCheckDone;
-        to.IdentityCheckType = ConsignmentCheckIdentityCheckTypeEnumMapper.Map(from.IdentityCheckType);
+        to.IdentityCheckType = from.IdentityCheckType;
         to.IdentityCheckResult = from.IdentityCheckResult;
-        to.IdentityCheckNotDoneReason = ConsignmentCheckIdentityCheckNotDoneReasonEnumMapper.Map(
-            from.IdentityCheckNotDoneReason
-        );
+        to.IdentityCheckNotDoneReason = from.IdentityCheckNotDoneReason;
         to.PhysicalCheckDone = from.PhysicalCheckDone;
         to.PhysicalCheckResult = from.PhysicalCheckResult;
-        to.PhysicalCheckNotDoneReason = ConsignmentCheckPhysicalCheckNotDoneReasonEnumMapper.Map(
-            from.PhysicalCheckNotDoneReason
-        );
+        to.PhysicalCheckNotDoneReason = from.PhysicalCheckNotDoneReason;
         to.PhysicalCheckOtherText = from.PhysicalCheckOtherText;
         to.WelfareCheck = from.WelfareCheck;
         to.NumberOfAnimalsChecked = from.NumberOfAnimalsChecked;

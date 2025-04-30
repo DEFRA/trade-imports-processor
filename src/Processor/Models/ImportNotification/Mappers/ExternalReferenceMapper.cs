@@ -9,7 +9,7 @@ public static class ExternalReferenceMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.ExternalReference();
-        to.System = ExternalReferenceSystemEnumMapper.Map(from.System);
+        to.System = from.System;
         to.Reference = from.Reference;
         to.ExactMatch = from.ExactMatch;
         to.VerifiedByImporter = from.VerifiedByImporter;

@@ -11,7 +11,7 @@ public class FeedbackInformation
     ///     Type of authority
     /// </summary>
     [JsonPropertyName("authorityType")]
-    public FeedbackInformationAuthorityType? AuthorityType { get; set; }
+    public string? AuthorityType { get; set; }
 
     /// <summary>
     ///     Did the consignment arrive

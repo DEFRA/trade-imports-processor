@@ -19,7 +19,7 @@ public class LaboratoryTests
     ///     Reason for test
     /// </summary>
     [JsonPropertyName("testReason")]
-    public LaboratoryTestsTestReason? TestReason { get; set; }
+    public string? TestReason { get; set; }
 
     /// <summary>
     ///     List of details of individual tests performed or to be performed

@@ -36,7 +36,7 @@ public class GmrValidationTests
             Add(new Gmr { UpdatedSource = DateTime.UtcNow }, new ExpectedResult("UpdatedSource", false));
             Add(new Gmr { UpdatedSource = null }, new ExpectedResult("UpdatedSource", true));
 
-            Add(new Gmr { Direction = Direction.GbToNi }, new ExpectedResult("Direction", false));
+            Add(new Gmr { Direction = "GbToNi" }, new ExpectedResult("Direction", false));
             Add(new Gmr { Direction = null }, new ExpectedResult("Direction", true));
 
             Add(new Gmr { ActualCrossing = null }, new ExpectedResult("ActualCrossing", false));

@@ -10,31 +10,14 @@ public static class DecisionMapper
             return default!;
         var to = new IpaffsDataApi.Decision();
         to.ConsignmentAcceptable = from.ConsignmentAcceptable;
-        to.NotAcceptableAction = DecisionNotAcceptableActionEnumMapper.Map(from.NotAcceptableAction);
-        to.NotAcceptableActionDestructionReason = DecisionNotAcceptableActionDestructionReasonEnumMapper.Map(
-            from.NotAcceptableActionDestructionReason
-        );
-        to.NotAcceptableActionEntryRefusalReason = DecisionNotAcceptableActionEntryRefusalReasonEnumMapper.Map(
-            from.NotAcceptableActionEntryRefusalReason
-        );
-        to.NotAcceptableActionQuarantineImposedReason =
-            DecisionNotAcceptableActionQuarantineImposedReasonEnumMapper.Map(
-                from.NotAcceptableActionQuarantineImposedReason
-            );
-        to.NotAcceptableActionSpecialTreatmentReason = DecisionNotAcceptableActionSpecialTreatmentReasonEnumMapper.Map(
-            from.NotAcceptableActionSpecialTreatmentReason
-        );
-        to.NotAcceptableActionIndustrialProcessingReason =
-            DecisionNotAcceptableActionIndustrialProcessingReasonEnumMapper.Map(
-                from.NotAcceptableActionIndustrialProcessingReason
-            );
-        to.NotAcceptableActionReDispatchReason = DecisionNotAcceptableActionReDispatchReasonEnumMapper.Map(
-            from.NotAcceptableActionReDispatchReason
-        );
-        to.NotAcceptableActionUseForOtherPurposesReason =
-            DecisionNotAcceptableActionUseForOtherPurposesReasonEnumMapper.Map(
-                from.NotAcceptableActionUseForOtherPurposesReason
-            );
+        to.NotAcceptableAction = from.NotAcceptableAction;
+        to.NotAcceptableActionDestructionReason = from.NotAcceptableActionDestructionReason;
+        to.NotAcceptableActionEntryRefusalReason = from.NotAcceptableActionEntryRefusalReason;
+        to.NotAcceptableActionQuarantineImposedReason = from.NotAcceptableActionQuarantineImposedReason;
+        to.NotAcceptableActionSpecialTreatmentReason = from.NotAcceptableActionSpecialTreatmentReason;
+        to.NotAcceptableActionIndustrialProcessingReason = from.NotAcceptableActionIndustrialProcessingReason;
+        to.NotAcceptableActionReDispatchReason = from.NotAcceptableActionReDispatchReason;
+        to.NotAcceptableActionUseForOtherPurposesReason = from.NotAcceptableActionUseForOtherPurposesReason;
         to.NotAcceptableDestructionReason = from.NotAcceptableDestructionReason;
         to.NotAcceptableActionOtherReason = from.NotAcceptableActionOtherReason;
         to.NotAcceptableActionByDate = from.NotAcceptableActionByDate;
@@ -46,14 +29,12 @@ public static class DecisionMapper
         to.NotAcceptableEstablishment = from.NotAcceptableEstablishment;
         to.NotAcceptableOtherReason = from.NotAcceptableOtherReason;
         to.DetailsOfControlledDestinations = PartyMapper.Map(from.DetailsOfControlledDestinations);
-        to.SpecificWarehouseNonConformingConsignment = DecisionSpecificWarehouseNonConformingConsignmentEnumMapper.Map(
-            from.SpecificWarehouseNonConformingConsignment
-        );
+        to.SpecificWarehouseNonConformingConsignment = from.SpecificWarehouseNonConformingConsignment;
         to.TemporaryDeadline = from.TemporaryDeadline;
-        to.ConsignmentDecision = DecisionDecisionEnumMapper.Map(from.DecisionEnum);
-        to.FreeCirculationPurpose = DecisionFreeCirculationPurposeEnumMapper.Map(from.FreeCirculationPurpose);
-        to.DefinitiveImportPurpose = DecisionDefinitiveImportPurposeEnumMapper.Map(from.DefinitiveImportPurpose);
-        to.IfChanneledOption = DecisionIfChanneledOptionEnumMapper.Map(from.IfChanneledOption);
+        to.ConsignmentDecision = from.DecisionEnum;
+        to.FreeCirculationPurpose = from.FreeCirculationPurpose;
+        to.DefinitiveImportPurpose = from.DefinitiveImportPurpose;
+        to.IfChanneledOption = from.IfChanneledOption;
         to.CustomWarehouseRegisteredNumber = from.CustomWarehouseRegisteredNumber;
         to.FreeWarehouseRegisteredNumber = from.FreeWarehouseRegisteredNumber;
         to.ShipName = from.ShipName;

@@ -9,8 +9,8 @@ public static class JourneyRiskCategorisationResultMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.JourneyRiskCategorisationResult();
-        to.RiskLevel = JourneyRiskCategorisationResultRiskLevelEnumMapper.Map(from.RiskLevel);
-        to.RiskLevelMethod = JourneyRiskCategorisationResultRiskLevelMethodEnumMapper.Map(from.RiskLevelMethod);
+        to.RiskLevel = from.RiskLevel;
+        to.RiskLevelMethod = from.RiskLevelMethod;
         to.RiskLevelSetFor = from.RiskLevelSetFor;
         return to;
     }

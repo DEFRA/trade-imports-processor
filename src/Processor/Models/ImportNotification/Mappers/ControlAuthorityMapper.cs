@@ -15,7 +15,7 @@ public static class ControlAuthorityMapper
         to.NewSealNumber = from.NewSealNumber;
         to.IuuFishingReference = from.IuuFishingReference;
         to.IuuCheckRequired = from.IuuCheckRequired;
-        to.IuuOption = ControlAuthorityIuuOptionEnumMapper.Map(from.IuuOption);
+        to.IuuOption = from.IuuOption;
         return to;
     }
 }

@@ -11,7 +11,7 @@ public static class DetailsOnReExportMapper
         var to = new IpaffsDataApi.DetailsOnReExport();
         to.Date = from.Date;
         to.MeansOfTransportNo = from.MeansOfTransportNo;
-        to.TransportType = DetailsOnReExportTransportTypeEnumMapper.Map(from.TransportType);
+        to.TransportType = from.TransportType;
         to.Document = from.Document;
         to.CountryOfReDispatching = from.CountryOfReDispatching;
         to.ExitBip = from.ExitBip;

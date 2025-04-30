@@ -23,7 +23,7 @@ public class DetailsOnReExport
     ///     Type of transport to be used
     /// </summary>
     [JsonPropertyName("transportType")]
-    public DetailsOnReExportTransportType? TransportType { get; set; }
+    public string? TransportType { get; set; }
 
     /// <summary>
     ///     Document issued for re-export

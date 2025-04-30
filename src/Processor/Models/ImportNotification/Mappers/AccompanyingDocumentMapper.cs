@@ -9,7 +9,7 @@ public static class AccompanyingDocumentMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.AccompanyingDocument();
-        to.DocumentType = AccompanyingDocumentDocumentTypeMapper.Map(from.DocumentType);
+        to.DocumentType = from.DocumentType;
         to.DocumentReference = from.DocumentReference;
         to.DocumentIssuedOn = from.DocumentIssueDate;
         to.AttachmentId = from.AttachmentId;

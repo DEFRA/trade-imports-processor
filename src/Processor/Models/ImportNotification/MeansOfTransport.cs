@@ -11,7 +11,7 @@ public class MeansOfTransport
     ///     Type of transport
     /// </summary>
     [JsonPropertyName("type")]
-    public MeansOfTransportType? Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     ///     Document for transport

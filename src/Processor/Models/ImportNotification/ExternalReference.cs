@@ -11,7 +11,7 @@ public class ExternalReference
     ///     Identifier of the external system to which the reference relates
     /// </summary>
     [JsonPropertyName("system")]
-    public ExternalReferenceSystem? System { get; set; }
+    public string? System { get; set; }
 
     /// <summary>
     ///     Reference which is added to the notification when either sent to the downstream system or received from it

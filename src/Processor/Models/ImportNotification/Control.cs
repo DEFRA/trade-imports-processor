@@ -29,5 +29,5 @@ public class Control
     ///     Is the consignment leaving UK borders?
     /// </summary>
     [JsonPropertyName("consignmentLeave")]
-    public ControlConsignmentLeave? ConsignmentLeave { get; set; }
+    public string? ConsignmentLeave { get; set; }
 }
