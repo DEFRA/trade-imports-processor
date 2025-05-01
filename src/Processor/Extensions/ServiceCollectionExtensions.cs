@@ -99,7 +99,7 @@ public static class ServiceCollectionExtensions
                         x.Topic(serviceBusOptions.Notifications.Topic)
                             .SubscriptionName(serviceBusOptions.Notifications.Subscription)
                             .WithConsumer<NotificationConsumer>()
-                            .Instances(20);
+                            .Instances(1);
                     });
                 }
             );
@@ -129,6 +129,7 @@ public static class ServiceCollectionExtensions
                     mbb.Consume<JsonElement>(x =>
                         x.WithConsumer<CustomsDeclarationsConsumer>()
                             .Queue(customsDeclarationsConsumerOptions.QueueName)
+                            .Instances(1)
                     );
                 }
             );
