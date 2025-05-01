@@ -10,6 +10,14 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
 {
     public ClearanceRequestValidator()
     {
+        RuleFor(p => p.NewClearanceRequest.DeclarationUcr).MaximumLength(35);
+        RuleFor(p => p.NewClearanceRequest.DeclarantId).NotEmpty().MaximumLength(18);
+        RuleFor(p => p.NewClearanceRequest.DeclarantName).NotEmpty().MaximumLength(35);
+        RuleFor(p => p.NewClearanceRequest.DispatchCountryCode).NotEmpty().Length(2);
+        RuleFor(p => p.NewClearanceRequest.DeclarationType).Must(p => p is "S" or "F");
+        RuleForEach(p => p.NewClearanceRequest.Commodities)
+            .SetValidator(p => new CommodityValidator(p.NewClearanceRequest.ExternalCorrelationId!));
+
         RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
             .NotNull()
             .WithState(_ => "ALVSVAL152")
@@ -17,23 +25,6 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                 $"PreviousVersionNumber has not been provided for the import document. Provide a PreviousVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             )
             .When(p => p.NewClearanceRequest.ExternalVersion > 1);
-
-        RuleFor(p => p)
-            .Must(p => p.NewClearanceRequest.ExternalVersion > p.NewClearanceRequest.PreviousExternalVersion)
-            .WithState(_ => "ALVSVAL326")
-            .WithMessage(p =>
-                $"The previous version number {p.NewClearanceRequest.PreviousExternalVersion} on the entry document must be less than the entry version number. Your service request with Correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
-            )
-            .When(p => p.NewClearanceRequest.PreviousExternalVersion.HasValue);
-
-        RuleFor(p => p.NewClearanceRequest.DeclarationUcr).MaximumLength(35);
-        RuleFor(p => p.NewClearanceRequest.DeclarantId).NotEmpty().MaximumLength(18);
-        RuleFor(p => p.NewClearanceRequest.DeclarantName).NotEmpty().MaximumLength(35);
-        RuleFor(p => p.NewClearanceRequest.DispatchCountryCode).NotEmpty().Length(2);
-        RuleFor(p => p.NewClearanceRequest.DeclarationType).Must(p => p is "S" or "F");
-
-        RuleForEach(p => p.NewClearanceRequest.Commodities)
-            .SetValidator(p => new CommodityValidator(p.NewClearanceRequest.ExternalCorrelationId!));
 
         When(
             p => p.NewClearanceRequest.ExternalVersion != 1,
@@ -99,14 +90,13 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             }
         );
 
-        RuleFor(p => p.NewClearanceRequest)
-            .Must(p => p.PreviousExternalVersion < p.ExternalVersion)
-            .OverridePropertyName("PreviousExternalVersion")
+        RuleFor(p => p)
+            .Must(p => p.NewClearanceRequest.ExternalVersion > p.NewClearanceRequest.PreviousExternalVersion)
             .WithState(_ => "ALVSVAL326")
-            .WithMessage(
-                (_, p) =>
-                    $"The previous version number {p.PreviousExternalVersion} on the entry document must be less than the entry version number. Your service request with Correlation ID {p.ExternalCorrelationId} has been terminated."
-            );
+            .WithMessage(p =>
+                $"The previous version number {p.NewClearanceRequest.PreviousExternalVersion} on the entry document must be less than the entry version number. Your service request with Correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
+            )
+            .When(p => p.NewClearanceRequest.PreviousExternalVersion.HasValue);
     }
 
     private static bool NotBeADuplicateEntryVersionNumber(
