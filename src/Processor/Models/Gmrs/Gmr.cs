@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Defra.TradeImportsDataApi.Domain.Gvms;
 using DataApiGvms = Defra.TradeImportsDataApi.Domain.Gvms;
 
@@ -6,53 +5,22 @@ namespace Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 
 public class Gmr
 {
-    [JsonPropertyName("gmrId")]
     public string? GmrId { get; init; }
-
-    [JsonPropertyName("haulierEORI")]
     public string? HaulierEori { get; init; }
-
-    [JsonPropertyName("state")]
     public string? State { get; init; }
-
-    [JsonPropertyName("inspectionRequired")]
     public bool? InspectionRequired { get; init; }
-
-    [JsonPropertyName("reportToLocations")]
     public ReportToLocations[]? ReportToLocations { get; init; }
-
-    [JsonPropertyName("updatedDateTime")]
-    public DateTime? UpdatedSource { get; init; }
-
-    [JsonPropertyName("direction")]
+    public DateTime? UpdatedDateTime { get; init; }
     public string? Direction { get; init; }
-
-    [JsonPropertyName("haulierType")]
     public string? HaulierType { get; init; }
-
-    [JsonPropertyName("isUnaccompanied")]
     public bool? IsUnaccompanied { get; init; }
-
-    [JsonPropertyName("vehicleRegNum")]
-    public string? VehicleRegistrationNumber { get; init; }
-
-    [JsonPropertyName("trailerRegistrationNums")]
+    public string? VehicleRegNum { get; init; }
     public string[]? TrailerRegistrationNums { get; init; }
-
-    [JsonPropertyName("containerReferenceNums")]
     public string[]? ContainerReferenceNums { get; init; }
-
-    [JsonPropertyName("plannedCrossing")]
-    public PlannedCrossing? PlannedCrossing { get; init; }
-
-    [JsonPropertyName("checkedInCrossing")]
-    public CheckedInCrossing? CheckedInCrossing { get; init; }
-
-    [JsonPropertyName("actualCrossing")]
-    public ActualCrossing? ActualCrossing { get; init; }
-
-    [JsonPropertyName("declarations")]
-    public Declarations? Declarations { get; init; }
+    public GmrPlannedCrossing? PlannedCrossing { get; init; }
+    public GmrCheckedInCrossing? CheckedInCrossing { get; init; }
+    public GmrActualCrossing? ActualCrossing { get; init; }
+    public GmrDeclarations? Declarations { get; init; }
 
     public static explicit operator DataApiGvms.Gmr(Gmr gmr)
     {
@@ -63,17 +31,45 @@ public class Gmr
             State = DataApiGvms.State.Open, // TO-DO: fix when enums are removed in the API
             InspectionRequired = gmr.InspectionRequired,
             ReportToLocations = gmr.ReportToLocations,
-            UpdatedSource = gmr.UpdatedSource,
+            UpdatedSource = gmr.UpdatedDateTime,
             Direction = DataApiGvms.Direction.GbToNi, // TO-DO: fix when enums are removed in the API
             HaulierType = DataApiGvms.HaulierType.Etoe, // TO-DO: fix when enums are removed in the API
             IsUnaccompanied = gmr.IsUnaccompanied,
-            VehicleRegistrationNumber = gmr.VehicleRegistrationNumber,
+            VehicleRegistrationNumber = gmr.VehicleRegNum,
             TrailerRegistrationNums = gmr.TrailerRegistrationNums,
             ContainerReferenceNums = gmr.ContainerReferenceNums,
-            PlannedCrossing = gmr.PlannedCrossing,
-            CheckedInCrossing = gmr.CheckedInCrossing,
-            ActualCrossing = gmr.ActualCrossing,
-            Declarations = gmr.Declarations,
+            PlannedCrossing =
+                gmr.PlannedCrossing != null
+                    ? new DataApiGvms.PlannedCrossing
+                    {
+                        DepartsAt = gmr.PlannedCrossing?.LocalDateTimeOfDeparture,
+                        RouteId = gmr.PlannedCrossing?.RouteId,
+                    }
+                    : null,
+            CheckedInCrossing =
+                gmr.CheckedInCrossing != null
+                    ? new DataApiGvms.CheckedInCrossing
+                    {
+                        ArrivesAt = gmr.CheckedInCrossing?.LocalDateTimeOfArrival,
+                        RouteId = gmr.CheckedInCrossing?.RouteId,
+                    }
+                    : null,
+            ActualCrossing =
+                gmr.ActualCrossing != null
+                    ? new DataApiGvms.ActualCrossing
+                    {
+                        ArrivesAt = gmr.ActualCrossing?.LocalDateTimeOfArrival,
+                        RouteId = gmr.ActualCrossing?.RouteId,
+                    }
+                    : null,
+            Declarations =
+                gmr.Declarations != null
+                    ? new DataApiGvms.Declarations
+                    {
+                        Customs = gmr.Declarations.Customs?.Select(d => new Customs { Id = d.Id }).ToArray(),
+                        Transits = gmr.Declarations.Transits?.Select(d => new Transits { Id = d.Id }).ToArray(),
+                    }
+                    : null,
         };
     }
 }
