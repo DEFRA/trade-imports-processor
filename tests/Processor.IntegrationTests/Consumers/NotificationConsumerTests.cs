@@ -1,6 +1,7 @@
 using System.Net;
 using AutoFixture;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using RestEase;
@@ -12,9 +13,9 @@ using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
 [Collection("UsesWireMockClient")]
-public class NotificationConsumerTests : ServiceBusTestBase
+public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceBusTestBase("notification-topic", "btms")
 {
-    private readonly IWireMockAdminApi _wireMockAdminApi = RestClient.For<IWireMockAdminApi>("http://localhost:9090");
+    private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
     [Fact]
     public async Task WhenNotificationSent_ThenNotificationProcessedAndSentToTheDataApi()

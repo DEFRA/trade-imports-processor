@@ -1,0 +1,51 @@
+﻿{
+  Id: GMRA2AMKTCIB,
+  HaulierEori: GB198906123655611,
+  State: Open,
+  InspectionRequired: false,
+  ReportToLocations: [
+    {
+      InspectionTypeId: 12345,
+      LocationIds: [
+        12345
+      ]
+    }
+  ],
+  UpdatedSource: 2025-04-15 12:00 Utc,
+  Direction: GbToNi,
+  HaulierType: Etoe,
+  IsUnaccompanied: true,
+  VehicleRegistrationNumber: XCR5WN,
+  TrailerRegistrationNums: [
+    W8YK34,
+    P33TNV
+  ],
+  ContainerReferenceNums: [
+    ABCD,
+    EFGH
+  ],
+  PlannedCrossing: {
+    RouteId: 12345,
+    DepartsAt: 2025-04-15 12:00 Utc
+  },
+  CheckedInCrossing: {
+    RouteId: 12345,
+    ArrivesAt: 2025-04-15 12:00 Utc
+  },
+  ActualCrossing: {
+    RouteId: 12345,
+    ArrivesAt: 2025-04-15 12:00 Utc
+  },
+  Declarations: {
+    Transits: [
+      {
+        Id: 12345
+      }
+    ],
+    Customs: [
+      {
+        Id: 12345
+      }
+    ]
+  }
+}

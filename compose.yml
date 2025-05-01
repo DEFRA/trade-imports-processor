@@ -18,7 +18,7 @@ services:
       - "./compose/asb.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
   
   asb:
-    container_name: process-asb
+    container_name: processor-asb
     image: alpine/curl:latest
     depends_on:
       asb-backend:
@@ -50,6 +50,7 @@ services:
       ENVIRONMENT: local
       PORT: 8080
       DataApi__BaseAddress: "http://wiremock"
+      ServiceBus__Gmrs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       SQS_ENDPOINT: http://localstack:4566
     image: trade-imports-processor:latest

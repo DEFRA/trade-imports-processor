@@ -7,6 +7,9 @@ public class ServiceBusOptions
     public const string SectionName = "ServiceBus";
 
     [Required]
+    public required ServiceBusSubscriptionOptions Gmrs { get; init; }
+
+    [Required]
     public required ServiceBusSubscriptionOptions Notifications { get; init; }
 }
 

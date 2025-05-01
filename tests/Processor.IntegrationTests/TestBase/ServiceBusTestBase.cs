@@ -2,11 +2,8 @@ using Azure.Messaging.ServiceBus;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
-public class ServiceBusTestBase : IAsyncLifetime
+public class ServiceBusTestBase(string topicName, string subscriptionName) : IAsyncLifetime
 {
-    private const string TopicName = "notification-topic";
-    private const string SubscriptionName = "btms";
-
     private const string ConnectionString =
         "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";
 
@@ -23,8 +20,8 @@ public class ServiceBusTestBase : IAsyncLifetime
     public Task InitializeAsync()
     {
         _serviceBusClient = new ServiceBusClient(ConnectionString);
-        _serviceBusReceiver = _serviceBusClient.CreateReceiver(TopicName, SubscriptionName);
-        _serviceBusSender = _serviceBusClient.CreateSender(TopicName);
+        _serviceBusReceiver = _serviceBusClient.CreateReceiver(topicName, subscriptionName);
+        _serviceBusSender = _serviceBusClient.CreateSender(topicName);
         return Task.CompletedTask;
     }
 
