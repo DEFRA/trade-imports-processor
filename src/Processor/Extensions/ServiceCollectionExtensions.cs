@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Configuration;
@@ -9,6 +8,7 @@ using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
@@ -17,6 +17,7 @@ using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
+using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
@@ -64,33 +65,44 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
+        var customsDeclarationsConsumerOptions = services
+            .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
+                configuration,
+                CustomsDeclarationsConsumerOptions.SectionName
+            )
+            .Get();
+        var serviceBusOptions = services
+            .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
+            .Get();
+
         services.AddSlimMessageBus(smb =>
         {
+            smb.AddChildBus(
+                "ASB_Gmrs",
+                mbb =>
+                {
+                    mbb.WithProviderServiceBus(
+                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Gmrs.ConnectionString)
+                    );
+                    mbb.AddJsonSerializer();
+                    mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
+                    mbb.Consume<JsonElement>(x =>
+                    {
+                        x.Topic(serviceBusOptions.Gmrs.Topic)
+                            .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
+                            .WithConsumer<GmrsConsumer>()
+                            .Instances(1);
+                    });
+                }
+            );
+
             smb.AddChildBus(
                 "ASB_Notification",
                 mbb =>
                 {
-                    var serviceBusOptions = services
-                        .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
-                        .Get();
-
-                    mbb.WithProviderServiceBus(cfg =>
-                    {
-                        cfg.TopologyProvisioning = new ServiceBusTopologySettings { Enabled = false };
-                        cfg.ClientFactory = (sp, settings) =>
-                        {
-                            var clientOptions = sp.GetRequiredService<IHostEnvironment>().IsDevelopment()
-                                ? new ServiceBusClientOptions()
-                                : new ServiceBusClientOptions
-                                {
-                                    WebProxy = sp.GetRequiredService<IWebProxy>(),
-                                    TransportType = ServiceBusTransportType.AmqpWebSockets,
-                                };
-
-                            return new ServiceBusClient(settings.ConnectionString, clientOptions);
-                        };
-                        cfg.ConnectionString = serviceBusOptions.Notifications.ConnectionString;
-                    });
+                    mbb.WithProviderServiceBus(
+                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Notifications.ConnectionString)
+                    );
                     mbb.AddJsonSerializer();
 
                     mbb.AddServicesFromAssemblyContaining<NotificationConsumer>();
@@ -108,13 +120,6 @@ public static class ServiceCollectionExtensions
                 "SQS_CustomsDeclarations",
                 mbb =>
                 {
-                    var customsDeclarationsConsumerOptions = services
-                        .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
-                            configuration,
-                            CustomsDeclarationsConsumerOptions.SectionName
-                        )
-                        .Get();
-
                     mbb.WithProviderAmazonSQS(cfg =>
                     {
                         cfg.TopologyProvisioning.Enabled = false;
@@ -152,6 +157,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IValidator<CustomsDeclarationsMessage>, CustomsDeclarationsMessageValidator>();
         services.AddScoped<IValidator<ErrorNotification>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
+        services.AddScoped<IValidator<Gmr>, GmrValidator>();
 
         return services;
     }

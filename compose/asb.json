@@ -25,12 +25,34 @@
                 }
               }
             ]
+          },
+          {
+            "Name": "defra.trade.dmp.outputgmrs.dev.1001.topic",
+            "Properties": {
+              "DefaultMessageTimeToLive": "PT1H",
+              "DuplicateDetectionHistoryTimeWindow": "PT20S",
+              "RequiresDuplicateDetection": false
+            },
+            "Subscriptions": [
+              {
+                "Name": "defra.trade.dmp.btms-ingest.dev.1001.subscription",
+                "Properties": {
+                  "DeadLetteringOnMessageExpiration": false,
+                  "DefaultMessageTimeToLive": "PT1H",
+                  "LockDuration": "PT1M",
+                  "MaxDeliveryCount": 1,
+                  "ForwardDeadLetteredMessagesTo": "",
+                  "ForwardTo": "",
+                  "RequiresSession": false
+                }
+              }
+            ]
           }
         ]
       }
     ],
     "Logging": {
-      "Type": "File"
+      "Type": "Console"
     }
   }
 }
