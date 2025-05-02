@@ -35,15 +35,4 @@ public static class ImportNotificationFixtures
             .With(i => i.LastUpdated, DateTime.UtcNow)
             .With(i => i.Status, ImportNotificationStatus.InProgress);
     }
-
-    public static IPostprocessComposer<IpaffsDataApi.ImportPreNotification> DataApiImportNotificationFixture()
-    {
-        var fixture = GetFixture();
-
-        return fixture
-            .Build<IpaffsDataApi.ImportPreNotification>()
-            .With(i => i.ReferenceNumber, GenerateReferenceNumber())
-            .With(i => i.UpdatedSource, DateTime.UtcNow.AddMinutes(-5))
-            .With(i => i.Status, IpaffsDataApi.ImportNotificationStatus.InProgress);
-    }
 }

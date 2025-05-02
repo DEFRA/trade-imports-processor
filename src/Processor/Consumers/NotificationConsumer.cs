@@ -2,10 +2,9 @@ using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
 using SlimMessageBus;
+using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
-using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
@@ -29,43 +28,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return;
         }
 
-        var to = new IpaffsDataApi.ImportPreNotification
-        {
-            IpaffsId = newNotification.IpaffsId,
-            Etag = newNotification.Etag,
-            ExternalReferences = newNotification.ExternalReferences?.Select(ExternalReferenceMapper.Map).ToArray(),
-            ReferenceNumber = newNotification.ReferenceNumber,
-            Version = newNotification.Version,
-            UpdatedSource = newNotification.LastUpdated,
-            LastUpdatedBy = UserInformationMapper.Map(newNotification.LastUpdatedBy),
-            ImportNotificationType = ImportNotificationTypeEnumMapper.Map(newNotification.ImportNotificationType),
-            Replaces = newNotification.Replaces,
-            ReplacedBy = newNotification.ReplacedBy,
-            Status = ImportNotificationStatusEnumMapper.Map(newNotification.Status),
-            SplitConsignment = SplitConsignmentMapper.Map(newNotification.SplitConsignment),
-            ChildNotification = newNotification.ChildNotification,
-            JourneyRiskCategorisation = JourneyRiskCategorisationResultMapper.Map(
-                newNotification.JourneyRiskCategorisation
-            ),
-            IsHighRiskEuImport = newNotification.IsHighRiskEuImport,
-            PartOne = PartOneMapper.Map(newNotification.PartOne),
-            DecisionBy = UserInformationMapper.Map(newNotification.DecisionBy),
-            DecisionDate = newNotification.DecisionDate,
-            PartTwo = PartTwoMapper.Map(newNotification.PartTwo),
-            PartThree = PartThreeMapper.Map(newNotification.PartThree),
-            OfficialVeterinarian = newNotification.OfficialVeterinarian,
-            ConsignmentValidations = newNotification
-                .ConsignmentValidations?.Select(ValidationMessageCodeMapper.Map)
-                .ToArray(),
-            AgencyOrganisationId = newNotification.AgencyOrganisationId,
-            RiskDecisionLockedOn = newNotification.RiskDecisionLockedOn,
-            IsRiskDecisionLocked = newNotification.IsRiskDecisionLocked,
-            IsBulkUploadInProgress = newNotification.IsBulkUploadInProgress,
-            RequestId = newNotification.RequestId,
-            IsCdsFullMatched = newNotification.IsCdsFullMatched,
-            ChedTypeVersion = newNotification.ChedTypeVersion,
-            IsGMRMatched = newNotification.IsGMRMatched,
-        };
+        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
 
         var existingNotification = await api.GetImportPreNotification(
             newNotification.ReferenceNumber,
@@ -74,8 +37,16 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         if (existingNotification == null)
         {
-            logger.LogInformation("Creating new notification {ReferenceNumber}", to.ReferenceNumber);
-            await api.PutImportPreNotification(newNotification.ReferenceNumber, to, null, cancellationToken);
+            logger.LogInformation(
+                "Creating new notification {ReferenceNumber}",
+                dataApiImportPreNotification.ReferenceNumber
+            );
+            await api.PutImportPreNotification(
+                newNotification.ReferenceNumber,
+                dataApiImportPreNotification,
+                null,
+                cancellationToken
+            );
             return;
         }
 
@@ -98,7 +69,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         await api.PutImportPreNotification(
             newNotification.ReferenceNumber,
-            to,
+            dataApiImportPreNotification,
             existingNotification.ETag,
             cancellationToken
         );
@@ -106,7 +77,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool NewNotificationIsOlderThanExistingNotification(
         ImportNotification newNotification,
-        IpaffsDataApi.ImportPreNotification existingNotification
+        DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
         return newNotification.LastUpdated.TrimMicroseconds() < existingNotification.UpdatedSource.TrimMicroseconds();
@@ -116,18 +87,18 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     {
         return notification.Status == ImportNotificationStatus.Amend
             || notification.Status == ImportNotificationStatus.Draft
-            || notification.ReferenceNumber!.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
+            || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
     private static bool GoingBackIntoInProgress(
         ImportNotification newNotification,
-        IpaffsDataApi.ImportPreNotification existingNotification
+        DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
         return newNotification.Status == ImportNotificationStatus.InProgress
             && existingNotification.Status
-                is IpaffsDataApi.ImportNotificationStatus.Validated
-                    or IpaffsDataApi.ImportNotificationStatus.Rejected
-                    or IpaffsDataApi.ImportNotificationStatus.PartiallyRejected;
+                is DataApiIpaffs.ImportNotificationStatus.Validated
+                    or DataApiIpaffs.ImportNotificationStatus.Rejected
+                    or DataApiIpaffs.ImportNotificationStatus.PartiallyRejected;
     }
 }

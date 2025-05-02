@@ -1,197 +1,152 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
+using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
-public class ImportNotification //: CustomStringMongoIdentifiable
+public class ImportNotification
 {
-    /// <summary>
-    ///     The IPAFFS ID number for this notification.
-    /// </summary>
     [JsonPropertyName("id")]
-    public int? IpaffsId { get; set; }
+    public int? IpaffsId { get; init; }
 
-    /// <summary>
-    ///     The etag for this notification.
-    /// </summary>
     [JsonPropertyName("etag")]
-    public string? Etag { get; set; }
+    public string? Etag { get; init; }
 
-    /// <summary>
-    ///     List of external references, which relate to downstream services
-    /// </summary>
     [JsonPropertyName("externalReferences")]
-    public ExternalReference[]? ExternalReferences { get; set; }
+    public ExternalReference[]? ExternalReferences { get; init; }
 
-    /// <summary>
-    ///     Reference number of the notification
-    /// </summary>
     [JsonPropertyName("referenceNumber")]
     [Required]
-    public required string ReferenceNumber { get; set; }
+    public required string ReferenceNumber { get; init; }
 
-    /// <summary>
-    ///     Current version of the notification
-    /// </summary>
     [JsonPropertyName("version")]
-    public int? Version { get; set; }
+    public int? Version { get; init; }
 
-    /// <summary>
-    ///     Date when the notification was last updated.
-    /// </summary>
     [JsonPropertyName("lastUpdated")]
-    public DateTime? LastUpdated { get; set; }
+    public DateTime? LastUpdated { get; init; }
 
-    /// <summary>
-    ///     User entity whose update was last
-    /// </summary>
     [JsonPropertyName("lastUpdatedBy")]
-    public UserInformation? LastUpdatedBy { get; set; }
+    public UserInformation? LastUpdatedBy { get; init; }
 
-    /// <summary>
-    ///     The Type of notification that has been submitted
-    /// </summary>
     [JsonPropertyName("type")]
-    public ImportNotificationType? ImportNotificationType { get; set; }
+    public ImportNotificationType? ImportNotificationType { get; init; }
 
-    /// <summary>
-    ///     Reference number of notification that was replaced by this one
-    /// </summary>
     [JsonPropertyName("replaces")]
-    public string? Replaces { get; set; }
+    public string? Replaces { get; init; }
 
-    /// <summary>
-    ///     Reference number of notification that replaced this one
-    /// </summary>
     [JsonPropertyName("replacedBy")]
-    public string? ReplacedBy { get; set; }
+    public string? ReplacedBy { get; init; }
 
-    /// <summary>
-    ///     Current status of the notification. When created by an importer, the notification has the status &#x27;SUBMITTED
-    ///     &#x27;. Before submission of the notification it has the status &#x27;DRAFT&#x27;. When the BIP starts validation
-    ///     of the notification it has the status &#x27;IN PROGRESS&#x27; Once the BIP validates the notification, it gets the
-    ///     status &#x27;VALIDATED&#x27;. &#x27;AMEND&#x27; is set when the Part-1 user is modifying the notification. &#x27;
-    ///     MODIFY&#x27; is set when Part-2 user is modifying the notification. Replaced - When the notification is replaced by
-    ///     another notification. Rejected - Notification moves to Rejected status when rejected by a Part-2 user.
-    /// </summary>
     [JsonPropertyName("status")]
-    public ImportNotificationStatus? Status { get; set; }
+    public ImportNotificationStatus? Status { get; init; }
 
-    /// <summary>
-    ///     Present if the consignment has been split
-    /// </summary>
     [JsonPropertyName("splitConsignment")]
-    public SplitConsignment? SplitConsignment { get; set; }
+    public SplitConsignment? SplitConsignment { get; init; }
 
-    /// <summary>
-    ///     Is this notification a child of a split consignment?
-    /// </summary>
     [JsonPropertyName("childNotification")]
-    public bool? ChildNotification { get; set; }
+    public bool? ChildNotification { get; init; }
 
-    /// <summary>
-    ///     Result of risk assessment by the risk scorer
-    /// </summary>
     [JsonPropertyName("riskAssessment")]
-    public RiskAssessmentResult? RiskAssessment { get; set; }
+    public RiskAssessmentResult? RiskAssessment { get; init; }
 
-    /// <summary>
-    ///     Details of the risk categorisation level for a notification
-    /// </summary>
     [JsonPropertyName("journeyRiskCategorisation")]
-    public JourneyRiskCategorisationResult? JourneyRiskCategorisation { get; set; }
+    public JourneyRiskCategorisationResult? JourneyRiskCategorisation { get; init; }
 
-    /// <summary>
-    ///     Is this notification a high risk notification from the EU/EEA?
-    /// </summary>
     [JsonPropertyName("isHighRiskEuImport")]
-    public bool? IsHighRiskEuImport { get; set; }
+    public bool? IsHighRiskEuImport { get; init; }
 
     [JsonPropertyName("partOne")]
-    public PartOne? PartOne { get; set; }
+    public PartOne? PartOne { get; init; }
 
-    /// <summary>
-    ///     Information about the user who set the decision in Part 2
-    /// </summary>
     [JsonPropertyName("decisionBy")]
-    public UserInformation? DecisionBy { get; set; }
+    public UserInformation? DecisionBy { get; init; }
 
-    /// <summary>
-    ///     Date when the notification was validated or rejected
-    /// </summary>
     [JsonPropertyName("decisionDate")]
-    public string? DecisionDate { get; set; }
+    public string? DecisionDate { get; init; }
 
-    /// <summary>
-    ///     Part of the notification which contains information filled by inspector at BIP/DPE
-    /// </summary>
     [JsonPropertyName("partTwo")]
-    public PartTwo? PartTwo { get; set; }
+    public PartTwo? PartTwo { get; init; }
 
-    /// <summary>
-    ///     Part of the notification which contains information filled by LVU if control of consignment is needed.
-    /// </summary>
     [JsonPropertyName("partThree")]
-    public PartThree? PartThree { get; set; }
+    public PartThree? PartThree { get; init; }
 
-    /// <summary>
-    ///     Official veterinarian
-    /// </summary>
     [JsonPropertyName("officialVeterinarian")]
-    public string? OfficialVeterinarian { get; set; }
+    public string? OfficialVeterinarian { get; init; }
 
-    /// <summary>
-    ///     Validation messages for whole notification
-    /// </summary>
     [JsonPropertyName("consignmentValidation")]
-    public ValidationMessageCode[]? ConsignmentValidations { get; set; }
+    public ValidationMessageCode[]? ConsignmentValidations { get; init; }
 
-    /// <summary>
-    ///     Organisation id which the agent user belongs to, stored against each notification which has been raised on behalf
-    ///     of another organisation
-    /// </summary>
     [JsonPropertyName("agencyOrganisationId")]
-    public string? AgencyOrganisationId { get; set; }
+    public string? AgencyOrganisationId { get; init; }
 
-    /// <summary>
-    ///     Date and Time when risk decision was locked
-    /// </summary>
     [JsonPropertyName("riskDecisionLockingTime")]
-    public DateTime? RiskDecisionLockedOn { get; set; }
+    public DateTime? RiskDecisionLockedOn { get; init; }
 
-    /// <summary>
-    ///     is the risk decision locked?
-    /// </summary>
     [JsonPropertyName("isRiskDecisionLocked")]
-    public bool? IsRiskDecisionLocked { get; set; }
+    public bool? IsRiskDecisionLocked { get; init; }
 
-    /// <summary>
-    ///     Boolean flag that indicates whether a bulk upload is in progress
-    /// </summary>
     [JsonPropertyName("isBulkUploadInProgress")]
-    public bool? IsBulkUploadInProgress { get; set; }
+    public bool? IsBulkUploadInProgress { get; init; }
 
-    /// <summary>
-    ///     Request UUID to trace bulk upload
-    /// </summary>
     [JsonPropertyName("requestId")]
-    public string? RequestId { get; set; }
+    public string? RequestId { get; init; }
 
-    /// <summary>
-    ///     Have all commodities been matched with corresponding CDS declaration(s)
-    /// </summary>
     [JsonPropertyName("isCdsFullMatched")]
-    public bool? IsCdsFullMatched { get; set; }
+    public bool? IsCdsFullMatched { get; init; }
 
-    /// <summary>
-    ///     The version of the ched type the notification was created with
-    /// </summary>
     [JsonPropertyName("chedTypeVersion")]
-    public int? ChedTypeVersion { get; set; }
+    public int? ChedTypeVersion { get; init; }
 
-    /// <summary>
-    ///     Indicates whether a CHED has been matched with a GVMS GMR via DMP
-    /// </summary>
     [JsonPropertyName("isGMRMatched")]
-    public bool? IsGMRMatched { get; set; }
+    public bool? IsGMRMatched { get; init; }
+
+    public static explicit operator DataApiIpaffs.ImportPreNotification(ImportNotification importNotification)
+    {
+        var commodities = importNotification.PartOne?.Commodities;
+
+        return new DataApiIpaffs.ImportPreNotification
+        {
+            IpaffsId = importNotification.IpaffsId,
+            Etag = importNotification.Etag,
+            ExternalReferences = importNotification.ExternalReferences?.Select(ExternalReferenceMapper.Map).ToArray(),
+            ReferenceNumber = importNotification.ReferenceNumber,
+            Version = importNotification.Version,
+            UpdatedSource = importNotification.LastUpdated,
+            LastUpdatedBy = UserInformationMapper.Map(importNotification.LastUpdatedBy),
+            ImportNotificationType = ImportNotificationTypeEnumMapper.Map(importNotification.ImportNotificationType),
+            Replaces = importNotification.Replaces,
+            ReplacedBy = importNotification.ReplacedBy,
+            Status = ImportNotificationStatusEnumMapper.Map(importNotification.Status),
+            SplitConsignment = SplitConsignmentMapper.Map(importNotification.SplitConsignment),
+            ChildNotification = importNotification.ChildNotification,
+            JourneyRiskCategorisation = JourneyRiskCategorisationResultMapper.Map(
+                importNotification.JourneyRiskCategorisation
+            ),
+            IsHighRiskEuImport = importNotification.IsHighRiskEuImport,
+            PartOne = PartOneMapper.Map(importNotification.PartOne),
+            DecisionBy = UserInformationMapper.Map(importNotification.DecisionBy),
+            DecisionDate = importNotification.DecisionDate,
+            PartTwo = PartTwoMapper.Map(importNotification.PartTwo),
+            PartThree = PartThreeMapper.Map(importNotification.PartThree),
+            OfficialVeterinarian = importNotification.OfficialVeterinarian,
+            ConsignmentValidations = importNotification
+                .ConsignmentValidations?.Select(ValidationMessageCodeMapper.Map)
+                .ToArray(),
+            AgencyOrganisationId = importNotification.AgencyOrganisationId,
+            RiskDecisionLockedOn = importNotification.RiskDecisionLockedOn,
+            IsRiskDecisionLocked = importNotification.IsRiskDecisionLocked,
+            IsBulkUploadInProgress = importNotification.IsBulkUploadInProgress,
+            RequestId = importNotification.RequestId,
+            IsCdsFullMatched = importNotification.IsCdsFullMatched,
+            ChedTypeVersion = importNotification.ChedTypeVersion,
+            IsGMRMatched = importNotification.IsGMRMatched,
+            CommoditiesSummary =
+                commodities != null ? CommoditiesMapper.Map(commodities) : new DataApiIpaffs.Commodities(),
+            Commodities =
+                commodities != null
+                    ? commodities.CommodityComplements?.Select(CommodityComplementMapper.Map).ToArray()!
+                    : [],
+        };
+    }
 }
