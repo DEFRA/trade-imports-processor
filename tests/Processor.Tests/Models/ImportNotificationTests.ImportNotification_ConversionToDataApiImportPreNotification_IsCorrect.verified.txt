@@ -1,0 +1,197 @@
+﻿{
+  IpaffsId: 4353670,
+  Etag: 0000000004790B83,
+  ReferenceNumber: CHEDD.GB.2024.5555554,
+  Version: 2,
+  UpdatedSource: 2024-12-28 19:45:21.1319718 Utc,
+  LastUpdatedBy: {
+    DisplayName: 40cfe371811e66d3e37dd709c7151f43734a994cbc2919ba22edd51a5c7ce7cb,
+    UserId: Guid_1
+  },
+  ImportNotificationType: Ced,
+  Status: Validated,
+  IsHighRiskEuImport: false,
+  PartOne: {
+    PersonResponsible: {
+      Name: 56beb672f5630cbe67a2c7727671a49aa43cff102ad1f5dee44904c51d2e86a4,
+      CompanyId: Guid_2,
+      ContactId: Guid_3,
+      CompanyName: 30a3b779fcca46e08121431624153c672bcd53a3eb2ae35c35bab9389f97e662,
+      Addresses: [
+        3e96ffa3fb973e41c58179889f5cacb3fc49ae94a2486cd786d830c8666e7d79,
+        532f3d0f81eefee7a1045b18ab5da0459aad599c2dcd4d8a4b26b5200a8fa682,
+        3e613288cbc226922f9ed033f875c32a40911c9e57907bd343890b5a0767d8a2,
+        ca0116e9796a0ba36971994101af9c536b1a2c63b0f10fbd971b856936a44c37
+      ],
+      Country: GB,
+      TracesId: 1001,
+      Phone: d93fa153f66c3ff8000e98675833290bf72ee473fa62f846abd412016223f60f,
+      Email: 7d11ee06651612de5533870ec1d5a93d19b130b7c81192308d32bb4d8c61fb83
+    },
+    Consignor: {
+      Id: Guid_4,
+      Type: Exporter,
+      Status: Nonapproved,
+      CompanyName: 0c37ea33df2de8754c9912a8cdaf9e6d8784ea63c39933e0d06675c600c2922a,
+      Address: {
+        City: 5bfc2e5513a487037e6abb8404385b6e0a5a1b6a05d038588f9efef0a46c85f1,
+        AddressLine1: 6c0b94972fb2b969e7468d961f39d35a11651a0d4d23bd25be3b56ff597c6048,
+        AddressLine2: 815aab766f0e83bca1271386420e58850f2806e9882bac63243f5b732fbf2d3b,
+        AddressLine3: 182ae1b4584be01991223f509fb1b1593eea63a2e9f83e721498bd8839cd05db,
+        PostalZipCode: 01b3ee1213dc2b3b0145f1ff45ef1701db3a53e54f9dada2042501ddf2739c12,
+        CountryIsoCode: KE,
+        Email: 860853b4fe1c588a5adf0aad03015a295daaa39e083e14d7e0c1d133aa6a45b8,
+        Telephone: 9d8d095cce96670f75bb0be5dd6afaa25c6f89ac4a5c8ff91a4b78dece9d2e68
+      },
+      TracesId: 10003819
+    },
+    Consignee: {
+      Id: Guid_5,
+      Type: Consignee,
+      Status: Nonapproved,
+      CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
+      Address: {
+        City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
+        AddressLine1: e9444f8f9beb2320fbbc07f89734cf25ee7334b803083cb9e3c6eef3188cf220,
+        AddressLine2: 3970bf92db970a7df201ab0136b2715716d3a1587d8fe138ba2394104f79c756,
+        PostalZipCode: 8719e2971acea934088f8541cca26cdff37a2bce85b3e9dec6192470a282f08f,
+        CountryIsoCode: GB-ENG,
+        Email: 83387ed2fd5327925348770604b03ed3c99d2be8ba0d692764f6b31f7f7b1c8e,
+        UkTelephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20,
+        Telephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20
+      },
+      TracesId: 10003487
+    },
+    Importer: {
+      Id: Guid_5,
+      Type: Consignee,
+      Status: Nonapproved,
+      CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
+      Address: {
+        City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
+        AddressLine1: e9444f8f9beb2320fbbc07f89734cf25ee7334b803083cb9e3c6eef3188cf220,
+        AddressLine2: 3970bf92db970a7df201ab0136b2715716d3a1587d8fe138ba2394104f79c756,
+        PostalZipCode: 8719e2971acea934088f8541cca26cdff37a2bce85b3e9dec6192470a282f08f,
+        CountryIsoCode: GB-ENG,
+        Email: 83387ed2fd5327925348770604b03ed3c99d2be8ba0d692764f6b31f7f7b1c8e,
+        UkTelephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20,
+        Telephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20
+      },
+      TracesId: 10003487
+    },
+    PlaceOfDestination: {
+      Id: Guid_5,
+      Type: Consignee,
+      Status: Nonapproved,
+      CompanyName: 8c4eff55bbc5e179632b60ec8df89bf9d172742f11ff5b755ad8459e4257d195,
+      Address: {
+        City: ecc0e7dc084f141b29479058967d0bc07dee25d9690a98ee4e6fdad5168274d7,
+        AddressLine1: e9444f8f9beb2320fbbc07f89734cf25ee7334b803083cb9e3c6eef3188cf220,
+        AddressLine2: 3970bf92db970a7df201ab0136b2715716d3a1587d8fe138ba2394104f79c756,
+        PostalZipCode: 8719e2971acea934088f8541cca26cdff37a2bce85b3e9dec6192470a282f08f,
+        CountryIsoCode: GB-ENG,
+        Email: 83387ed2fd5327925348770604b03ed3c99d2be8ba0d692764f6b31f7f7b1c8e,
+        UkTelephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20,
+        Telephone: 3eda99ab0eaabb30b311900f8a83efc725fb4702788904dcee9b3feb18c28e20
+      },
+      TracesId: 10003487
+    },
+    IsGvmsRoute: false,
+    Purpose: {
+      PurposeGroup: ForImport
+    },
+    PointOfEntry: GBLHR4P,
+    MeansOfTransport: {},
+    TransporterDetailsRequired: false,
+    MeansOfTransportFromEntryPoint: {
+      Type: Aeroplane,
+      Document: 701 5123 8493,
+      Id: KQ100
+    },
+    VeterinaryInformation: {
+      AccompanyingDocuments: [
+        {
+          DocumentType: CommercialInvoice,
+          DocumentReference: 087957,
+          DocumentIssuedOn: 2024-12-27
+        }
+      ]
+    },
+    ImporterLocalReferenceNumber: HR/00/00/000,
+    SubmittedOn: 2024-12-28 00:16:22.5821871 Utc,
+    SubmittedBy: {
+      DisplayName: 56beb672f5630cbe67a2c7727671a49aa43cff102ad1f5dee44904c51d2e86a4,
+      UserId: Guid_3
+    },
+    ComplexCommoditySelected: true,
+    PortOfEntry: GBLHRE,
+    ContactDetails: {
+      Name: Dave,
+      Telephone: 01211 121333,
+      Email: dave@theimporter
+    },
+    ProvideCtcMrn: No,
+    ArrivesAt: 2024-12-28 19:24
+  },
+  DecisionBy: {
+    DisplayName: 40cfe371811e66d3e37dd709c7151f43734a994cbc2919ba22edd51a5c7ce7cb,
+    UserId: Guid_6
+  },
+  DecisionDate: 2024-12-28T19:45:21.104623034Z,
+  PartTwo: {
+    Decision: {
+      ConsignmentAcceptable: true,
+      ConsignmentDecision: AcceptableForInternalMarket,
+      FreeCirculationPurpose: HumanConsumption
+    },
+    ConsignmentCheck: {
+      DocumentCheckResult: Satisfactory,
+      IdentityCheckDone: false,
+      PhysicalCheckDone: false
+    },
+    LaboratoryTestsRequired: false,
+    ResealedContainersIncluded: false,
+    ControlAuthority: {
+      OfficialVeterinarian: {
+        FirstName: e054bd687e31b4c25474e508130c6e8ae2e8ad86916dc115072ed05ad867d332,
+        LastName: fa30ecf572b9cae646e2531ed9da518400e884d5ea936c72a48478ec01713e4c,
+        Email: 3d1607538dd44d6ee71cf17ca74f211e2213bf99c64932fa5e3fcbc38a4a6d27,
+        Phone: 5d27d17535b78cb08f56fd475a10fc73660bee09e93f34b62238160bc74627e9,
+        Signed: 2024-12-28T19:45:21.131940384
+      }
+    },
+    BipLocalReferenceNumber: HR/11/11/11,
+    CheckedOn: 2024-12-28 19:45 Utc
+  },
+  PartThree: {
+    SealCheckRequired: false
+  },
+  RiskDecisionLockedOn: 2024-12-28 17:24 Utc,
+  IsRiskDecisionLocked: false,
+  ChedTypeVersion: 2,
+  CommoditiesSummary: {
+    TotalGrossWeight: 2554.0,
+    TotalNetWeight: 1008.0,
+    NumberOfPackages: 19,
+    Temperature: Chilled,
+    IncludeNonAblactedAnimals: false,
+    CountryOfOrigin: KE,
+    IsLowRiskArticle72Country: false,
+    ConsignedCountry: KE,
+    CommodityIntendedFor: Human
+  },
+  Commodities: [
+    {
+      CommodityDescription: Beans (Vigna spp., Phaseolus spp.),
+      CommodityId: 070820,
+      ComplementId: 2,
+      SpeciesType: 070820,
+      SpeciesClass: 070820,
+      AdditionalData: {
+        netWeight: 1008,
+        numberPackage: 19,
+        typePackage: Box
+      }
+    }
+  ]
+}
