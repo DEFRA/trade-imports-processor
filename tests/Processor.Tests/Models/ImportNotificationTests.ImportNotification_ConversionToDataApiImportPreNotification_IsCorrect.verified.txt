@@ -186,7 +186,12 @@
       CommodityId: 070820,
       ComplementId: 2,
       SpeciesType: 070820,
-      SpeciesClass: 070820
+      SpeciesClass: 070820,
+      AdditionalData: {
+        netWeight: 1008,
+        numberPackage: 19,
+        typePackage: Box
+      }
     }
   ]
 }

@@ -177,7 +177,49 @@
       EppoCode: PELSS,
       SpeciesId: 1345841,
       SpeciesName: Pelargonium sp.,
-      SpeciesNomination: Pelargonium sp.
+      SpeciesNomination: Pelargonium sp.,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 42,
+        numberPackage: 12,
+        propagation: Plant,
+        quantity: 22700,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Mandatory,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_9,
+        EppoCode: PELSS,
+        IsWoody: true,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     },
     {
       CommodityDescription: Other,
@@ -187,7 +229,49 @@
       EppoCode: CHYFR,
       SpeciesId: 1364198,
       SpeciesName: Argyranthemum frutescens,
-      SpeciesNomination: Argyranthemum frutescens
+      SpeciesNomination: Argyranthemum frutescens,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 3.5,
+        numberPackage: 1,
+        propagation: Plant,
+        quantity: 1400,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_10,
+        EppoCode: CHYFR,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     },
     {
       CommodityDescription: Other,
@@ -197,7 +281,49 @@
       EppoCode: BIDFE,
       SpeciesId: 1402711,
       SpeciesName: Bidens ferulifolia,
-      SpeciesNomination: Bidens ferulifolia
+      SpeciesNomination: Bidens ferulifolia,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 3.5,
+        numberPackage: 1,
+        propagation: Plant,
+        quantity: 1500,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_11,
+        EppoCode: BIDFE,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     },
     {
       CommodityDescription: Other,
@@ -207,7 +333,49 @@
       EppoCode: FUCSS,
       SpeciesId: 1352563,
       SpeciesName: Fuchsia sp.,
-      SpeciesNomination: Fuchsia sp.
+      SpeciesNomination: Fuchsia sp.,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 3.5,
+        numberPackage: 1,
+        propagation: Plant,
+        quantity: 4300,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_12,
+        EppoCode: FUCSS,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     },
     {
       CommodityDescription: Other,
@@ -217,7 +385,49 @@
       EppoCode: GAASS,
       SpeciesId: 1443326,
       SpeciesName: Gaura sp.,
-      SpeciesNomination: Gaura sp.
+      SpeciesNomination: Gaura sp.,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 3.5,
+        numberPackage: 1,
+        propagation: Plant,
+        quantity: 2600,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Mandatory,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_13,
+        EppoCode: GAASS,
+        IsWoody: true,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     },
     {
       CommodityDescription: Other,
@@ -227,7 +437,49 @@
       EppoCode: GLESS,
       SpeciesId: 1365075,
       SpeciesName: Glechoma sp.,
-      SpeciesNomination: Glechoma sp.
+      SpeciesNomination: Glechoma sp.,
+      AdditionalData: {
+        commodityGroup: Plants for Planting,
+        finishedOrPropagated: Propagated,
+        netWeight: 3.5,
+        numberPackage: 1,
+        propagation: Plant,
+        quantity: 600,
+        regulatoryAuthority: PHSI,
+        requiresFinishedOrPropagatedData: true,
+        typePackage: Carton,
+        typeQuantity: Pieces
+      },
+      RiskAssesment: {
+        HmiDecision: Notrequired,
+        PhsiDecision: Required,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_14,
+        EppoCode: GLESS,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      Checks: [
+        {
+          Type: PhsiDocument,
+          Status: Compliant
+        },
+        {
+          Type: PhsiIdentity,
+          Status: ToDo
+        },
+        {
+          Type: PhsiPhysical,
+          Status: ToDo
+        }
+      ]
     }
   ]
 }
