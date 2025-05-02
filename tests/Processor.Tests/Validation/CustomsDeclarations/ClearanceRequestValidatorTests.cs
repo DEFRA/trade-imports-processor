@@ -174,6 +174,21 @@ public class ClearanceRequestValidatorTests
         Assert.NotNull(FindWithErrorCode(result, "ALVSVAL326"));
     }
 
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL326_WhenThePreviousVersionIsNull()
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.ExternalVersion, 1)
+            .Without(c => c.PreviousExternalVersion)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        Assert.Null(FindWithErrorCode(result, "ALVSVAL326"));
+    }
+
     [Theory, ClassData(typeof(ClearanceRequestValidatorTestData))]
     public void TheoryTests(ClearanceRequest clearanceRequest, ExpectedResult expectedResult)
     {
