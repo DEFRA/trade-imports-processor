@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 
@@ -17,8 +18,7 @@ public class ComplementParameterSet
     public string? SpeciesId { get; set; }
 
     [JsonPropertyName("keyDataPair")]
-    [JsonConverter(typeof(KeyDataPairsToDictionaryStringObjectJsonConverter))]
-    public IDictionary<string, object>? KeyDataPairs { get; set; }
+    public KeyDataPair[]? KeyDataPairs { get; set; }
 
     /// <summary>
     ///     Catch certificate details

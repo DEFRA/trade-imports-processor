@@ -178,18 +178,48 @@
       SpeciesId: 1345841,
       SpeciesName: Pelargonium sp.,
       SpeciesNomination: Pelargonium sp.,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 42,
-        numberPackage: 12,
-        propagation: Plant,
-        quantity: 22700,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: netweight,
+          Data: 42
+        },
+        {
+          Key: number_package,
+          Data: 12
+        },
+        {
+          Key: quantity,
+          Data: 22700
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
@@ -230,18 +260,48 @@
       SpeciesId: 1364198,
       SpeciesName: Argyranthemum frutescens,
       SpeciesNomination: Argyranthemum frutescens,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 3.5,
-        numberPackage: 1,
-        propagation: Plant,
-        quantity: 1400,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: netweight,
+          Data: 3.5
+        },
+        {
+          Key: number_package,
+          Data: 1
+        },
+        {
+          Key: quantity,
+          Data: 1400
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
@@ -282,18 +342,48 @@
       SpeciesId: 1402711,
       SpeciesName: Bidens ferulifolia,
       SpeciesNomination: Bidens ferulifolia,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 3.5,
-        numberPackage: 1,
-        propagation: Plant,
-        quantity: 1500,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: netweight,
+          Data: 3.5
+        },
+        {
+          Key: number_package,
+          Data: 1
+        },
+        {
+          Key: quantity,
+          Data: 1500
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
@@ -334,18 +424,48 @@
       SpeciesId: 1352563,
       SpeciesName: Fuchsia sp.,
       SpeciesNomination: Fuchsia sp.,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 3.5,
-        numberPackage: 1,
-        propagation: Plant,
-        quantity: 4300,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: netweight,
+          Data: 3.5
+        },
+        {
+          Key: number_package,
+          Data: 1
+        },
+        {
+          Key: quantity,
+          Data: 4300
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
@@ -386,18 +506,48 @@
       SpeciesId: 1443326,
       SpeciesName: Gaura sp.,
       SpeciesNomination: Gaura sp.,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 3.5,
-        numberPackage: 1,
-        propagation: Plant,
-        quantity: 2600,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: netweight,
+          Data: 3.5
+        },
+        {
+          Key: number_package,
+          Data: 1
+        },
+        {
+          Key: quantity,
+          Data: 2600
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
@@ -438,18 +588,48 @@
       SpeciesId: 1365075,
       SpeciesName: Glechoma sp.,
       SpeciesNomination: Glechoma sp.,
-      AdditionalData: {
-        commodityGroup: Plants for Planting,
-        finishedOrPropagated: Propagated,
-        netWeight: 3.5,
-        numberPackage: 1,
-        propagation: Plant,
-        quantity: 600,
-        regulatoryAuthority: PHSI,
-        requiresFinishedOrPropagatedData: true,
-        typePackage: Carton,
-        typeQuantity: Pieces
-      },
+      AdditionalData: [
+        {
+          Key: regulatory_authority,
+          Data: PHSI
+        },
+        {
+          Key: requires_finished_or_propagated_data,
+          Data: true
+        },
+        {
+          Key: propagation,
+          Data: Plant
+        },
+        {
+          Key: type_package,
+          Data: Carton
+        },
+        {
+          Key: netweight,
+          Data: 3.5
+        },
+        {
+          Key: number_package,
+          Data: 1
+        },
+        {
+          Key: quantity,
+          Data: 600
+        },
+        {
+          Key: type_quantity,
+          Data: Pieces
+        },
+        {
+          Key: commodity_group,
+          Data: Plants for Planting
+        },
+        {
+          Key: finished_or_propagated,
+          Data: Propagated
+        }
+      ],
       RiskAssesment: {
         HmiDecision: Notrequired,
         PhsiDecision: Required,
