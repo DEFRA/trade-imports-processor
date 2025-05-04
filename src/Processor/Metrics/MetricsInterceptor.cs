@@ -21,12 +21,7 @@ public class MetricsInterceptor<TMessage>(ConsumerMetrics consumerMetrics) : ICo
         }
         catch (Exception exception)
         {
-            consumerMetrics.Faulted(
-                context.Path,
-                context.Consumer.GetType().Name,
-                resourceType,
-                exception
-            );
+            consumerMetrics.Faulted(context.Path, context.Consumer.GetType().Name, resourceType, exception);
             throw;
         }
         finally

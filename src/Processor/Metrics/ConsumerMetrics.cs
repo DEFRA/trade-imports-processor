@@ -52,12 +52,7 @@ public class ConsumerMetrics
         consumerInProgress.Add(1, tagList);
     }
 
-    public void Faulted(
-        string queueName,
-        string consumerName,
-        string resourceType,
-        Exception exception
-    )
+    public void Faulted(string queueName, string consumerName, string resourceType, Exception exception)
     {
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
@@ -65,12 +60,7 @@ public class ConsumerMetrics
         consumeFaultTotal.Add(1, tagList);
     }
 
-    public void Complete(
-        string queueName,
-        string consumerName,
-        double milliseconds,
-        string resourceType
-    )
+    public void Complete(string queueName, string consumerName, double milliseconds, string resourceType)
     {
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
