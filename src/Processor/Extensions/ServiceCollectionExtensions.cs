@@ -24,6 +24,8 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    private const int ConsumersInstanceCount = 20;
+
     public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
     {
         services
@@ -83,7 +85,10 @@ public static class ServiceCollectionExtensions
                 mbb =>
                 {
                     mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Gmrs.ConnectionString)
+                        CdpServiceBusClientFactory.ConfigureServiceBus(
+                            serviceBusOptions.Gmrs.ConnectionString,
+                            ConsumersInstanceCount
+                        )
                     );
                     mbb.AddJsonSerializer();
                     mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
@@ -92,7 +97,7 @@ public static class ServiceCollectionExtensions
                         x.Topic(serviceBusOptions.Gmrs.Topic)
                             .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
                             .WithConsumer<GmrsConsumer>()
-                            .Instances(1);
+                            .Instances(ConsumersInstanceCount);
                     });
                 }
             );
@@ -102,7 +107,10 @@ public static class ServiceCollectionExtensions
                 mbb =>
                 {
                     mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Notifications.ConnectionString)
+                        CdpServiceBusClientFactory.ConfigureServiceBus(
+                            serviceBusOptions.Notifications.ConnectionString,
+                            ConsumersInstanceCount
+                        )
                     );
                     mbb.AddJsonSerializer();
 
@@ -112,7 +120,7 @@ public static class ServiceCollectionExtensions
                         x.Topic(serviceBusOptions.Notifications.Topic)
                             .SubscriptionName(serviceBusOptions.Notifications.Subscription)
                             .WithConsumer<NotificationConsumer>()
-                            .Instances(1);
+                            .Instances(ConsumersInstanceCount);
                     });
                 }
             );
@@ -135,7 +143,7 @@ public static class ServiceCollectionExtensions
                     mbb.Consume<JsonElement>(x =>
                         x.WithConsumer<CustomsDeclarationsConsumer>()
                             .Queue(customsDeclarationsConsumerOptions.QueueName)
-                            .Instances(1)
+                            .Instances(ConsumersInstanceCount)
                     );
                 }
             );
