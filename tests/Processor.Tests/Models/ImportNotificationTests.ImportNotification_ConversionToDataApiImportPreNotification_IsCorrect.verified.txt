@@ -187,11 +187,20 @@
       ComplementId: 2,
       SpeciesType: 070820,
       SpeciesClass: 070820,
-      AdditionalData: {
-        netWeight: 1008,
-        numberPackage: 19,
-        typePackage: Box
-      }
+      AdditionalData: [
+        {
+          Key: netweight,
+          Data: 1008
+        },
+        {
+          Key: number_package,
+          Data: 19
+        },
+        {
+          Key: type_package,
+          Data: Box
+        }
+      ]
     }
   ]
 }

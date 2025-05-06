@@ -1,5 +1,3 @@
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
 
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
@@ -18,39 +16,14 @@ public static class ImportNotificationWithTransformMapper
         return notification;
     }
 
-    private static string FromSnakeCase(this string input)
-    {
-        if (input == "netweight")
-        {
-            return "netWeight";
-        }
-
-        var pascal = input
-            .Split(["_"], StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
-            .Aggregate(string.Empty, (s1, s2) => s1 + s2);
-        return char.ToLower(pascal[0]) + pascal[1..];
-    }
-
-    private static IDictionary<string, object> FromSnakeCase(this IDictionary<string, object>? input)
-    {
-        if (input == null)
-        {
-            return new Dictionary<string, object>();
-        }
-
-        return input.ToDictionary(mc => mc.Key.FromSnakeCase(), mc => mc.Value);
-    }
-
     private static void Map(ImportNotification from, IpaffsDataApi.ImportPreNotification to)
     {
         var commodities = from.PartOne!.Commodities;
 
         if (commodities?.CommodityComplements?.Length == 1)
         {
-            commodities.CommodityComplements[0].AdditionalData = commodities
-                .ComplementParameterSets![0]
-                .KeyDataPairs!.FromSnakeCase();
+            commodities.CommodityComplements[0].AdditionalData = commodities.ComplementParameterSets![0].KeyDataPairs;
+
             if (from.RiskAssessment != null)
             {
                 commodities.CommodityComplements[0].RiskAssesment = from.RiskAssessment.CommodityResults![0];
@@ -92,7 +65,7 @@ public static class ImportNotificationWithTransformMapper
                 foreach (var commodity in commodities.CommodityComplements)
                 {
                     var parameters = complementParameters[commodity.ComplementId!.Value];
-                    commodity.AdditionalData = parameters.KeyDataPairs!.FromSnakeCase();
+                    commodity.AdditionalData = parameters.KeyDataPairs;
 
                     if (
                         complementRiskAssesments.Any()

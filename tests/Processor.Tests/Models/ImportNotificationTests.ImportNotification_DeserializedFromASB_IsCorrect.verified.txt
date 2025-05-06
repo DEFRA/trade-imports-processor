@@ -115,11 +115,20 @@
         {
           UniqueComplementId: Guid_6,
           ComplementId: 2,
-          KeyDataPairs: {
-            netweight: 1008,
-            number_package: 19,
-            type_package: Box
-          }
+          KeyDataPairs: [
+            {
+              Key: netweight,
+              Data: 1008
+            },
+            {
+              Key: number_package,
+              Data: 19
+            },
+            {
+              Key: type_package,
+              Data: Box
+            }
+          ]
         }
       ],
       IncludeNonAblactedAnimals: false,

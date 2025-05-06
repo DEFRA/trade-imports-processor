@@ -101,36 +101,13 @@ public class ImportNotification
     [JsonPropertyName("isGMRMatched")]
     public bool? IsGMRMatched { get; init; }
 
-    private static string FromSnakeCase(string input)
-    {
-        if (input == "netweight")
-        {
-            return "netWeight";
-        }
-
-        var pascal = input
-            .Split(["_"], StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
-            .Aggregate(string.Empty, (s1, s2) => s1 + s2);
-        return char.ToLower(pascal[0]) + pascal[1..];
-    }
-
-    private static IDictionary<string, object> FromSnakeCase(IDictionary<string, object>? input)
-    {
-        return input == null
-            ? new Dictionary<string, object>()
-            : input.ToDictionary(mc => FromSnakeCase(mc.Key), mc => mc.Value);
-    }
-
     public static explicit operator DataApiIpaffs.ImportPreNotification(ImportNotification importNotification)
     {
         var commodities = importNotification.PartOne?.Commodities;
 
         if (commodities?.CommodityComplements?.Length == 1)
         {
-            commodities.CommodityComplements[0].AdditionalData = FromSnakeCase(
-                commodities.ComplementParameterSets![0].KeyDataPairs!
-            );
+            commodities.CommodityComplements[0].AdditionalData = commodities.ComplementParameterSets![0].KeyDataPairs;
             if (importNotification.RiskAssessment != null)
             {
                 commodities.CommodityComplements[0].RiskAssesment = importNotification.RiskAssessment.CommodityResults![
@@ -174,7 +151,7 @@ public class ImportNotification
                 foreach (var commodity in commodities.CommodityComplements)
                 {
                     var parameters = complementParameters[commodity.ComplementId!.Value];
-                    commodity.AdditionalData = FromSnakeCase(parameters.KeyDataPairs!);
+                    commodity.AdditionalData = parameters.KeyDataPairs;
 
                     if (
                         complementRiskAssessments.Count != 0

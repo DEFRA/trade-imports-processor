@@ -263,103 +263,283 @@
           UniqueComplementId: Guid_2,
           ComplementId: 3,
           SpeciesId: 1345841,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 42,
-            number_package: 12,
-            propagation: Plant,
-            quantity: 22700,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: netweight,
+              Data: 42
+            },
+            {
+              Key: number_package,
+              Data: 12
+            },
+            {
+              Key: quantity,
+              Data: 22700
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         },
         {
           UniqueComplementId: Guid_3,
           ComplementId: 4,
           SpeciesId: 1364198,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 3.5,
-            number_package: 1,
-            propagation: Plant,
-            quantity: 1400,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 1400
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         },
         {
           UniqueComplementId: Guid_4,
           ComplementId: 5,
           SpeciesId: 1402711,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 3.5,
-            number_package: 1,
-            propagation: Plant,
-            quantity: 1500,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 1500
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         },
         {
           UniqueComplementId: Guid_5,
           ComplementId: 6,
           SpeciesId: 1352563,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 3.5,
-            number_package: 1,
-            propagation: Plant,
-            quantity: 4300,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 4300
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         },
         {
           UniqueComplementId: Guid_6,
           ComplementId: 7,
           SpeciesId: 1443326,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 3.5,
-            number_package: 1,
-            propagation: Plant,
-            quantity: 2600,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 2600
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         },
         {
           UniqueComplementId: Guid_7,
           ComplementId: 8,
           SpeciesId: 1365075,
-          KeyDataPairs: {
-            commodity_group: Plants for Planting,
-            finished_or_propagated: Propagated,
-            netweight: 3.5,
-            number_package: 1,
-            propagation: Plant,
-            quantity: 600,
-            regulatory_authority: PHSI,
-            requires_finished_or_propagated_data: true,
-            type_package: Carton,
-            type_quantity: Pieces
-          }
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 600
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
         }
       ],
       IncludeNonAblactedAnimals: false,
