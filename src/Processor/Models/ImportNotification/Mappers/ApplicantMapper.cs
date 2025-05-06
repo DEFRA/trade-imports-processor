@@ -15,10 +15,10 @@ public static class ApplicantMapper
         to.LaboratoryPhoneNumber = from.LaboratoryPhoneNumber;
         to.LaboratoryEmail = from.LaboratoryEmail;
         to.SampleBatchNumber = from.SampleBatchNumber;
-        to.AnalysisType = ApplicantAnalysisTypeMapper.Map(from.AnalysisType);
+        to.AnalysisType = from.AnalysisType;
         to.NumberOfSamples = from.NumberOfSamples;
         to.SampleType = from.SampleType;
-        to.ConservationOfSample = ApplicantConservationOfSampleMapper.Map(from.ConservationOfSample);
+        to.ConservationOfSample = from.ConservationOfSample;
         to.Inspector = InspectorMapper.Map(from.Inspector);
         to.SampledOn = DateTimeMapper.Map(from.SampleDate, from.SampleTime);
         return to;

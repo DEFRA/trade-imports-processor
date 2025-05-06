@@ -8,13 +8,13 @@ public class InspectionCheck
     ///     Type of check
     /// </summary>
     [JsonPropertyName("type")]
-    public InspectionCheckType? Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     ///     Status of the check
     /// </summary>
     [JsonPropertyName("status")]
-    public InspectionCheckStatus? Status { get; set; }
+    public string? Status { get; set; }
 
     /// <summary>
     ///     Reason for the status if applicable

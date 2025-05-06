@@ -28,12 +28,12 @@ public class Gmr
         {
             Id = gmr.GmrId,
             HaulierEori = gmr.HaulierEori,
-            State = DataApiGvms.State.Open, // TO-DO: fix when enums are removed in the API
+            State = gmr.State,
             InspectionRequired = gmr.InspectionRequired,
             ReportToLocations = gmr.ReportToLocations,
             UpdatedSource = gmr.UpdatedDateTime,
-            Direction = DataApiGvms.Direction.GbToNi, // TO-DO: fix when enums are removed in the API
-            HaulierType = DataApiGvms.HaulierType.Etoe, // TO-DO: fix when enums are removed in the API
+            Direction = gmr.Direction,
+            HaulierType = gmr.HaulierType,
             IsUnaccompanied = gmr.IsUnaccompanied,
             VehicleRegistrationNumber = gmr.VehicleRegNum,
             TrailerRegistrationNums = gmr.TrailerRegistrationNums,

@@ -1,10 +1,8 @@
 ﻿using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
-using ImportNotificationStatus = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotificationStatus;
-using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
 

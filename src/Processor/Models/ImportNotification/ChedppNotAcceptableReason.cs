@@ -11,11 +11,11 @@ public class ChedppNotAcceptableReason
     ///     reason for refusal
     /// </summary>
     [JsonPropertyName("reason")]
-    public ChedppNotAcceptableReasonReason? Reason { get; set; }
+    public string? Reason { get; set; }
 
     /// <summary>
     ///     commodity or package
     /// </summary>
     [JsonPropertyName("commodityOrPackage")]
-    public ChedppNotAcceptableReasonCommodityOrPackage? CommodityOrPackage { get; set; }
+    public string? CommodityOrPackage { get; set; }
 }

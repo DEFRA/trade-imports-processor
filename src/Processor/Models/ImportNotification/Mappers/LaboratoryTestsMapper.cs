@@ -10,7 +10,7 @@ public static class LaboratoryTestsMapper
             return default!;
         var to = new IpaffsDataApi.LaboratoryTests();
         to.TestedOn = from.TestDate;
-        to.TestReason = LaboratoryTestsTestReasonEnumMapper.Map(from.TestReason);
+        to.TestReason = from.TestReason;
         to.SingleLaboratoryTests = from
             ?.SingleLaboratoryTests?.Select(x => SingleLaboratoryTestMapper.Map(x))
             .ToArray();

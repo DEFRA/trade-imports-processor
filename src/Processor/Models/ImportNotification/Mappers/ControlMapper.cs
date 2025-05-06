@@ -12,7 +12,7 @@ public static class ControlMapper
         to.FeedbackInformation = FeedbackInformationMapper.Map(from.FeedbackInformation);
         to.DetailsOnReExport = DetailsOnReExportMapper.Map(from.DetailsOnReExport);
         to.OfficialInspector = OfficialInspectorMapper.Map(from.OfficialInspector);
-        to.ConsignmentLeave = ControlConsignmentLeaveEnumMapper.Map(from.ConsignmentLeave);
+        to.ConsignmentLeave = from.ConsignmentLeave;
         return to;
     }
 }

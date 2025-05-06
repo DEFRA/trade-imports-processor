@@ -20,7 +20,7 @@ public static class PartyMapper
         to.Country = from.Country;
         to.City = from.City;
         to.TracesId = from.TracesId;
-        to.Type = PartyTypeEnumMapper.Map(from.Type);
+        to.Type = from.Type;
         to.ApprovalNumber = from.ApprovalNumber;
         to.Phone = from.Phone;
         to.Fax = from.Fax;

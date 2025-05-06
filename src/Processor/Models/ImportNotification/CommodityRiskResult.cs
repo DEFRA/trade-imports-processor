@@ -11,31 +11,31 @@ public class CommodityRiskResult
     ///     CHED-A, CHED-D, CHED-P - what is the commodity complement risk decision
     /// </summary>
     [JsonPropertyName("riskDecision")]
-    public CommodityRiskResultRiskDecision? RiskDecision { get; set; }
+    public string? RiskDecision { get; set; }
 
     /// <summary>
     ///     Transit CHED - what is the commodity complement exit risk decision
     /// </summary>
     [JsonPropertyName("exitRiskDecision")]
-    public CommodityRiskResultExitRiskDecision? ExitRiskDecision { get; set; }
+    public string? ExitRiskDecision { get; set; }
 
     /// <summary>
     ///     HMI decision required
     /// </summary>
     [JsonPropertyName("hmiDecision")]
-    public CommodityRiskResultHmiDecision? HmiDecision { get; set; }
+    public string? HmiDecision { get; set; }
 
     /// <summary>
     ///     PHSI decision required
     /// </summary>
     [JsonPropertyName("phsiDecision")]
-    public CommodityRiskResultPhsiDecision? PhsiDecision { get; set; }
+    public string? PhsiDecision { get; set; }
 
     /// <summary>
     ///     PHSI classification
     /// </summary>
     [JsonPropertyName("phsiClassification")]
-    public CommodityRiskResultPhsiClassification? PhsiClassification { get; set; }
+    public string? PhsiClassification { get; set; }
 
     /// <summary>
     ///     PHSI Decision Breakdown

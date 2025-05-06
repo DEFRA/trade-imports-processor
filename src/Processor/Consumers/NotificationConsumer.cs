@@ -97,8 +97,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     {
         return newNotification.Status == ImportNotificationStatus.InProgress
             && existingNotification.Status
-                is DataApiIpaffs.ImportNotificationStatus.Validated
-                    or DataApiIpaffs.ImportNotificationStatus.Rejected
-                    or DataApiIpaffs.ImportNotificationStatus.PartiallyRejected;
+                is ImportNotificationStatus.Validated
+                    or ImportNotificationStatus.Rejected
+                    or ImportNotificationStatus.PartiallyRejected;
     }
 }

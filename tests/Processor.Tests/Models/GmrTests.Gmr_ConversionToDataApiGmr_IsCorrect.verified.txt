@@ -1,7 +1,7 @@
 ﻿{
   Id: GMRA2AMKTCIB,
   HaulierEori: GB198906123655611,
-  State: Open,
+  State: OPEN,
   InspectionRequired: false,
   ReportToLocations: [
     {
@@ -12,8 +12,8 @@
     }
   ],
   UpdatedSource: 2025-04-15 12:00 Utc,
-  Direction: GbToNi,
-  HaulierType: Etoe,
+  Direction: UK_INBOUND,
+  HaulierType: FPO_ASN,
   IsUnaccompanied: true,
   VehicleRegistrationNumber: XCR5WN,
   TrailerRegistrationNums: [

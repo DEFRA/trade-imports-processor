@@ -10,7 +10,7 @@ public class PartOne
     ///     Food Not Of Animal Origin
     /// </summary>
     [JsonPropertyName("typeOfImp")]
-    public PartOneTypeOfImp? TypeOfImp { get; set; }
+    public string? TypeOfImp { get; set; }
 
     /// <summary>
     ///     The individual who has submitted the notification
@@ -308,5 +308,5 @@ public class PartOne
     ///     When the NCTS MRN will be added for the Common Transit Convention (CTC)
     /// </summary>
     [JsonPropertyName("provideCtcMrn")]
-    public PartOneProvideCtcMrn? ProvideCtcMrn { get; set; }
+    public string? ProvideCtcMrn { get; set; }
 }

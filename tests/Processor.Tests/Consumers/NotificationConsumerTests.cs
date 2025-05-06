@@ -2,7 +2,6 @@ using System.Text.Json;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
@@ -72,9 +71,7 @@ public class NotificationConsumerTests
     [Theory]
     [InlineData(ImportNotificationStatus.Cancelled)]
     [InlineData(ImportNotificationStatus.Deleted)]
-    public async Task OnHandle_WhenTheImportNotificationIsDeletedOrCancelled_ItShouldStillBeProcessed(
-        ImportNotificationStatus status
-    )
+    public async Task OnHandle_WhenTheImportNotificationIsDeletedOrCancelled_ItShouldStillBeProcessed(string status)
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
@@ -95,9 +92,7 @@ public class NotificationConsumerTests
     [Theory]
     [InlineData(ImportNotificationStatus.Amend)]
     [InlineData(ImportNotificationStatus.Draft)]
-    public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(
-        ImportNotificationStatus status
-    )
+    public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
@@ -150,7 +145,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Rejected)]
     [InlineData(ImportNotificationStatus.PartiallyRejected)]
     public async Task OnHandle_WhenNewImportNotificationIsInProgress_AndTheExistingIsMoreMature_Skip(
-        ImportNotificationStatus existingStatus
+        string existingStatus
     )
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);

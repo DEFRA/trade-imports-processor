@@ -25,7 +25,7 @@ public static class CommoditiesMapper
         to.RegionOfOrigin = from.RegionOfOrigin;
         to.ConsignedCountry = from.ConsignedCountry;
         to.AnimalsCertifiedAs = from.AnimalsCertifiedAs;
-        to.CommodityIntendedFor = CommoditiesCommodityIntendedForMapper.Map(from.CommodityIntendedFor);
+        to.CommodityIntendedFor = from.CommodityIntendedFor;
         return to;
     }
 }

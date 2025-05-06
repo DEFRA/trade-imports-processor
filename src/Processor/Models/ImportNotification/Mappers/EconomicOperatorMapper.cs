@@ -10,8 +10,8 @@ public static class EconomicOperatorMapper
             return default!;
         var to = new IpaffsDataApi.EconomicOperator();
         to.Id = from.Id;
-        to.Type = EconomicOperatorTypeEnumMapper.Map(from.Type);
-        to.Status = EconomicOperatorStatusEnumMapper.Map(from.Status);
+        to.Type = from.Type;
+        to.Status = from.Status;
         to.CompanyName = from.CompanyName;
         to.IndividualName = from.IndividualName;
         to.Address = AddressMapper.Map(from.Address);

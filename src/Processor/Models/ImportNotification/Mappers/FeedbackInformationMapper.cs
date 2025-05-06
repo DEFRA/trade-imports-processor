@@ -9,7 +9,7 @@ public static class FeedbackInformationMapper
         if (from is null)
             return default!;
         var to = new IpaffsDataApi.FeedbackInformation();
-        to.AuthorityType = FeedbackInformationAuthorityTypeEnumMapper.Map(from.AuthorityType);
+        to.AuthorityType = from.AuthorityType;
         to.ConsignmentArrival = from.ConsignmentArrival;
         to.ConsignmentConformity = from.ConsignmentConformity;
         to.ConsignmentNoArrivalReason = from.ConsignmentNoArrivalReason;

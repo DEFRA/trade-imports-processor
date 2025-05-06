@@ -12,7 +12,7 @@ public class AccompanyingDocument
     ///     Additional document type
     /// </summary>
     [JsonPropertyName("documentType")]
-    public AccompanyingDocumentDocumentType? DocumentType { get; set; }
+    public string? DocumentType { get; set; }
 
     /// <summary>
     ///     Additional document reference

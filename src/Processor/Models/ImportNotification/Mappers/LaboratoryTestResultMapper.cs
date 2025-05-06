@@ -13,7 +13,7 @@ public static class LaboratoryTestResultMapper
         to.ReleasedOn = from.ReleasedDate;
         to.LaboratoryTestMethod = from.LaboratoryTestMethod;
         to.Results = from.Results;
-        to.Conclusion = LaboratoryTestResultConclusionEnumMapper.Map(from.Conclusion);
+        to.Conclusion = from.Conclusion;
         to.LabTestCreatedOn = from.LabTestCreatedDate;
         return to;
     }

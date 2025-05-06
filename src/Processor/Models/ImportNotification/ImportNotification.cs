@@ -30,7 +30,7 @@ public class ImportNotification
     public UserInformation? LastUpdatedBy { get; init; }
 
     [JsonPropertyName("type")]
-    public ImportNotificationType? ImportNotificationType { get; init; }
+    public string? ImportNotificationType { get; init; }
 
     [JsonPropertyName("replaces")]
     public string? Replaces { get; init; }
@@ -39,7 +39,7 @@ public class ImportNotification
     public string? ReplacedBy { get; init; }
 
     [JsonPropertyName("status")]
-    public ImportNotificationStatus? Status { get; init; }
+    public string? Status { get; init; }
 
     [JsonPropertyName("splitConsignment")]
     public SplitConsignment? SplitConsignment { get; init; }
@@ -186,10 +186,10 @@ public class ImportNotification
             Version = importNotification.Version,
             UpdatedSource = importNotification.LastUpdated,
             LastUpdatedBy = UserInformationMapper.Map(importNotification.LastUpdatedBy),
-            ImportNotificationType = ImportNotificationTypeEnumMapper.Map(importNotification.ImportNotificationType),
+            ImportNotificationType = importNotification.ImportNotificationType,
             Replaces = importNotification.Replaces,
             ReplacedBy = importNotification.ReplacedBy,
-            Status = ImportNotificationStatusEnumMapper.Map(importNotification.Status),
+            Status = importNotification.Status,
             SplitConsignment = SplitConsignmentMapper.Map(importNotification.SplitConsignment),
             ChildNotification = importNotification.ChildNotification,
             JourneyRiskCategorisation = JourneyRiskCategorisationResultMapper.Map(

@@ -16,10 +16,10 @@ public static class ImportNotificationMapper
         to.Version = from.Version;
         to.UpdatedSource = from.LastUpdated;
         to.LastUpdatedBy = UserInformationMapper.Map(from.LastUpdatedBy);
-        to.ImportNotificationType = ImportNotificationTypeEnumMapper.Map(from.ImportNotificationType);
+        to.ImportNotificationType = from.ImportNotificationType;
         to.Replaces = from.Replaces;
         to.ReplacedBy = from.ReplacedBy;
-        to.Status = ImportNotificationStatusEnumMapper.Map(from.Status);
+        to.Status = from.Status;
         to.SplitConsignment = SplitConsignmentMapper.Map(from.SplitConsignment);
         to.ChildNotification = from.ChildNotification;
         to.JourneyRiskCategorisation = JourneyRiskCategorisationResultMapper.Map(from.JourneyRiskCategorisation);

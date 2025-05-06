@@ -8,8 +8,8 @@
     DisplayName: b960cda9180fe306ec4691edce6ed6bbbe26424670e77078ac31f889fa5ea419,
     UserId: Guid_1
   },
-  ImportNotificationType: Chedpp,
-  Status: InProgress,
+  ImportNotificationType: CHEDPP,
+  Status: IN_PROGRESS,
   PartOne: {
     PersonResponsible: {
       Name: c91b1e77f4d64ef1fb982524a786483f5be4d3393664b8abccd61c7ed81330fa,
@@ -31,8 +31,8 @@
     },
     Consignor: {
       Id: Guid_4,
-      Type: Exporter,
-      Status: Nonapproved,
+      Type: exporter,
+      Status: nonapproved,
       CompanyName: a6c61915e8228beb7841d2c997cef5b2dc24fc657fedd2456aa8cf212603dc4f,
       Address: {
         City: 2b90c13170e642ff6a0f553e88532d891399326a335a543af9b4ddce094fd05e,
@@ -46,7 +46,7 @@
     },
     Consignee: {
       Id: Guid_2,
-      Type: Consignee,
+      Type: consignee,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
         City: 47fe17ce1714143d2c3e39d3000760d4be7072e61f229f46a47986adfe2d2f27,
@@ -61,7 +61,7 @@
     },
     Importer: {
       Id: Guid_2,
-      Type: Importer,
+      Type: importer,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
         City: 47fe17ce1714143d2c3e39d3000760d4be7072e61f229f46a47986adfe2d2f27,
@@ -76,7 +76,7 @@
     },
     PlaceOfDestination: {
       Id: Guid_2,
-      Type: Destination,
+      Type: destination,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
         City: 47fe17ce1714143d2c3e39d3000760d4be7072e61f229f46a47986adfe2d2f27,
@@ -91,7 +91,7 @@
     },
     IsGvmsRoute: false,
     Purpose: {
-      PurposeGroup: ForImport
+      PurposeGroup: For Import
     },
     PointOfEntry: CONPNT,
     PointOfEntryControlPoint: IPGBNHR6,
@@ -104,7 +104,7 @@
     VeterinaryInformation: {
       AccompanyingDocuments: [
         {
-          DocumentType: PhytosanitaryCertificate,
+          DocumentType: phytosanitaryCertificate,
           DocumentReference: KEPHIS/EXP/2024/1111111,
           DocumentIssuedOn: 2024-11-22,
           AttachmentId: Guid_5,
@@ -114,7 +114,7 @@
           UploadOrganisationId: Guid_7
         },
         {
-          DocumentType: AirWaybill,
+          DocumentType: airWaybill,
           DocumentReference: 125-11111111,
           DocumentIssuedOn: 2024-11-23,
           AttachmentId: Guid_8,
@@ -138,7 +138,7 @@
       Email: dave@theimporter,
       Agent: Dave UK
     },
-    ProvideCtcMrn: No,
+    ProvideCtcMrn: NO,
     ArrivesAt: 2024-11-24 14:00
   },
   PartTwo: {
@@ -221,8 +221,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Mandatory,
         Phsi: {
           DocumentCheck: true,
@@ -238,16 +238,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     },
@@ -303,8 +303,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Reduced,
         Phsi: {
           DocumentCheck: true,
@@ -320,16 +320,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     },
@@ -385,8 +385,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Reduced,
         Phsi: {
           DocumentCheck: true,
@@ -402,16 +402,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     },
@@ -467,8 +467,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Reduced,
         Phsi: {
           DocumentCheck: true,
@@ -484,16 +484,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     },
@@ -549,8 +549,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Mandatory,
         Phsi: {
           DocumentCheck: true,
@@ -566,16 +566,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     },
@@ -631,8 +631,8 @@
         }
       ],
       RiskAssesment: {
-        HmiDecision: Notrequired,
-        PhsiDecision: Required,
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
         PhsiClassification: Reduced,
         Phsi: {
           DocumentCheck: true,
@@ -648,16 +648,16 @@
       },
       Checks: [
         {
-          Type: PhsiDocument,
+          Type: PHSI_DOCUMENT,
           Status: Compliant
         },
         {
-          Type: PhsiIdentity,
-          Status: ToDo
+          Type: PHSI_IDENTITY,
+          Status: To do
         },
         {
-          Type: PhsiPhysical,
-          Status: ToDo
+          Type: PHSI_PHYSICAL,
+          Status: To do
         }
       ]
     }
