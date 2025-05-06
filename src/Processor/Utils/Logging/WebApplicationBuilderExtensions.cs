@@ -20,7 +20,7 @@ public static class WebApplicationBuilderExtensions
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        builder.Services.AddTracingForConsumers();
+        builder.Services.AddTracingForConsumers().AddMetricsForConsumers();
 
         // Replaces use of AddHeaderPropagation so we can configure outside startup
         // and use the TraceHeader options configured above that will have been validated
