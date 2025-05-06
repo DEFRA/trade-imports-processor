@@ -85,7 +85,10 @@ public static class ServiceCollectionExtensions
                 mbb =>
                 {
                     mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Gmrs.ConnectionString, ConsumersInstanceCount)
+                        CdpServiceBusClientFactory.ConfigureServiceBus(
+                            serviceBusOptions.Gmrs.ConnectionString,
+                            ConsumersInstanceCount
+                        )
                     );
                     mbb.AddJsonSerializer();
                     mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
@@ -104,7 +107,10 @@ public static class ServiceCollectionExtensions
                 mbb =>
                 {
                     mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(serviceBusOptions.Notifications.ConnectionString, ConsumersInstanceCount)
+                        CdpServiceBusClientFactory.ConfigureServiceBus(
+                            serviceBusOptions.Notifications.ConnectionString,
+                            ConsumersInstanceCount
+                        )
                     );
                     mbb.AddJsonSerializer();
 
