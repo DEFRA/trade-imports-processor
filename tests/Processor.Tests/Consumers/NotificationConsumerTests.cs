@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
-using DataApiIpaffsConstants = Defra.TradeImportsDataApi.Domain.Ipaffs.Constants;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
 
@@ -70,8 +69,8 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Cancelled)]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Deleted)]
+    [InlineData(ImportNotificationStatus.Cancelled)]
+    [InlineData(ImportNotificationStatus.Deleted)]
     public async Task OnHandle_WhenTheImportNotificationIsDeletedOrCancelled_ItShouldStillBeProcessed(string status)
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
@@ -91,8 +90,8 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Amend)]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Draft)]
+    [InlineData(ImportNotificationStatus.Amend)]
+    [InlineData(ImportNotificationStatus.Draft)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
@@ -142,16 +141,16 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Validated)]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.Rejected)]
-    [InlineData(DataApiIpaffsConstants.ImportNotificationStatus.PartiallyRejected)]
+    [InlineData(ImportNotificationStatus.Validated)]
+    [InlineData(ImportNotificationStatus.Rejected)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected)]
     public async Task OnHandle_WhenNewImportNotificationIsInProgress_AndTheExistingIsMoreMature_Skip(
         string existingStatus
     )
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
         var newNotification = ImportNotificationFixture()
-            .With(i => i.Status, DataApiIpaffsConstants.ImportNotificationStatus.InProgress)
+            .With(i => i.Status, ImportNotificationStatus.InProgress)
             .Create();
 
         var existingNotification = (DataApiIpaffs.ImportPreNotification)

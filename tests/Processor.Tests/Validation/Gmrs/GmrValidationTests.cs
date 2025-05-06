@@ -1,5 +1,4 @@
 using Defra.TradeImportsDataApi.Domain.Gvms;
-using Defra.TradeImportsDataApi.Domain.Gvms.Constants;
 using Defra.TradeImportsProcessor.Processor.Tests.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation.TestHelper;
@@ -31,13 +30,13 @@ public class GmrValidationTests
             Add(new Gmr { Id = "abcd" }, new ExpectedResult("Id", false));
             Add(new Gmr { Id = null }, new ExpectedResult("Id", true));
 
-            Add(new Gmr { HaulierEori = HaulierType.Standard }, new ExpectedResult("HaulierEori", false));
+            Add(new Gmr { HaulierEori = "STANDARD" }, new ExpectedResult("HaulierEori", false));
             Add(new Gmr { HaulierEori = null }, new ExpectedResult("HaulierEori", true));
 
             Add(new Gmr { UpdatedSource = DateTime.UtcNow }, new ExpectedResult("UpdatedSource", false));
             Add(new Gmr { UpdatedSource = null }, new ExpectedResult("UpdatedSource", true));
 
-            Add(new Gmr { Direction = Direction.GbToNi }, new ExpectedResult("Direction", false));
+            Add(new Gmr { Direction = "GB_TO_NI" }, new ExpectedResult("Direction", false));
             Add(new Gmr { Direction = null }, new ExpectedResult("Direction", true));
 
             Add(new Gmr { ActualCrossing = null }, new ExpectedResult("ActualCrossing", false));
