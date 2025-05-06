@@ -1,4 +1,4 @@
-﻿{
+{
   "profiles": {
     "TradeImportsProcessor": {
       "commandName": "Project",
@@ -10,6 +10,7 @@
         "AWS_ACCESS_KEY_ID": "test",
         "AWS_REGION": "eu-west-2",
         "AWS_SECRET_ACCESS_KEY": "test",
+        "AWS_EMF_ENVIRONMENT": "Local",
         "ENVIRONMENT": "local",
         "SQS_ENDPOINT": "http://localhost:4566"
       }
