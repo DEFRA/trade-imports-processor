@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsDataApi.Domain.Ipaffs.Constants;
+using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Extensions;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using SlimMessageBus;
-using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
@@ -28,7 +28,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return;
         }
 
-        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
+        var dataApiImportPreNotification = (ImportPreNotification)newNotification;
 
         var existingNotification = await api.GetImportPreNotification(
             newNotification.ReferenceNumber,
@@ -77,7 +77,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool NewNotificationIsOlderThanExistingNotification(
         ImportNotification newNotification,
-        DataApiIpaffs.ImportPreNotification existingNotification
+        ImportPreNotification existingNotification
     )
     {
         return newNotification.LastUpdated.TrimMicroseconds() < existingNotification.UpdatedSource.TrimMicroseconds();
@@ -85,17 +85,17 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool ShouldNotProcess(ImportNotification notification)
     {
-        return ImportNotificationStatus.IsAmend(notification.Status)
-            || ImportNotificationStatus.IsDraft(notification.Status)
+        return notification.StatusIsAmend()
+            || notification.StatusIsDraft()
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
     private static bool GoingBackIntoInProgress(
         ImportNotification newNotification,
-        DataApiIpaffs.ImportPreNotification existingNotification
+        ImportPreNotification existingNotification
     )
     {
-        return ImportNotificationStatus.IsInProgress(newNotification.Status)
+        return newNotification.StatusIsInProgress()
             && (
                 existingNotification.StatusIsValidated()
                 || existingNotification.StatusIsRejected()
