@@ -22,10 +22,11 @@ public static class CdpServiceBusClientFactory
         return new ServiceBusClient(busSettings.ConnectionString, clientOptions);
     }
 
-    public static Action<ServiceBusMessageBusSettings> ConfigureServiceBus(string connectionString)
+    public static Action<ServiceBusMessageBusSettings> ConfigureServiceBus(string connectionString, int instanceCount)
     {
         return settings =>
         {
+            settings.PrefetchCount = instanceCount;
             settings.TopologyProvisioning.Enabled = false;
             settings.ClientFactory = ConfigureServiceBusClient;
             settings.ConnectionString = connectionString;
