@@ -8,25 +8,28 @@ public static class ConsignmentCheckMapper
     {
         if (from is null)
         {
-            return default!;
+            return null!;
         }
-        var to = new IpaffsDataApi.ConsignmentCheck();
-        to.EuStandard = from.EuStandard;
-        to.AdditionalGuarantees = from.AdditionalGuarantees;
-        to.DocumentCheckResult = from.DocumentCheckResult;
-        to.NationalRequirements = from.NationalRequirements;
-        to.IdentityCheckDone = from.IdentityCheckDone;
-        to.IdentityCheckType = from.IdentityCheckType;
-        to.IdentityCheckResult = from.IdentityCheckResult;
-        to.IdentityCheckNotDoneReason = from.IdentityCheckNotDoneReason;
-        to.PhysicalCheckDone = from.PhysicalCheckDone;
-        to.PhysicalCheckResult = from.PhysicalCheckResult;
-        to.PhysicalCheckNotDoneReason = from.PhysicalCheckNotDoneReason;
-        to.PhysicalCheckOtherText = from.PhysicalCheckOtherText;
-        to.WelfareCheck = from.WelfareCheck;
-        to.NumberOfAnimalsChecked = from.NumberOfAnimalsChecked;
-        to.LaboratoryCheckDone = from.LaboratoryCheckDone;
-        to.LaboratoryCheckResult = from.LaboratoryCheckResult;
-        return to;
+
+        return new IpaffsDataApi.ConsignmentCheck
+        {
+            EuStandard = from.EuStandard,
+            AdditionalGuarantees = from.AdditionalGuarantees,
+            DocumentCheckResult = from.DocumentCheckResult,
+            NationalRequirements = from.NationalRequirements,
+            IdentityCheckDone = from.IdentityCheckDone,
+            IdentityCheckType = from.IdentityCheckType,
+            IdentityCheckResult = from.IdentityCheckResult,
+            IdentityCheckNotDoneReason = from.IdentityCheckNotDoneReason,
+            PhysicalCheckDone = from.PhysicalCheckDone,
+            PhysicalCheckResult = from.PhysicalCheckResult,
+            PhysicalCheckNotDoneReason = from.PhysicalCheckNotDoneReason,
+            PhysicalCheckOtherText = from.PhysicalCheckOtherText,
+            WelfareCheck = from.WelfareCheck,
+            NumberOfAnimalsChecked = from.NumberOfAnimalsChecked,
+            LaboratoryCheckDone = from.LaboratoryCheckDone,
+            LaboratoryCheckResult = from.LaboratoryCheckResult,
+            DocumentCheckAdditionalDetails = from.DocumentCheckAdditionalDetails,
+        };
     }
 }

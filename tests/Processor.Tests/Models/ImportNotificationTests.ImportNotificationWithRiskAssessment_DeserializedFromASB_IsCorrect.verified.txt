@@ -548,6 +548,7 @@
       ConsignedCountry: KE
     },
     Purpose: {
+      PointOfExit: BCP1,
       PurposeGroup: For Import
     },
     PointOfEntry: CONPNT,

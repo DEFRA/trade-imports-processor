@@ -86,6 +86,9 @@ public class Purpose
     [JsonPropertyName("finalBIP")]
     public string? FinalBip { get; set; }
 
+    [JsonPropertyName("pointOfExit")]
+    public string? PointOfExit { get; init; }
+
     /// <summary>
     ///     Purpose group of consignment (general purpose)
     /// </summary>

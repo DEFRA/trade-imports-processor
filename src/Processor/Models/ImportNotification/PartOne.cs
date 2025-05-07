@@ -225,6 +225,9 @@ public class PartOne
     [JsonPropertyName("sealsContainers")]
     public SealContainer[]? SealsContainers { get; set; }
 
+    [JsonPropertyName("storeTransporterContact")]
+    public string? StoreTransporterContact { get; init; }
+
     /// <summary>
     ///     Date and time when the notification was submitted
     /// </summary>

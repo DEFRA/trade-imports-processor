@@ -145,7 +145,8 @@ public class ImportNotificationTests
                     "commodityIntendedFor": "human"
                 },
                 "purpose": {
-                    "purposeGroup": "For Import"
+                    "purposeGroup": "For Import",
+                    "pointOfExit": "BCP1"
                 },
                 "pointOfEntry": "GBLHR4P",
                 "arrivalDate": "2024-12-28",
@@ -196,7 +197,8 @@ public class ImportNotificationTests
                 "consignmentCheck": {
                     "documentCheckResult": "Satisfactory",
                     "identityCheckDone": false,
-                    "physicalCheckDone": false
+                    "physicalCheckDone": false,
+                    "documentCheckAdditionalDetails": "Other things"
                 },
                 "laboratoryTestsRequired": false,
                 "resealedContainersIncluded": false,
@@ -218,6 +220,7 @@ public class ImportNotificationTests
             "etag": "0000000004790B83",
             "riskDecisionLockingTime": "2024-12-28T17:24:00Z",
             "isRiskDecisionLocked": false,
+            "isAutoClearanceExempted": false,
             "chedTypeVersion": 2
         }
         """;
@@ -353,7 +356,8 @@ public class ImportNotificationTests
               "tracesID": 1001,
               "phone": "f3c2d053fee804925a9c4925166edf92b0dd3bc6f3408baf27296e19b526bca3",
               "email": "748494e51b3a382532618f495f601f196df797d8b9b44eb70ef93bcfedd86422",
-              "contactId": "470d9016-2946-ec11-8c62-6045bd8db76d"
+              "contactId": "470d9016-2946-ec11-8c62-6045bd8db76d",
+              "storeTransporterContact": "NO"
             },
             "consignor": {
               "id": "02ed887e-bf0c-4d9c-af7a-738c50916cc8",
@@ -772,7 +776,8 @@ public class ImportNotificationTests
               "consignedCountryInChargeGroup": false
             },
             "purpose": {
-              "purposeGroup": "For Import"
+              "purposeGroup": "For Import",
+              "pointOfExit": "BCP1"
             },
             "pointOfEntry": "CONPNT",
             "pointOfEntryControlPoint": "IPGBNHR6",
