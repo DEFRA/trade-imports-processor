@@ -51,8 +51,10 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         }
 
         if (
-            NewNotificationIsOlderThanExistingNotification(newNotification, existingNotification.ImportPreNotification)
-            || GoingBackIntoInProgress(newNotification, existingNotification.ImportPreNotification)
+            NewNotificationIsOlderThanExistingNotification(
+                dataApiImportPreNotification,
+                existingNotification.ImportPreNotification
+            ) || !IsLaterInTheLifecycle(dataApiImportPreNotification, existingNotification.ImportPreNotification)
         )
         {
             logger.LogInformation(
@@ -76,11 +78,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     }
 
     private static bool NewNotificationIsOlderThanExistingNotification(
-        ImportNotification newNotification,
+        DataApiIpaffs.ImportPreNotification newNotification,
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        return newNotification.LastUpdated.TrimMicroseconds() < existingNotification.UpdatedSource.TrimMicroseconds();
+        return newNotification.UpdatedSource.TrimMicroseconds() < existingNotification.UpdatedSource.TrimMicroseconds();
     }
 
     private static bool ShouldNotProcess(ImportNotification notification)
@@ -90,15 +92,24 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
-    private static bool GoingBackIntoInProgress(
-        ImportNotification newNotification,
+    private static bool IsLaterInTheLifecycle(
+        DataApiIpaffs.ImportPreNotification newNotification,
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        return newNotification.Status == ImportNotificationStatus.InProgress
+        if (existingNotification.Status == newNotification.Status)
+            return true;
+
+        if (
+            newNotification.Status == ImportNotificationStatus.InProgress
             && existingNotification.Status
                 is ImportNotificationStatus.Validated
                     or ImportNotificationStatus.Rejected
-                    or ImportNotificationStatus.PartiallyRejected;
+                    or ImportNotificationStatus.PartiallyRejected
+        )
+            return false;
+
+        return existingNotification.Status == ImportNotificationStatus.InProgress
+            && newNotification.Status != ImportNotificationStatus.InProgress;
     }
 }
