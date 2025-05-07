@@ -7,14 +7,18 @@ public static class LaboratoryTestResultMapper
     public static IpaffsDataApi.LaboratoryTestResult Map(LaboratoryTestResult? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.LaboratoryTestResult();
-        to.SampleUseByDate = from.SampleUseByDate;
-        to.ReleasedOn = from.ReleasedDate;
-        to.LaboratoryTestMethod = from.LaboratoryTestMethod;
-        to.Results = from.Results;
-        to.Conclusion = from.Conclusion;
-        to.LabTestCreatedOn = from.LabTestCreatedDate;
+            return null!;
+
+        var to = new IpaffsDataApi.LaboratoryTestResult
+        {
+            SampleUseByDate = from.SampleUseByDate,
+            ReleasedOn = from.ReleasedDate,
+            LaboratoryTestMethod = from.LaboratoryTestMethod,
+            Results = from.Results,
+            Conclusion = from.Conclusion,
+            LabTestCreatedOn = from.LabTestCreatedDate,
+        };
+
         return to;
     }
 }

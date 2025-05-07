@@ -7,13 +7,17 @@ public static class BillingInformationMapper
     public static IpaffsDataApi.BillingInformation Map(BillingInformation? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.BillingInformation();
-        to.IsConfirmed = from.IsConfirmed;
-        to.EmailAddress = from.EmailAddress;
-        to.PhoneNumber = from.PhoneNumber;
-        to.ContactName = from.ContactName;
-        to.PostalAddress = PostalAddressMapper.Map(from.PostalAddress);
+            return null!;
+
+        var to = new IpaffsDataApi.BillingInformation
+        {
+            IsConfirmed = from.IsConfirmed,
+            EmailAddress = from.EmailAddress,
+            PhoneNumber = from.PhoneNumber,
+            ContactName = from.ContactName,
+            PostalAddress = PostalAddressMapper.Map(from.PostalAddress),
+        };
+
         return to;
     }
 }

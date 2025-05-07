@@ -7,11 +7,15 @@ public static class InspectorMapper
     public static IpaffsDataApi.Inspector Map(Inspector? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.Inspector();
-        to.Name = from.Name;
-        to.Phone = from.Phone;
-        to.Email = from.Email;
+            return null!;
+
+        var to = new IpaffsDataApi.Inspector
+        {
+            Name = from.Name,
+            Phone = from.Phone,
+            Email = from.Email,
+        };
+
         return to;
     }
 }

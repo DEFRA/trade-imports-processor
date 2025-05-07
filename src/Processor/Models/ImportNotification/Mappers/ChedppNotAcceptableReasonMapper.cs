@@ -7,10 +7,14 @@ public static class ChedppNotAcceptableReasonMapper
     public static IpaffsDataApi.ChedppNotAcceptableReason Map(ChedppNotAcceptableReason? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.ChedppNotAcceptableReason();
-        to.Reason = from.Reason;
-        to.CommodityOrPackage = from.CommodityOrPackage;
+            return null!;
+
+        var to = new IpaffsDataApi.ChedppNotAcceptableReason
+        {
+            Reason = from.Reason,
+            CommodityOrPackage = from.CommodityOrPackage,
+        };
+
         return to;
     }
 }

@@ -7,12 +7,16 @@ public static class ContactDetailsMapper
     public static IpaffsDataApi.ContactDetails Map(ContactDetails? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.ContactDetails();
-        to.Name = from.Name;
-        to.Telephone = from.Telephone;
-        to.Email = from.Email;
-        to.Agent = from.Agent;
+            return null!;
+
+        var to = new IpaffsDataApi.ContactDetails
+        {
+            Name = from.Name,
+            Telephone = from.Telephone,
+            Email = from.Email,
+            Agent = from.Agent,
+        };
+
         return to;
     }
 }

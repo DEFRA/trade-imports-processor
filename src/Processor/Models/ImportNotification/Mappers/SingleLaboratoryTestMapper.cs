@@ -7,14 +7,18 @@ public static class SingleLaboratoryTestMapper
     public static IpaffsDataApi.SingleLaboratoryTest Map(SingleLaboratoryTest? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.SingleLaboratoryTest();
-        to.CommodityCode = from.CommodityCode;
-        to.SpeciesId = from.SpeciesId;
-        to.TracesId = from.TracesId;
-        to.TestName = from.TestName;
-        to.Applicant = ApplicantMapper.Map(from.Applicant);
-        to.LaboratoryTestResult = LaboratoryTestResultMapper.Map(from.LaboratoryTestResult);
+            return null!;
+
+        var to = new IpaffsDataApi.SingleLaboratoryTest
+        {
+            CommodityCode = from.CommodityCode,
+            SpeciesId = from.SpeciesId,
+            TracesId = from.TracesId,
+            TestName = from.TestName,
+            Applicant = ApplicantMapper.Map(from.Applicant),
+            LaboratoryTestResult = LaboratoryTestResultMapper.Map(from.LaboratoryTestResult),
+        };
+
         return to;
     }
 }

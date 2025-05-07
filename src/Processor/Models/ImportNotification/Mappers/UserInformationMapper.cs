@@ -7,11 +7,15 @@ public static class UserInformationMapper
     public static IpaffsDataApi.UserInformation Map(UserInformation? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.UserInformation();
-        to.DisplayName = from.DisplayName;
-        to.UserId = from.UserId;
-        to.IsControlUser = from.IsControlUser;
+            return null!;
+
+        var to = new IpaffsDataApi.UserInformation
+        {
+            DisplayName = from.DisplayName,
+            UserId = from.UserId,
+            IsControlUser = from.IsControlUser,
+        };
+
         return to;
     }
 }

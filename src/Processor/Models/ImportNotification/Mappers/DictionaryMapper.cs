@@ -6,7 +6,7 @@ public static class DictionaryMapper
     {
         if (from == null)
         {
-            return default!;
+            return null!;
         }
 
         var dic = new Dictionary<string, object>();

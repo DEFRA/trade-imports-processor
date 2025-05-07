@@ -7,16 +7,20 @@ public static class PartThreeMapper
     public static IpaffsDataApi.PartThree Map(PartThree? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.PartThree();
-        to.ControlStatus = from.ControlStatus;
-        to.Control = ControlMapper.Map(from.Control);
-        to.ConsignmentValidations = from
-            .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))
-            .ToArray();
-        to.SealCheckRequired = from.SealCheckRequired;
-        to.SealCheck = SealCheckMapper.Map(from.SealCheck);
-        to.SealCheckOverride = InspectionOverrideMapper.Map(from.SealCheckOverride);
+            return null!;
+
+        var to = new IpaffsDataApi.PartThree
+        {
+            ControlStatus = from.ControlStatus,
+            Control = ControlMapper.Map(from.Control),
+            ConsignmentValidations = from
+                .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))
+                .ToArray(),
+            SealCheckRequired = from.SealCheckRequired,
+            SealCheck = SealCheckMapper.Map(from.SealCheck),
+            SealCheckOverride = InspectionOverrideMapper.Map(from.SealCheckOverride),
+        };
+
         return to;
     }
 }

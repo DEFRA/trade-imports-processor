@@ -9,9 +9,10 @@ public static class RouteMapper
     public static IpaffsDataApi.Route Map(Route? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.Route();
-        to.TransitingStates = from.TransitingStates;
+            return null!;
+
+        var to = new IpaffsDataApi.Route { TransitingStates = from.TransitingStates };
+
         return to;
     }
 }

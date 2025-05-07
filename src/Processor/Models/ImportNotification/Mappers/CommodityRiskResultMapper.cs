@@ -7,21 +7,25 @@ public static class CommodityRiskResultMapper
     public static IpaffsDataApi.CommodityRiskResult Map(CommodityRiskResult? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.CommodityRiskResult();
-        to.RiskDecision = from.RiskDecision;
-        to.ExitRiskDecision = from.ExitRiskDecision;
-        to.HmiDecision = from.HmiDecision;
-        to.PhsiDecision = from.PhsiDecision;
-        to.PhsiClassification = from.PhsiClassification;
-        to.Phsi = PhsiMapper.Map(from.Phsi);
-        to.UniqueId = from.UniqueId;
-        to.EppoCode = from.EppoCode;
-        to.Variety = from.Variety;
-        to.IsWoody = from.IsWoody;
-        to.IndoorOutdoor = from.IndoorOutdoor;
-        to.Propagation = from.Propagation;
-        to.PhsiRuleType = from.PhsiRuleType;
+            return null!;
+
+        var to = new IpaffsDataApi.CommodityRiskResult
+        {
+            RiskDecision = from.RiskDecision,
+            ExitRiskDecision = from.ExitRiskDecision,
+            HmiDecision = from.HmiDecision,
+            PhsiDecision = from.PhsiDecision,
+            PhsiClassification = from.PhsiClassification,
+            Phsi = PhsiMapper.Map(from.Phsi),
+            UniqueId = from.UniqueId,
+            EppoCode = from.EppoCode,
+            Variety = from.Variety,
+            IsWoody = from.IsWoody,
+            IndoorOutdoor = from.IndoorOutdoor,
+            Propagation = from.Propagation,
+            PhsiRuleType = from.PhsiRuleType,
+        };
+
         return to;
     }
 }
