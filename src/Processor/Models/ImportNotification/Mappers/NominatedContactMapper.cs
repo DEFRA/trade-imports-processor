@@ -7,11 +7,15 @@ public static class NominatedContactMapper
     public static IpaffsDataApi.NominatedContact Map(NominatedContact? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.NominatedContact();
-        to.Name = from.Name;
-        to.Email = from.Email;
-        to.Telephone = from.Telephone;
+            return null!;
+
+        var to = new IpaffsDataApi.NominatedContact
+        {
+            Name = from.Name,
+            Email = from.Email,
+            Telephone = from.Telephone,
+        };
+
         return to;
     }
 }

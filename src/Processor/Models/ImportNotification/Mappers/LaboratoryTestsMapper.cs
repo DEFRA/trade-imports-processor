@@ -7,13 +7,17 @@ public static class LaboratoryTestsMapper
     public static IpaffsDataApi.LaboratoryTests Map(LaboratoryTests? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.LaboratoryTests();
-        to.TestedOn = from.TestDate;
-        to.TestReason = from.TestReason;
-        to.SingleLaboratoryTests = from
-            ?.SingleLaboratoryTests?.Select(x => SingleLaboratoryTestMapper.Map(x))
-            .ToArray();
+            return null!;
+
+        var to = new IpaffsDataApi.LaboratoryTests
+        {
+            TestedOn = from.TestDate,
+            TestReason = from.TestReason,
+            SingleLaboratoryTests = from
+                ?.SingleLaboratoryTests?.Select(x => SingleLaboratoryTestMapper.Map(x))
+                .ToArray(),
+        };
+
         return to;
     }
 }

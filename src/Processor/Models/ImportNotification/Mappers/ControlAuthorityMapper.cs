@@ -7,15 +7,19 @@ public static class ControlAuthorityMapper
     public static IpaffsDataApi.ControlAuthority Map(ControlAuthority? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.ControlAuthority();
-        to.OfficialVeterinarian = OfficialVeterinarianMapper.Map(from.OfficialVeterinarian);
-        to.CustomsReferenceNo = from.CustomsReferenceNo;
-        to.ContainerResealed = from.ContainerResealed;
-        to.NewSealNumber = from.NewSealNumber;
-        to.IuuFishingReference = from.IuuFishingReference;
-        to.IuuCheckRequired = from.IuuCheckRequired;
-        to.IuuOption = from.IuuOption;
+            return null!;
+
+        var to = new IpaffsDataApi.ControlAuthority
+        {
+            OfficialVeterinarian = OfficialVeterinarianMapper.Map(from.OfficialVeterinarian),
+            CustomsReferenceNo = from.CustomsReferenceNo,
+            ContainerResealed = from.ContainerResealed,
+            NewSealNumber = from.NewSealNumber,
+            IuuFishingReference = from.IuuFishingReference,
+            IuuCheckRequired = from.IuuCheckRequired,
+            IuuOption = from.IuuOption,
+        };
+
         return to;
     }
 }

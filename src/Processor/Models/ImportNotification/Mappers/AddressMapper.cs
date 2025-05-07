@@ -8,22 +8,25 @@ public static class AddressMapper
     {
         if (from is null)
         {
-            return default!;
+            return null!;
         }
-        var to = new IpaffsDataApi.Address();
-        to.Street = from.Street;
-        to.City = from.City;
-        to.Country = from.Country;
-        to.PostalCode = from.PostalCode;
-        to.AddressLine1 = from.AddressLine1;
-        to.AddressLine2 = from.AddressLine2;
-        to.AddressLine3 = from.AddressLine3;
-        to.PostalZipCode = from.PostalZipCode;
-        to.CountryIsoCode = from.CountryIsoCode;
-        to.Email = from.Email;
-        to.UkTelephone = from.UkTelephone;
-        to.Telephone = from.Telephone;
-        to.InternationalTelephone = InternationalTelephoneMapper.Map(from.InternationalTelephone);
+        var to = new IpaffsDataApi.Address
+        {
+            Street = from.Street,
+            City = from.City,
+            Country = from.Country,
+            PostalCode = from.PostalCode,
+            AddressLine1 = from.AddressLine1,
+            AddressLine2 = from.AddressLine2,
+            AddressLine3 = from.AddressLine3,
+            PostalZipCode = from.PostalZipCode,
+            CountryIsoCode = from.CountryIsoCode,
+            Email = from.Email,
+            UkTelephone = from.UkTelephone,
+            Telephone = from.Telephone,
+            InternationalTelephone = InternationalTelephoneMapper.Map(from.InternationalTelephone),
+        };
+
         return to;
     }
 }

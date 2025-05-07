@@ -7,29 +7,33 @@ public static class CommodityComplementMapper
     public static IpaffsDataApi.CommodityComplement Map(CommodityComplement? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.CommodityComplement();
-        to.UniqueComplementId = from.UniqueComplementId;
-        to.CommodityDescription = from.CommodityDescription;
-        to.CommodityId = from.CommodityId;
-        to.ComplementId = from.ComplementId;
-        to.ComplementName = from.ComplementName;
-        to.EppoCode = from.EppoCode;
-        to.IsWoodPackaging = from.IsWoodPackaging;
-        to.SpeciesId = from.SpeciesId;
-        to.SpeciesName = from.SpeciesName;
-        to.SpeciesNomination = from.SpeciesNomination;
-        to.SpeciesTypeName = from.SpeciesTypeName;
-        to.SpeciesType = from.SpeciesType;
-        to.SpeciesClassName = from.SpeciesClassName;
-        to.SpeciesClass = from.SpeciesClass;
-        to.SpeciesFamilyName = from.SpeciesFamilyName;
-        to.SpeciesFamily = from.SpeciesFamily;
-        to.SpeciesCommonName = from.SpeciesCommonName;
-        to.IsCdsMatched = from.IsCdsMatched;
-        to.AdditionalData = from.AdditionalData;
-        to.RiskAssesment = CommodityRiskResultMapper.Map(from.RiskAssesment);
-        to.Checks = from.Checks?.Select(x => InspectionCheckMapper.Map(x)).ToArray();
+            return null!;
+
+        var to = new IpaffsDataApi.CommodityComplement
+        {
+            UniqueComplementId = from.UniqueComplementId,
+            CommodityDescription = from.CommodityDescription,
+            CommodityId = from.CommodityId,
+            ComplementId = from.ComplementId,
+            ComplementName = from.ComplementName,
+            EppoCode = from.EppoCode,
+            IsWoodPackaging = from.IsWoodPackaging,
+            SpeciesId = from.SpeciesId,
+            SpeciesName = from.SpeciesName,
+            SpeciesNomination = from.SpeciesNomination,
+            SpeciesTypeName = from.SpeciesTypeName,
+            SpeciesType = from.SpeciesType,
+            SpeciesClassName = from.SpeciesClassName,
+            SpeciesClass = from.SpeciesClass,
+            SpeciesFamilyName = from.SpeciesFamilyName,
+            SpeciesFamily = from.SpeciesFamily,
+            SpeciesCommonName = from.SpeciesCommonName,
+            IsCdsMatched = from.IsCdsMatched,
+            AdditionalData = from.AdditionalData,
+            RiskAssesment = CommodityRiskResultMapper.Map(from.RiskAssesment),
+            Checks = from.Checks?.Select(x => InspectionCheckMapper.Map(x)).ToArray(),
+        };
+
         return to;
     }
 }

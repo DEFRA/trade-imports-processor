@@ -7,20 +7,24 @@ public static class ApplicantMapper
     public static IpaffsDataApi.Applicant Map(Applicant? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.Applicant();
-        to.Laboratory = from.Laboratory;
-        to.LaboratoryAddress = from.LaboratoryAddress;
-        to.LaboratoryIdentification = from.LaboratoryIdentification;
-        to.LaboratoryPhoneNumber = from.LaboratoryPhoneNumber;
-        to.LaboratoryEmail = from.LaboratoryEmail;
-        to.SampleBatchNumber = from.SampleBatchNumber;
-        to.AnalysisType = from.AnalysisType;
-        to.NumberOfSamples = from.NumberOfSamples;
-        to.SampleType = from.SampleType;
-        to.ConservationOfSample = from.ConservationOfSample;
-        to.Inspector = InspectorMapper.Map(from.Inspector);
-        to.SampledOn = DateTimeMapper.Map(from.SampleDate, from.SampleTime);
+            return null!;
+
+        var to = new IpaffsDataApi.Applicant
+        {
+            Laboratory = from.Laboratory,
+            LaboratoryAddress = from.LaboratoryAddress,
+            LaboratoryIdentification = from.LaboratoryIdentification,
+            LaboratoryPhoneNumber = from.LaboratoryPhoneNumber,
+            LaboratoryEmail = from.LaboratoryEmail,
+            SampleBatchNumber = from.SampleBatchNumber,
+            AnalysisType = from.AnalysisType,
+            NumberOfSamples = from.NumberOfSamples,
+            SampleType = from.SampleType,
+            ConservationOfSample = from.ConservationOfSample,
+            Inspector = InspectorMapper.Map(from.Inspector),
+            SampledOn = DateTimeMapper.Map(from.SampleDate, from.SampleTime),
+        };
+
         return to;
     }
 }

@@ -7,14 +7,18 @@ public static class ApprovedEstablishmentMapper
     public static IpaffsDataApi.ApprovedEstablishment Map(ApprovedEstablishment? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.ApprovedEstablishment();
-        to.Id = from.Id;
-        to.Name = from.Name;
-        to.Country = from.Country;
-        to.Types = from.Types;
-        to.ApprovalNumber = from.ApprovalNumber;
-        to.Section = from.Section;
+            return null!;
+
+        var to = new IpaffsDataApi.ApprovedEstablishment
+        {
+            Id = from.Id,
+            Name = from.Name,
+            Country = from.Country,
+            Types = from.Types,
+            ApprovalNumber = from.ApprovalNumber,
+            Section = from.Section,
+        };
+
         return to;
     }
 }

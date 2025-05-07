@@ -7,13 +7,17 @@ public static class ExternalReferenceMapper
     public static IpaffsDataApi.ExternalReference Map(ExternalReference? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.ExternalReference();
-        to.System = from.System;
-        to.Reference = from.Reference;
-        to.ExactMatch = from.ExactMatch;
-        to.VerifiedByImporter = from.VerifiedByImporter;
-        to.VerifiedByInspector = from.VerifiedByInspector;
+            return null!;
+
+        var to = new IpaffsDataApi.ExternalReference
+        {
+            System = from.System,
+            Reference = from.Reference,
+            ExactMatch = from.ExactMatch,
+            VerifiedByImporter = from.VerifiedByImporter,
+            VerifiedByInspector = from.VerifiedByInspector,
+        };
+
         return to;
     }
 }

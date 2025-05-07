@@ -7,17 +7,21 @@ public static class AccompanyingDocumentMapper
     public static IpaffsDataApi.AccompanyingDocument Map(AccompanyingDocument? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.AccompanyingDocument();
-        to.DocumentType = from.DocumentType;
-        to.DocumentReference = from.DocumentReference;
-        to.DocumentIssuedOn = from.DocumentIssueDate;
-        to.AttachmentId = from.AttachmentId;
-        to.AttachmentFilename = from.AttachmentFilename;
-        to.AttachmentContentType = from.AttachmentContentType;
-        to.UploadUserId = from.UploadUserId;
-        to.UploadOrganisationId = from.UploadOrganisationId;
-        to.ExternalReference = ExternalReferenceMapper.Map(from.ExternalReference);
+            return null!;
+
+        var to = new IpaffsDataApi.AccompanyingDocument
+        {
+            DocumentType = from.DocumentType,
+            DocumentReference = from.DocumentReference,
+            DocumentIssuedOn = from.DocumentIssueDate,
+            AttachmentId = from.AttachmentId,
+            AttachmentFilename = from.AttachmentFilename,
+            AttachmentContentType = from.AttachmentContentType,
+            UploadUserId = from.UploadUserId,
+            UploadOrganisationId = from.UploadOrganisationId,
+            ExternalReference = ExternalReferenceMapper.Map(from.ExternalReference),
+        };
+
         return to;
     }
 }

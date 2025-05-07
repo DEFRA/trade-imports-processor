@@ -7,33 +7,39 @@ public static class PartTwoMapper
     public static IpaffsDataApi.PartTwo Map(PartTwo? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.PartTwo();
-        to.Decision = DecisionMapper.Map(from.Decision);
-        to.ConsignmentCheck = ConsignmentCheckMapper.Map(from.ConsignmentCheck);
-        to.ImpactOfTransportOnAnimals = ImpactOfTransportOnAnimalsMapper.Map(from.ImpactOfTransportOnAnimals);
-        to.LaboratoryTestsRequired = from.LaboratoryTestsRequired;
-        to.LaboratoryTests = LaboratoryTestsMapper.Map(from.LaboratoryTests);
-        to.ResealedContainersIncluded = from.ResealedContainersIncluded;
-        to.ResealedContainers = from.ResealedContainers;
-        to.ResealedContainersMappings = from
-            .ResealedContainersMappings?.Select(x => SealContainerMapper.Map(x))
-            .ToArray();
-        to.ControlAuthority = ControlAuthorityMapper.Map(from.ControlAuthority);
-        to.ControlledDestination = EconomicOperatorMapper.Map(from.ControlledDestination);
-        to.BipLocalReferenceNumber = from.BipLocalReferenceNumber;
-        to.SignedOnBehalfOf = from.SignedOnBehalfOf;
-        to.OnwardTransportation = from.OnwardTransportation;
-        to.ConsignmentValidations = from
-            .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))
-            .ToArray();
-        to.CheckedOn = from.CheckDate;
-        to.AccompanyingDocuments = from.AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x)).ToArray();
-        to.PhsiAutoCleared = from.PhsiAutoCleared;
-        to.HmiAutoCleared = from.HmiAutoCleared;
-        to.InspectionRequired = from.InspectionRequired;
-        to.InspectionOverride = InspectionOverrideMapper.Map(from.InspectionOverride);
-        to.AutoClearedOn = from.AutoClearedDateTime;
+            return null!;
+
+        var to = new IpaffsDataApi.PartTwo
+        {
+            Decision = DecisionMapper.Map(from.Decision),
+            ConsignmentCheck = ConsignmentCheckMapper.Map(from.ConsignmentCheck),
+            ImpactOfTransportOnAnimals = ImpactOfTransportOnAnimalsMapper.Map(from.ImpactOfTransportOnAnimals),
+            LaboratoryTestsRequired = from.LaboratoryTestsRequired,
+            LaboratoryTests = LaboratoryTestsMapper.Map(from.LaboratoryTests),
+            ResealedContainersIncluded = from.ResealedContainersIncluded,
+            ResealedContainers = from.ResealedContainers,
+            ResealedContainersMappings = from
+                .ResealedContainersMappings?.Select(x => SealContainerMapper.Map(x))
+                .ToArray(),
+            ControlAuthority = ControlAuthorityMapper.Map(from.ControlAuthority),
+            ControlledDestination = EconomicOperatorMapper.Map(from.ControlledDestination),
+            BipLocalReferenceNumber = from.BipLocalReferenceNumber,
+            SignedOnBehalfOf = from.SignedOnBehalfOf,
+            OnwardTransportation = from.OnwardTransportation,
+            ConsignmentValidations = from
+                .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))
+                .ToArray(),
+            CheckedOn = from.CheckDate,
+            AccompanyingDocuments = from
+                .AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x))
+                .ToArray(),
+            PhsiAutoCleared = from.PhsiAutoCleared,
+            HmiAutoCleared = from.HmiAutoCleared,
+            InspectionRequired = from.InspectionRequired,
+            InspectionOverride = InspectionOverrideMapper.Map(from.InspectionOverride),
+            AutoClearedOn = from.AutoClearedDateTime,
+        };
+
         return to;
     }
 }

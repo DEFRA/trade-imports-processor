@@ -8,7 +8,7 @@ public static class ImportNotificationWithTransformMapper
     {
         if (from is null)
         {
-            return default!;
+            return null!;
         }
 
         var notification = ImportNotificationMapper.Map(from);

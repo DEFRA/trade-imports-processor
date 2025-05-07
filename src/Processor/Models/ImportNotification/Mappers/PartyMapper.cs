@@ -7,24 +7,28 @@ public static class PartyMapper
     public static IpaffsDataApi.Party Map(Party? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.Party();
-        to.Id = from.Id;
-        to.Name = from.Name;
-        to.CompanyId = from.CompanyId;
-        to.ContactId = from.ContactId;
-        to.CompanyName = from.CompanyName;
-        to.Addresses = from.Addresses;
-        to.County = from.County;
-        to.PostCode = from.PostCode;
-        to.Country = from.Country;
-        to.City = from.City;
-        to.TracesId = from.TracesId;
-        to.Type = from.Type;
-        to.ApprovalNumber = from.ApprovalNumber;
-        to.Phone = from.Phone;
-        to.Fax = from.Fax;
-        to.Email = from.Email;
+            return null!;
+
+        var to = new IpaffsDataApi.Party
+        {
+            Id = from.Id,
+            Name = from.Name,
+            CompanyId = from.CompanyId,
+            ContactId = from.ContactId,
+            CompanyName = from.CompanyName,
+            Addresses = from.Addresses,
+            County = from.County,
+            PostCode = from.PostCode,
+            Country = from.Country,
+            City = from.City,
+            TracesId = from.TracesId,
+            Type = from.Type,
+            ApprovalNumber = from.ApprovalNumber,
+            Phone = from.Phone,
+            Fax = from.Fax,
+            Email = from.Email,
+        };
+
         return to;
     }
 }

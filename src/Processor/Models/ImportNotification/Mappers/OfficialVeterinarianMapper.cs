@@ -7,14 +7,18 @@ public static class OfficialVeterinarianMapper
     public static IpaffsDataApi.OfficialVeterinarian Map(OfficialVeterinarian? from)
     {
         if (from is null)
-            return default!;
-        var to = new IpaffsDataApi.OfficialVeterinarian();
-        to.FirstName = from.FirstName;
-        to.LastName = from.LastName;
-        to.Email = from.Email;
-        to.Phone = from.Phone;
-        to.Fax = from.Fax;
-        to.Signed = from.Signed;
+            return null!;
+
+        var to = new IpaffsDataApi.OfficialVeterinarian
+        {
+            FirstName = from.FirstName,
+            LastName = from.LastName,
+            Email = from.Email,
+            Phone = from.Phone,
+            Fax = from.Fax,
+            Signed = from.Signed,
+        };
+
         return to;
     }
 }
