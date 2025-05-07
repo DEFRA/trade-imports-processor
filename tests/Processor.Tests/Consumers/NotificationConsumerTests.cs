@@ -68,6 +68,40 @@ public class NotificationConsumerTests
             );
     }
 
+    [Fact]
+    public async Task OnHandle_WhenNewImportNotificationIsValidated_AndTheExistingIsInProgress_ButHasTheSameTimestamp_ThenItIsUpdated()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var existingNotificationTimestamp = DateTime.UtcNow;
+        var newNotificationTimestamp = DateTime.UtcNow.AddMicroseconds(-1);
+
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, newNotificationTimestamp)
+            .With(i => i.Status, ImportNotificationStatus.Validated)
+            .Create();
+
+        var existingNotification = (DataApiIpaffs.ImportPreNotification)
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, ImportNotificationStatus.InProgress)
+                .Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutImportPreNotification(
+                newNotification.ReferenceNumber,
+                Arg.Is<DataApiIpaffs.ImportPreNotification>(i => i.Status == ImportNotificationStatus.Validated),
+                ExpectedEtag,
+                _cancellationToken
+            );
+    }
+
     [Theory]
     [InlineData(ImportNotificationStatus.Cancelled)]
     [InlineData(ImportNotificationStatus.Deleted)]
@@ -118,15 +152,22 @@ public class NotificationConsumerTests
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
+        var existingNotificationTimestamp = DateTime.UtcNow;
+        var newNotificationTimestamp = DateTime.UtcNow.AddMilliseconds(-1);
+
         var newNotification = ImportNotificationFixture()
-            .With(i => i.LastUpdated, DateTime.Now.AddSeconds(-5))
+            .With(i => i.LastUpdated, newNotificationTimestamp)
+            .With(i => i.Status, ImportNotificationStatus.InProgress)
             .Create();
         var existingNotification = (DataApiIpaffs.ImportPreNotification)
-            ImportNotificationFixture().With(i => i.LastUpdated, DateTime.Now).Create();
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, ImportNotificationStatus.InProgress)
+                .Create();
 
         _mockApi
             .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
-            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
 
@@ -149,16 +190,23 @@ public class NotificationConsumerTests
     )
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var existingNotificationTimestamp = DateTime.UtcNow;
+        var newNotificationTimestamp = DateTime.UtcNow.AddMicroseconds(-1);
+
         var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, newNotificationTimestamp)
             .With(i => i.Status, ImportNotificationStatus.InProgress)
             .Create();
 
         var existingNotification = (DataApiIpaffs.ImportPreNotification)
-            ImportNotificationFixture().With(i => i.Status, existingStatus).Create();
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, existingStatus)
+                .Create();
 
         _mockApi
             .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
-            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, "1"));
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
 
