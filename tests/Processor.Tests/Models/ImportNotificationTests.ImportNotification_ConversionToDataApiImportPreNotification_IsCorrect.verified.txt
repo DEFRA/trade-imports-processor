@@ -98,6 +98,7 @@
     },
     IsGvmsRoute: false,
     Purpose: {
+      PointOfExit: BCP1,
       PurposeGroup: For Import
     },
     PointOfEntry: GBLHR4P,
@@ -145,6 +146,7 @@
       FreeCirculationPurpose: Human Consumption
     },
     ConsignmentCheck: {
+      DocumentCheckAdditionalDetails: Other things,
       DocumentCheckResult: Satisfactory,
       IdentityCheckDone: false,
       PhysicalCheckDone: false
@@ -168,6 +170,7 @@
   },
   RiskDecisionLockedOn: 2024-12-28 17:24 Utc,
   IsRiskDecisionLocked: false,
+  IsAutoClearanceExempted: false,
   ChedTypeVersion: 2,
   CommoditiesSummary: {
     TotalGrossWeight: 2554.0,

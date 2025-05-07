@@ -86,6 +86,9 @@ public class ImportNotification
     [JsonPropertyName("isRiskDecisionLocked")]
     public bool? IsRiskDecisionLocked { get; init; }
 
+    [JsonPropertyName("isAutoClearanceExempted")]
+    public bool? IsAutoClearanceExempted { get; init; }
+
     [JsonPropertyName("isBulkUploadInProgress")]
     public bool? IsBulkUploadInProgress { get; init; }
 
@@ -208,6 +211,7 @@ public class ImportNotification
             AgencyOrganisationId = importNotification.AgencyOrganisationId,
             RiskDecisionLockedOn = importNotification.RiskDecisionLockedOn,
             IsRiskDecisionLocked = importNotification.IsRiskDecisionLocked,
+            IsAutoClearanceExempted = importNotification.IsAutoClearanceExempted,
             IsBulkUploadInProgress = importNotification.IsBulkUploadInProgress,
             RequestId = importNotification.RequestId,
             IsCdsFullMatched = importNotification.IsCdsFullMatched,

@@ -19,6 +19,9 @@ public class ConsignmentCheck
     [JsonPropertyName("additionalGuarantees")]
     public string? AdditionalGuarantees { get; set; }
 
+    [JsonPropertyName("documentCheckAdditionalDetails")]
+    public string? DocumentCheckAdditionalDetails { get; set; }
+
     /// <summary>
     ///     Result of document check
     /// </summary>
