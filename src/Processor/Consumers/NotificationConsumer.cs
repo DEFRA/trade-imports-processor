@@ -1,7 +1,7 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using SlimMessageBus;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
@@ -11,6 +11,21 @@ namespace Defra.TradeImportsProcessor.Processor.Consumers;
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
     : IConsumer<JsonElement>
 {
+    private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
+    {
+        { ImportNotificationStatus.Draft, 0 },
+        { ImportNotificationStatus.Deleted, 0 },
+        { ImportNotificationStatus.Amend, 1 },
+        { ImportNotificationStatus.Submitted, 2 },
+        { ImportNotificationStatus.InProgress, 3 },
+        { ImportNotificationStatus.Cancelled, 4 },
+        { ImportNotificationStatus.PartiallyRejected, 4 },
+        { ImportNotificationStatus.Rejected, 4 },
+        { ImportNotificationStatus.Validated, 4 },
+        { ImportNotificationStatus.SplitConsignment, 5 },
+        { ImportNotificationStatus.Replaced, 5 },
+    }.ToFrozenDictionary();
+
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
         var newNotification = received.Deserialize<ImportNotification>();
@@ -110,19 +125,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        if (existingNotification.Status == newNotification.Status)
-            return true;
+        var newPriority = s_statusPriority.GetValueOrDefault(newNotification.Status!, 0);
+        var oldPriority = s_statusPriority.GetValueOrDefault(existingNotification.Status!, 0);
 
-        if (
-            newNotification.Status == ImportNotificationStatus.InProgress
-            && existingNotification.Status
-                is ImportNotificationStatus.Validated
-                    or ImportNotificationStatus.Rejected
-                    or ImportNotificationStatus.PartiallyRejected
-        )
-            return false;
-
-        return existingNotification.Status == ImportNotificationStatus.InProgress
-            && newNotification.Status != ImportNotificationStatus.InProgress;
+        return newPriority >= oldPriority;
     }
 }

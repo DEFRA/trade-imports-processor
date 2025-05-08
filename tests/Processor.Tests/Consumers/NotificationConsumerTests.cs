@@ -206,10 +206,10 @@ public class NotificationConsumerTests
         await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
 
         await _mockApi
-            .DidNotReceiveWithAnyArgs()
+            .Received()
             .PutImportPreNotification(
                 Arg.Any<string>(),
-                Arg.Any<DataApiIpaffs.ImportPreNotification>(),
+                Arg.Is<DataApiIpaffs.ImportPreNotification>(n => n.Status == ImportNotificationStatus.Validated),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
