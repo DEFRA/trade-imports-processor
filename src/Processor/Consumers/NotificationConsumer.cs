@@ -54,12 +54,25 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             NewNotificationIsOlderThanExistingNotification(
                 dataApiImportPreNotification,
                 existingNotification.ImportPreNotification
-            ) || !IsLaterInTheLifecycle(dataApiImportPreNotification, existingNotification.ImportPreNotification)
+            )
         )
         {
             logger.LogInformation(
-                "Skipping {ReferenceNumber} because new notification is going back in time/progress",
-                newNotification.ReferenceNumber
+                "Skipping {ReferenceNumber} because new notification is going back in time: {NewTime} < {OldTime}",
+                newNotification.ReferenceNumber,
+                dataApiImportPreNotification.UpdatedSource,
+                existingNotification.ImportPreNotification.UpdatedSource
+            );
+            return;
+        }
+
+        if (!IsLaterInTheLifecycle(dataApiImportPreNotification, existingNotification.ImportPreNotification))
+        {
+            logger.LogInformation(
+                "Skipping {ReferenceNumber} because new notification is going back progress status: {NewStatus} < {OldStatus}",
+                newNotification.ReferenceNumber,
+                dataApiImportPreNotification.Status,
+                existingNotification.ImportPreNotification.Status
             );
             return;
         }
