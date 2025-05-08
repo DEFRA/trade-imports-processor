@@ -15,15 +15,15 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     {
         { ImportNotificationStatus.Draft, 0 },
         { ImportNotificationStatus.Deleted, 0 },
-        { ImportNotificationStatus.Amend, 1 },
-        { ImportNotificationStatus.Submitted, 2 },
-        { ImportNotificationStatus.InProgress, 3 },
-        { ImportNotificationStatus.Cancelled, 4 },
-        { ImportNotificationStatus.PartiallyRejected, 4 },
-        { ImportNotificationStatus.Rejected, 4 },
-        { ImportNotificationStatus.Validated, 4 },
-        { ImportNotificationStatus.SplitConsignment, 5 },
-        { ImportNotificationStatus.Replaced, 5 },
+        { ImportNotificationStatus.Amend, 0 },
+        { ImportNotificationStatus.Submitted, 0 },
+        { ImportNotificationStatus.InProgress, 1 },
+        { ImportNotificationStatus.Cancelled, 2 },
+        { ImportNotificationStatus.PartiallyRejected, 2 },
+        { ImportNotificationStatus.Rejected, 2 },
+        { ImportNotificationStatus.Validated, 2 },
+        { ImportNotificationStatus.SplitConsignment, 3 },
+        { ImportNotificationStatus.Replaced, 3 },
     }.ToFrozenDictionary();
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
