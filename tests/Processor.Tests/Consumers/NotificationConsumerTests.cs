@@ -181,6 +181,40 @@ public class NotificationConsumerTests
             );
     }
 
+    [Fact]
+    public async Task OnHandle_WhenNewImportNotificationMovingFromSubmittedToValidated_ItIsUpdated()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var existingNotificationTimestamp = new DateTime(2025, 05, 05, 10, 07, 33, 817, DateTimeKind.Utc);
+        var newNotificationTimestamp = new DateTime(2025, 05, 07, 13, 54, 23, 984, DateTimeKind.Utc);
+
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, newNotificationTimestamp)
+            .With(i => i.Status, ImportNotificationStatus.Validated)
+            .Create();
+        var existingNotification = (DataApiIpaffs.ImportPreNotification)
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, "SUBMITTED")
+                .Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
+
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Any<DataApiIpaffs.ImportPreNotification>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
     [Theory]
     [InlineData(ImportNotificationStatus.Validated)]
     [InlineData(ImportNotificationStatus.Rejected)]
