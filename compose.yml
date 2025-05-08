@@ -56,6 +56,12 @@ services:
     image: trade-imports-processor:latest
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/all"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
   
   sqledge:
     container_name: processor-sqledge
