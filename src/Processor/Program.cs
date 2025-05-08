@@ -1,10 +1,8 @@
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Health;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
-using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
-using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
@@ -51,8 +49,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.ConfigureLoggingAndTracing();
 
     builder.Services.AddProblemDetails();
-    builder.Services.AddHealthChecks();
-
+    builder.Services.AddHealth(builder.Configuration);
     builder.Services.AddProcessorConfiguration(builder.Configuration);
     builder.Services.AddValidators();
 
@@ -66,7 +63,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
 {
     var app = builder.Build();
 
-    app.MapHealthChecks("/health");
+    app.MapHealth();
     app.UseStatusCodePages();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
