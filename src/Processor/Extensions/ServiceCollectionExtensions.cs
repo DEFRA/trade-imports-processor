@@ -154,6 +154,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
     {
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
         services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
 
