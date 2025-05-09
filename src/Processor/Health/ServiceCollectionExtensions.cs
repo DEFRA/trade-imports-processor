@@ -29,6 +29,11 @@ public static class ServiceCollectionExtensions
                 sp => sp.GetRequiredService<IOptions<CustomsDeclarationsConsumerOptions>>().Value.QueueName,
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
+            )
+            .AddDataApi(
+                sp => sp.GetRequiredService<IOptions<DataApiOptions>>().Value,
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
             );
 
         return services;
