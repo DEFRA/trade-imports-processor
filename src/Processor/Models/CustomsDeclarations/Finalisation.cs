@@ -19,7 +19,7 @@ public class Finalisation
             MessageSentAt = finalisation.ServiceHeader.ServiceCallTimestamp!,
             ExternalVersion = finalisation.Header.EntryVersionNumber,
             DecisionNumber = finalisation.Header.DecisionNumber,
-            FinalState = (DataApiCustomsDeclaration.FinalState)int.Parse(finalisation.Header.FinalState),
+            FinalState = finalisation.Header.FinalState,
             IsManualRelease = finalisation.Header.ManualAction == "Y",
         };
     }

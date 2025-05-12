@@ -1,11 +1,13 @@
 using AutoFixture;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
+using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
 using CommodityCheck = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.CommodityCheck;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Validation.CustomsDeclarations;
@@ -116,14 +118,14 @@ public class ClearanceRequestValidatorTests
     }
 
     [Theory]
-    [InlineData(FinalState.CancelledAfterArrival)]
-    [InlineData(FinalState.CancelledWhilePreLodged)]
-    public void Validate_Returns_ALVSVAL324_WhenClearanceRequestIsCancelled(FinalState finalState)
+    [InlineData(FinalStateValues.CancelledAfterArrival)]
+    [InlineData(FinalStateValues.CancelledWhilePreLodged)]
+    public void Validate_Returns_ALVSVAL324_WhenClearanceRequestIsCancelled(FinalStateValues finalState)
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newClearanceRequest = DataApiClearanceRequestFixture().Create();
         var mrn = GenerateMrn();
-        var existingFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, finalState).Create();
+        var existingFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, finalState.ToString).Create();
 
         var result = _validator.Validate(
             new ClearanceRequestValidatorInput
@@ -144,7 +146,9 @@ public class ClearanceRequestValidatorTests
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newClearanceRequest = DataApiClearanceRequestFixture().Create();
         var mrn = GenerateMrn();
-        var existingFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, FinalState.Cleared).Create();
+        var existingFinalisation = DataApiFinalisationFixture()
+            .With(f => f.FinalState, FinalStateValues.Cleared.ToString)
+            .Create();
 
         var result = _validator.Validate(
             new ClearanceRequestValidatorInput

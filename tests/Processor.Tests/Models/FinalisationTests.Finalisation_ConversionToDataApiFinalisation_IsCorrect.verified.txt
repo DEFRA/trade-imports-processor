@@ -3,6 +3,6 @@
   MessageSentAt: 2025-04-15 12:00 Utc,
   ExternalVersion: 1,
   DecisionNumber: 1,
-  FinalState: CancelledAfterArrival,
+  FinalState: 1,
   IsManualRelease: true
 }
