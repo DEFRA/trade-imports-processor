@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using HealthChecks.AzureServiceBus;
 using HealthChecks.AzureServiceBus.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace Defra.TradeImportsProcessor.Processor.Health;
 
@@ -54,7 +55,7 @@ public static class AsbHealthCheckBuilderExtensions
     {
         public override ServiceBusClient CreateClient(string? connectionString)
         {
-            var clientOptions = serviceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment()
+            var clientOptions = !serviceProvider.GetRequiredService<IOptions<CdpOptions>>().Value.IsProxyEnabled
                 ? new ServiceBusClientOptions()
                 : new ServiceBusClientOptions
                 {
