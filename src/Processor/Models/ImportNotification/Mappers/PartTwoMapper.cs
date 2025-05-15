@@ -1,3 +1,4 @@
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -18,21 +19,16 @@ public static class PartTwoMapper
             LaboratoryTests = LaboratoryTestsMapper.Map(from.LaboratoryTests),
             ResealedContainersIncluded = from.ResealedContainersIncluded,
             ResealedContainers = from.ResealedContainers,
-            ResealedContainersMappings = from
-                .ResealedContainersMappings?.Select(x => SealContainerMapper.Map(x))
-                .ToArray(),
+            ResealedContainersMappings = from.ResealedContainersMappings?.Select(SealContainerMapper.Map).ToArray(),
             ControlAuthority = ControlAuthorityMapper.Map(from.ControlAuthority),
             ControlledDestination = EconomicOperatorMapper.Map(from.ControlledDestination),
             BipLocalReferenceNumber = from.BipLocalReferenceNumber,
             SignedOnBehalfOf = from.SignedOnBehalfOf,
             OnwardTransportation = from.OnwardTransportation,
-            ConsignmentValidations = from
-                .ConsignmentValidations?.Select(x => ValidationMessageCodeMapper.Map(x))
-                .ToArray(),
+            ConsignmentValidations = from.ConsignmentValidations?.Select(ValidationMessageCodeMapper.Map).ToArray(),
             CheckedOn = from.CheckDate,
-            AccompanyingDocuments = from
-                .AccompanyingDocuments?.Select(x => AccompanyingDocumentMapper.Map(x))
-                .ToArray(),
+            AccompanyingDocuments = from.AccompanyingDocuments?.Select(AccompanyingDocumentMapper.Map).ToArray(),
+            CommodityChecks = from.CommodityChecks?.Select(CommodityCheckMapper.Map).ToArray(),
             PhsiAutoCleared = from.PhsiAutoCleared,
             HmiAutoCleared = from.HmiAutoCleared,
             InspectionRequired = from.InspectionRequired,

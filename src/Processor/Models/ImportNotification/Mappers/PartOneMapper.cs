@@ -63,6 +63,7 @@ public static class PartOneMapper
             ProvideCtcMrn = from.ProvideCtcMrn,
             ArrivesAt = DateTimeMapper.Map(from.ArrivalDate, from.ArrivalTime),
             DepartedOn = DateTimeMapper.Map(from.DepartureDate, from.DepartureTime),
+            Commodities = CommoditiesMapper.Map(from.Commodities),
         };
     }
 }

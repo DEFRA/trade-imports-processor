@@ -106,80 +106,6 @@ public class ImportNotification
 
     public static explicit operator DataApiIpaffs.ImportPreNotification(ImportNotification importNotification)
     {
-        var commodities = importNotification.PartOne?.Commodities;
-
-        if (commodities?.CommodityComplements?.Length == 1)
-        {
-            commodities.CommodityComplements[0].AdditionalData = commodities.ComplementParameterSets![0].KeyDataPairs;
-            if (importNotification.RiskAssessment != null)
-            {
-                commodities.CommodityComplements[0].RiskAssesment = importNotification.RiskAssessment.CommodityResults![
-                    0
-                ];
-            }
-        }
-        else
-        {
-            var complementParameters = new Dictionary<int, ComplementParameterSet>();
-            var complementRiskAssessments = new Dictionary<string, CommodityRiskResult>();
-            var commodityChecks = new Dictionary<string, InspectionCheck[]>();
-
-            if (commodities?.ComplementParameterSets != null)
-            {
-                foreach (var commoditiesCommodityComplement in commodities.ComplementParameterSets)
-                {
-                    complementParameters[commoditiesCommodityComplement.ComplementId!.Value] =
-                        commoditiesCommodityComplement;
-                }
-            }
-
-            if (importNotification.RiskAssessment?.CommodityResults != null)
-            {
-                foreach (var commoditiesRa in importNotification.RiskAssessment.CommodityResults)
-                {
-                    complementRiskAssessments[commoditiesRa.UniqueId!] = commoditiesRa;
-                }
-            }
-
-            if (importNotification.PartTwo?.CommodityChecks != null)
-            {
-                foreach (var commodityCheck in importNotification.PartTwo.CommodityChecks!)
-                {
-                    commodityChecks[commodityCheck.UniqueComplementId!] = commodityCheck.Checks!;
-                }
-            }
-
-            if (commodities?.CommodityComplements is not null)
-            {
-                foreach (var commodity in commodities.CommodityComplements)
-                {
-                    var parameters = complementParameters[commodity.ComplementId!.Value];
-                    commodity.AdditionalData = parameters.KeyDataPairs;
-
-                    if (
-                        complementRiskAssessments.Count != 0
-                        && parameters.UniqueComplementId is not null
-                        && complementRiskAssessments.TryGetValue(
-                            parameters.UniqueComplementId,
-                            out var riskAssessmentValue
-                        )
-                    )
-                    {
-                        commodity.RiskAssesment = riskAssessmentValue;
-                    }
-
-                    if (
-                        commodityChecks.Count != 0
-                        && parameters.UniqueComplementId is not null
-                        && commodityChecks.TryGetValue(parameters.UniqueComplementId, out var checksValue)
-                    )
-                    {
-                        commodity.Checks = checksValue;
-                    }
-                }
-            }
-        }
-
         return new DataApiIpaffs.ImportPreNotification
         {
             IpaffsId = importNotification.IpaffsId,
@@ -199,9 +125,9 @@ public class ImportNotification
                 importNotification.JourneyRiskCategorisation
             ),
             IsHighRiskEuImport = importNotification.IsHighRiskEuImport,
-            PartOne = PartOneMapper.Map(importNotification.PartOne),
             DecisionBy = UserInformationMapper.Map(importNotification.DecisionBy),
             DecisionDate = importNotification.DecisionDate,
+            PartOne = PartOneMapper.Map(importNotification.PartOne),
             PartTwo = PartTwoMapper.Map(importNotification.PartTwo),
             PartThree = PartThreeMapper.Map(importNotification.PartThree),
             OfficialVeterinarian = importNotification.OfficialVeterinarian,
@@ -217,12 +143,7 @@ public class ImportNotification
             IsCdsFullMatched = importNotification.IsCdsFullMatched,
             ChedTypeVersion = importNotification.ChedTypeVersion,
             IsGMRMatched = importNotification.IsGMRMatched,
-            CommoditiesSummary =
-                commodities != null ? CommoditiesMapper.Map(commodities) : new DataApiIpaffs.Commodities(),
-            Commodities =
-                commodities != null
-                    ? commodities.CommodityComplements?.Select(CommodityComplementMapper.Map).ToArray()!
-                    : [],
+            RiskAssessment = RiskAssessmentResultMapper.Map(importNotification.RiskAssessment),
         };
     }
 }

@@ -28,6 +28,8 @@ public static class CommoditiesMapper
             ConsignedCountry = from.ConsignedCountry,
             AnimalsCertifiedAs = from.AnimalsCertifiedAs,
             CommodityIntendedFor = from.CommodityIntendedFor,
+            CommodityComplements = from.CommodityComplements?.Select(CommodityComplementMapper.Map).ToArray(),
+            ComplementParameterSets = from.ComplementParameterSets?.Select(ComplementParameterSetMapper.Map).ToArray(),
         };
 
         return to;

@@ -29,9 +29,6 @@ public static class CommodityComplementMapper
             SpeciesFamily = from.SpeciesFamily,
             SpeciesCommonName = from.SpeciesCommonName,
             IsCdsMatched = from.IsCdsMatched,
-            AdditionalData = from.AdditionalData,
-            RiskAssesment = CommodityRiskResultMapper.Map(from.RiskAssesment),
-            Checks = from.Checks?.Select(x => InspectionCheckMapper.Map(x)).ToArray(),
         };
 
         return to;

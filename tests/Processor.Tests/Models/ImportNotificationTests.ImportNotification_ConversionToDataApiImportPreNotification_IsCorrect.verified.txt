@@ -97,6 +97,46 @@
       TracesId: 10003487
     },
     IsGvmsRoute: false,
+    Commodities: {
+      TotalGrossWeight: 2554.0,
+      TotalNetWeight: 1008.0,
+      NumberOfPackages: 19,
+      Temperature: Chilled,
+      IncludeNonAblactedAnimals: false,
+      CountryOfOrigin: KE,
+      IsLowRiskArticle72Country: false,
+      ConsignedCountry: KE,
+      CommodityIntendedFor: human,
+      CommodityComplements: [
+        {
+          CommodityDescription: Beans (Vigna spp., Phaseolus spp.),
+          CommodityId: 070820,
+          ComplementId: 2,
+          SpeciesType: 070820,
+          SpeciesClass: 070820
+        }
+      ],
+      ComplementParameterSets: [
+        {
+          UniqueComplementId: Guid_6,
+          ComplementId: 2,
+          KeyDataPairs: [
+            {
+              Key: netweight,
+              Data: 1008
+            },
+            {
+              Key: number_package,
+              Data: 19
+            },
+            {
+              Key: type_package,
+              Data: Box
+            }
+          ]
+        }
+      ]
+    },
     Purpose: {
       PointOfExit: BCP1,
       PurposeGroup: For Import
@@ -136,7 +176,7 @@
   },
   DecisionBy: {
     DisplayName: 40cfe371811e66d3e37dd709c7151f43734a994cbc2919ba22edd51a5c7ce7cb,
-    UserId: Guid_6
+    UserId: Guid_7
   },
   DecisionDate: 2024-12-28T19:45:21.104623034Z,
   PartTwo: {
@@ -171,39 +211,5 @@
   RiskDecisionLockedOn: 2024-12-28 17:24 Utc,
   IsRiskDecisionLocked: false,
   IsAutoClearanceExempted: false,
-  ChedTypeVersion: 2,
-  CommoditiesSummary: {
-    TotalGrossWeight: 2554.0,
-    TotalNetWeight: 1008.0,
-    NumberOfPackages: 19,
-    Temperature: Chilled,
-    IncludeNonAblactedAnimals: false,
-    CountryOfOrigin: KE,
-    IsLowRiskArticle72Country: false,
-    ConsignedCountry: KE,
-    CommodityIntendedFor: human
-  },
-  Commodities: [
-    {
-      CommodityDescription: Beans (Vigna spp., Phaseolus spp.),
-      CommodityId: 070820,
-      ComplementId: 2,
-      SpeciesType: 070820,
-      SpeciesClass: 070820,
-      AdditionalData: [
-        {
-          Key: netweight,
-          Data: 1008
-        },
-        {
-          Key: number_package,
-          Data: 19
-        },
-        {
-          Key: type_package,
-          Data: Box
-        }
-      ]
-    }
-  ]
+  ChedTypeVersion: 2
 }
