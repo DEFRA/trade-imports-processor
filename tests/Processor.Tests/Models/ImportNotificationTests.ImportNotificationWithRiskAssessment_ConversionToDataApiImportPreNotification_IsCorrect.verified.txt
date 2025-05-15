@@ -10,11 +10,112 @@
   },
   ImportNotificationType: CHEDPP,
   Status: IN_PROGRESS,
+  RiskAssessment: {
+    CommodityResults: [
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Mandatory,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_2,
+        EppoCode: PELSS,
+        IsWoody: true,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_3,
+        EppoCode: CHYFR,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_4,
+        EppoCode: BIDFE,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_5,
+        EppoCode: FUCSS,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Mandatory,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_6,
+        EppoCode: GAASS,
+        IsWoody: true,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      },
+      {
+        HmiDecision: NOTREQUIRED,
+        PhsiDecision: REQUIRED,
+        PhsiClassification: Reduced,
+        Phsi: {
+          DocumentCheck: true,
+          IdentityCheck: true,
+          PhysicalCheck: true
+        },
+        UniqueId: Guid_7,
+        EppoCode: GLESS,
+        IsWoody: false,
+        IndoorOutdoor: Outdoor,
+        Propagation: Plant,
+        PhsiRuleType: Consignment
+      }
+    ],
+    AssessedOn: 2024-11-23 22:06:05.266035
+  },
   PartOne: {
     PersonResponsible: {
       Name: c91b1e77f4d64ef1fb982524a786483f5be4d3393664b8abccd61c7ed81330fa,
-      CompanyId: Guid_2,
-      ContactId: Guid_3,
+      CompanyId: Guid_8,
+      ContactId: Guid_9,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Addresses: [
         bf4227af78e742aca0eddd71616de5ccd04c3ec85547d194355fb23b9f252971,
@@ -30,7 +131,7 @@
       Email: 748494e51b3a382532618f495f601f196df797d8b9b44eb70ef93bcfedd86422
     },
     Consignor: {
-      Id: Guid_4,
+      Id: Guid_10,
       Type: exporter,
       Status: nonapproved,
       CompanyName: a6c61915e8228beb7841d2c997cef5b2dc24fc657fedd2456aa8cf212603dc4f,
@@ -45,7 +146,7 @@
       TracesId: 10221705
     },
     Consignee: {
-      Id: Guid_2,
+      Id: Guid_8,
       Type: consignee,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
@@ -60,7 +161,7 @@
       TracesId: 10221732
     },
     Importer: {
-      Id: Guid_2,
+      Id: Guid_8,
       Type: importer,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
@@ -75,7 +176,7 @@
       TracesId: 10221732
     },
     PlaceOfDestination: {
-      Id: Guid_2,
+      Id: Guid_8,
       Type: destination,
       CompanyName: 419c4d2874684c58c2429fbc281a7accdb63b447703b98249c73ec48a545ca4e,
       Address: {
@@ -90,6 +191,362 @@
       TracesId: 10221732
     },
     IsGvmsRoute: false,
+    Commodities: {
+      ConsignedCountryInChargeGroup: false,
+      TotalGrossWeight: 65.0,
+      TotalNetWeight: 59.5,
+      NumberOfPackages: 17,
+      IncludeNonAblactedAnimals: false,
+      CountryOfOrigin: KE,
+      CountryOfOriginIsPodCountry: false,
+      ConsignedCountry: KE,
+      CommodityComplements: [
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 3,
+          ComplementName: Pelargonium sp.,
+          EppoCode: PELSS,
+          SpeciesId: 1345841,
+          SpeciesName: Pelargonium sp.,
+          SpeciesNomination: Pelargonium sp.
+        },
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 4,
+          ComplementName: Argyranthemum frutescens,
+          EppoCode: CHYFR,
+          SpeciesId: 1364198,
+          SpeciesName: Argyranthemum frutescens,
+          SpeciesNomination: Argyranthemum frutescens
+        },
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 5,
+          ComplementName: Bidens ferulifolia,
+          EppoCode: BIDFE,
+          SpeciesId: 1402711,
+          SpeciesName: Bidens ferulifolia,
+          SpeciesNomination: Bidens ferulifolia
+        },
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 6,
+          ComplementName: Fuchsia sp.,
+          EppoCode: FUCSS,
+          SpeciesId: 1352563,
+          SpeciesName: Fuchsia sp.,
+          SpeciesNomination: Fuchsia sp.
+        },
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 7,
+          ComplementName: Gaura sp.,
+          EppoCode: GAASS,
+          SpeciesId: 1443326,
+          SpeciesName: Gaura sp.,
+          SpeciesNomination: Gaura sp.
+        },
+        {
+          CommodityDescription: Other,
+          CommodityId: 06021090,
+          ComplementId: 8,
+          ComplementName: Glechoma sp.,
+          EppoCode: GLESS,
+          SpeciesId: 1365075,
+          SpeciesName: Glechoma sp.,
+          SpeciesNomination: Glechoma sp.
+        }
+      ],
+      ComplementParameterSets: [
+        {
+          UniqueComplementId: Guid_2,
+          ComplementId: 3,
+          SpeciesId: 1345841,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: netweight,
+              Data: 42
+            },
+            {
+              Key: number_package,
+              Data: 12
+            },
+            {
+              Key: quantity,
+              Data: 22700
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        },
+        {
+          UniqueComplementId: Guid_3,
+          ComplementId: 4,
+          SpeciesId: 1364198,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 1400
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        },
+        {
+          UniqueComplementId: Guid_4,
+          ComplementId: 5,
+          SpeciesId: 1402711,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 1500
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        },
+        {
+          UniqueComplementId: Guid_5,
+          ComplementId: 6,
+          SpeciesId: 1352563,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 4300
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        },
+        {
+          UniqueComplementId: Guid_6,
+          ComplementId: 7,
+          SpeciesId: 1443326,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 2600
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        },
+        {
+          UniqueComplementId: Guid_7,
+          ComplementId: 8,
+          SpeciesId: 1365075,
+          KeyDataPairs: [
+            {
+              Key: regulatory_authority,
+              Data: PHSI
+            },
+            {
+              Key: requires_finished_or_propagated_data,
+              Data: true
+            },
+            {
+              Key: propagation,
+              Data: Plant
+            },
+            {
+              Key: type_package,
+              Data: Carton
+            },
+            {
+              Key: netweight,
+              Data: 3.5
+            },
+            {
+              Key: number_package,
+              Data: 1
+            },
+            {
+              Key: quantity,
+              Data: 600
+            },
+            {
+              Key: type_quantity,
+              Data: Pieces
+            },
+            {
+              Key: commodity_group,
+              Data: Plants for Planting
+            },
+            {
+              Key: finished_or_propagated,
+              Data: Propagated
+            }
+          ]
+        }
+      ]
+    },
     Purpose: {
       PointOfExit: BCP1,
       PurposeGroup: For Import
@@ -108,21 +565,21 @@
           DocumentType: phytosanitaryCertificate,
           DocumentReference: KEPHIS/EXP/2024/1111111,
           DocumentIssuedOn: 2024-11-22,
-          AttachmentId: Guid_5,
+          AttachmentId: Guid_11,
           AttachmentFilename: 1877862.pdf,
           AttachmentContentType: application/pdf,
-          UploadUserId: Guid_6,
-          UploadOrganisationId: Guid_7
+          UploadUserId: Guid_12,
+          UploadOrganisationId: Guid_13
         },
         {
           DocumentType: airWaybill,
           DocumentReference: 125-11111111,
           DocumentIssuedOn: 2024-11-23,
-          AttachmentId: Guid_8,
+          AttachmentId: Guid_14,
           AttachmentFilename: 125-14531123.pdf,
           AttachmentContentType: application/pdf,
-          UploadUserId: Guid_6,
-          UploadOrganisationId: Guid_7
+          UploadUserId: Guid_12,
+          UploadOrganisationId: Guid_13
         }
       ]
     },
@@ -130,7 +587,7 @@
     SubmittedOn: 2024-11-23 22:06:04.0899396 Utc,
     SubmittedBy: {
       DisplayName: 278eb2582153c57163668257c27e09f4b2d7b6a330c90668b2013c23024d668f,
-      UserId: Guid_6
+      UserId: Guid_12
     },
     ComplexCommoditySelected: true,
     ContactDetails: {
@@ -152,515 +609,115 @@
         Signed: 2024-11-24T06:22:34.924328645
       }
     },
+    CommodityChecks: [
+      {
+        UniqueComplementId: Guid_2,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      },
+      {
+        UniqueComplementId: Guid_3,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      },
+      {
+        UniqueComplementId: Guid_4,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      },
+      {
+        UniqueComplementId: Guid_5,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      },
+      {
+        UniqueComplementId: Guid_6,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      },
+      {
+        UniqueComplementId: Guid_7,
+        Checks: [
+          {
+            Type: PHSI_DOCUMENT,
+            Status: Compliant
+          },
+          {
+            Type: PHSI_IDENTITY,
+            Status: To do
+          },
+          {
+            Type: PHSI_PHYSICAL,
+            Status: To do
+          }
+        ]
+      }
+    ],
     InspectionRequired: Required
   },
   PartThree: {},
-  AgencyOrganisationId: Guid_7,
+  AgencyOrganisationId: Guid_13,
   RiskDecisionLockedOn: 2024-11-24 12:00 Utc,
   IsRiskDecisionLocked: false,
-  ChedTypeVersion: 1,
-  CommoditiesSummary: {
-    ConsignedCountryInChargeGroup: false,
-    TotalGrossWeight: 65.0,
-    TotalNetWeight: 59.5,
-    NumberOfPackages: 17,
-    IncludeNonAblactedAnimals: false,
-    CountryOfOrigin: KE,
-    CountryOfOriginIsPodCountry: false,
-    ConsignedCountry: KE
-  },
-  Commodities: [
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 3,
-      ComplementName: Pelargonium sp.,
-      EppoCode: PELSS,
-      SpeciesId: 1345841,
-      SpeciesName: Pelargonium sp.,
-      SpeciesNomination: Pelargonium sp.,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: netweight,
-          Data: 42
-        },
-        {
-          Key: number_package,
-          Data: 12
-        },
-        {
-          Key: quantity,
-          Data: 22700
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Mandatory,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_9,
-        EppoCode: PELSS,
-        IsWoody: true,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    },
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 4,
-      ComplementName: Argyranthemum frutescens,
-      EppoCode: CHYFR,
-      SpeciesId: 1364198,
-      SpeciesName: Argyranthemum frutescens,
-      SpeciesNomination: Argyranthemum frutescens,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: netweight,
-          Data: 3.5
-        },
-        {
-          Key: number_package,
-          Data: 1
-        },
-        {
-          Key: quantity,
-          Data: 1400
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Reduced,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_10,
-        EppoCode: CHYFR,
-        IsWoody: false,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    },
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 5,
-      ComplementName: Bidens ferulifolia,
-      EppoCode: BIDFE,
-      SpeciesId: 1402711,
-      SpeciesName: Bidens ferulifolia,
-      SpeciesNomination: Bidens ferulifolia,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: netweight,
-          Data: 3.5
-        },
-        {
-          Key: number_package,
-          Data: 1
-        },
-        {
-          Key: quantity,
-          Data: 1500
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Reduced,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_11,
-        EppoCode: BIDFE,
-        IsWoody: false,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    },
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 6,
-      ComplementName: Fuchsia sp.,
-      EppoCode: FUCSS,
-      SpeciesId: 1352563,
-      SpeciesName: Fuchsia sp.,
-      SpeciesNomination: Fuchsia sp.,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: netweight,
-          Data: 3.5
-        },
-        {
-          Key: number_package,
-          Data: 1
-        },
-        {
-          Key: quantity,
-          Data: 4300
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Reduced,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_12,
-        EppoCode: FUCSS,
-        IsWoody: false,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    },
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 7,
-      ComplementName: Gaura sp.,
-      EppoCode: GAASS,
-      SpeciesId: 1443326,
-      SpeciesName: Gaura sp.,
-      SpeciesNomination: Gaura sp.,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: netweight,
-          Data: 3.5
-        },
-        {
-          Key: number_package,
-          Data: 1
-        },
-        {
-          Key: quantity,
-          Data: 2600
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Mandatory,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_13,
-        EppoCode: GAASS,
-        IsWoody: true,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    },
-    {
-      CommodityDescription: Other,
-      CommodityId: 06021090,
-      ComplementId: 8,
-      ComplementName: Glechoma sp.,
-      EppoCode: GLESS,
-      SpeciesId: 1365075,
-      SpeciesName: Glechoma sp.,
-      SpeciesNomination: Glechoma sp.,
-      AdditionalData: [
-        {
-          Key: regulatory_authority,
-          Data: PHSI
-        },
-        {
-          Key: requires_finished_or_propagated_data,
-          Data: true
-        },
-        {
-          Key: propagation,
-          Data: Plant
-        },
-        {
-          Key: type_package,
-          Data: Carton
-        },
-        {
-          Key: netweight,
-          Data: 3.5
-        },
-        {
-          Key: number_package,
-          Data: 1
-        },
-        {
-          Key: quantity,
-          Data: 600
-        },
-        {
-          Key: type_quantity,
-          Data: Pieces
-        },
-        {
-          Key: commodity_group,
-          Data: Plants for Planting
-        },
-        {
-          Key: finished_or_propagated,
-          Data: Propagated
-        }
-      ],
-      RiskAssesment: {
-        HmiDecision: NOTREQUIRED,
-        PhsiDecision: REQUIRED,
-        PhsiClassification: Reduced,
-        Phsi: {
-          DocumentCheck: true,
-          IdentityCheck: true,
-          PhysicalCheck: true
-        },
-        UniqueId: Guid_14,
-        EppoCode: GLESS,
-        IsWoody: false,
-        IndoorOutdoor: Outdoor,
-        Propagation: Plant,
-        PhsiRuleType: Consignment
-      },
-      Checks: [
-        {
-          Type: PHSI_DOCUMENT,
-          Status: Compliant
-        },
-        {
-          Type: PHSI_IDENTITY,
-          Status: To do
-        },
-        {
-          Type: PHSI_PHYSICAL,
-          Status: To do
-        }
-      ]
-    }
-  ]
+  ChedTypeVersion: 1
 }
