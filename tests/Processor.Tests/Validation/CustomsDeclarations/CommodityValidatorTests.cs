@@ -71,8 +71,9 @@ public class CommodityValidatorTests
 
         var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
 
-        Assert.NotNull(error);
-        Assert.Contains("Item 1 has more than one Item Check defined for the same authority.", error.ErrorMessage);
+        // Revert commit for true assertion when needed
+        // See ticket CDMS-674 for why validation has been disabled
+        Assert.Null(error);
     }
 
     [Fact]
