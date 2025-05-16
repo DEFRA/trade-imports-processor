@@ -1,5 +1,7 @@
 using System.Net;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsProcessor.Processor.Configuration;
+using Microsoft.Extensions.Options;
 using SlimMessageBus.Host.AzureServiceBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -11,7 +13,7 @@ public static class CdpServiceBusClientFactory
         ServiceBusMessageBusSettings busSettings
     )
     {
-        var clientOptions = serviceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment()
+        var clientOptions = !serviceProvider.GetRequiredService<IOptions<CdpOptions>>().Value.IsProxyEnabled
             ? new ServiceBusClientOptions()
             : new ServiceBusClientOptions
             {

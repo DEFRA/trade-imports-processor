@@ -24,7 +24,7 @@ public class FinalisationValidatorTests
         var existingClearanceRequest = DataApiClearanceRequestFixture().With(c => c.ExternalVersion, 2).Create();
         var newFinalisation = DataApiFinalisationFixture()
             .With(f => f.ExternalVersion, 1)
-            .With(f => f.FinalState, FinalState.ReleasedToKingsWarehouse)
+            .With(f => f.FinalState, FinalStateValues.ReleasedToKingsWarehouse.ToString)
             .Create();
         var mrn = GenerateMrn();
 
@@ -50,7 +50,7 @@ public class FinalisationValidatorTests
     public void Validate_Returns_ALVSVAL402_WhenTheFinalStateIsUnknown()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
-        var newFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, (FinalState)999).Create();
+        var newFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, "999").Create();
 
         var result = _validator.Validate(
             new FinalisationValidatorInput
@@ -74,10 +74,10 @@ public class FinalisationValidatorTests
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
             .With(f => f.ExternalVersion, 2)
-            .With(f => f.FinalState, FinalState.Cleared)
+            .With(f => f.FinalState, FinalStateValues.Cleared.ToString)
             .Create();
         var existingFinalisation = DataApiFinalisationFixture()
-            .With(f => f.FinalState, FinalState.CancelledWhilePreLodged)
+            .With(f => f.FinalState, FinalStateValues.CancelledWhilePreLodged.ToString)
             .Create();
         var mrn = GenerateMrn();
 
@@ -105,10 +105,10 @@ public class FinalisationValidatorTests
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
-            .With(f => f.FinalState, FinalState.CancelledAfterArrival)
+            .With(f => f.FinalState, FinalStateValues.CancelledAfterArrival.ToString)
             .Create();
         var existingFinalisation = DataApiFinalisationFixture()
-            .With(f => f.FinalState, FinalState.CancelledAfterArrival)
+            .With(f => f.FinalState, FinalStateValues.CancelledAfterArrival.ToString)
             .Create();
         var mrn = GenerateMrn();
 
@@ -137,9 +137,11 @@ public class FinalisationValidatorTests
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
             .With(f => f.ExternalVersion, 2)
-            .With(f => f.FinalState, FinalState.CancelledAfterArrival)
+            .With(f => f.FinalState, FinalStateValues.CancelledAfterArrival.ToString)
             .Create();
-        var existingFinalisation = DataApiFinalisationFixture().With(f => f.FinalState, FinalState.Seized).Create();
+        var existingFinalisation = DataApiFinalisationFixture()
+            .With(f => f.FinalState, FinalStateValues.Seized.ToString)
+            .Create();
         var mrn = GenerateMrn();
 
         var result = _validator.Validate(

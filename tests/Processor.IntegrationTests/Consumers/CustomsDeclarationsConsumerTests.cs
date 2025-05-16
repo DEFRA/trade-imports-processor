@@ -135,7 +135,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         var mrn = GenerateMrn();
         var clearanceRequest = DataApiClearanceRequestFixture().Create();
         var finalisationHeader = FinalisationHeaderFixture((int)clearanceRequest.ExternalVersion!, mrn)
-            .With(h => h.FinalState, ((int)FinalState.Cleared).ToString())
+            .With(h => h.FinalState, ((int)FinalStateValues.Cleared).ToString())
             .Create();
         var finalisation = FinalisationFixture(mrn).With(f => f.Header, finalisationHeader).Create();
 

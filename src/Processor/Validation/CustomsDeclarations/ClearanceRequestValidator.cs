@@ -1,4 +1,5 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentValidation;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
@@ -109,6 +110,6 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
 
     private static bool NotBeCancelled(Finalisation? existingFinalisation)
     {
-        return !existingFinalisation?.FinalState.IsCancelled() ?? true;
+        return !existingFinalisation?.FinalStateValue().IsCancelled() ?? true;
     }
 }
