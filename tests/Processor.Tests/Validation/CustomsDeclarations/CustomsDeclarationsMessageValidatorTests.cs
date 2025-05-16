@@ -11,7 +11,9 @@ public class CustomsDeclarationsMessageValidatorTests
 {
     private readonly CustomsDeclarationsMessageValidator _validator = new();
 
+#pragma warning disable xUnit1045
     [Theory, ClassData(typeof(CustomsDeclarationsMessageValidatorTestData))]
+#pragma warning restore xUnit1045
     public void TheoryTests(CustomsDeclarationsMessage customsDeclarationsMessage, ExpectedResult expectedResult)
     {
         var result = _validator.TestValidate(customsDeclarationsMessage);

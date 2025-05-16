@@ -14,7 +14,7 @@ public static class CatchCertificateAttachmentMapper
             AttachmentId = from.AttachmentId,
             NumberOfCatchCertificates = from.NumberOfCatchCertificates,
             CatchCertificateDetails = from
-                ?.CatchCertificateDetails?.Select(x => CatchCertificateDetailsMapper.Map(x))
+                .CatchCertificateDetails?.Select(x => CatchCertificateDetailsMapper.Map(x))
                 .ToArray(),
         };
 

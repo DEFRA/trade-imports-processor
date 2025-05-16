@@ -20,7 +20,9 @@ public class CheckValidatorTests
         Assert.Contains("The CheckCode field on item number 1 must have a value.", error.ErrorMessage);
     }
 
+#pragma warning disable xUnit1045
     [Theory, ClassData(typeof(CheckValidatorTestData))]
+#pragma warning restore xUnit1045
     public void TheoryTests(CommodityCheck check, ExpectedResult expectedResult)
     {
         var result = _validator.TestValidate(check);

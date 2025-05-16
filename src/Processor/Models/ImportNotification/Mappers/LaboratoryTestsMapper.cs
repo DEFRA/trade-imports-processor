@@ -14,7 +14,7 @@ public static class LaboratoryTestsMapper
             TestedOn = from.TestDate,
             TestReason = from.TestReason,
             SingleLaboratoryTests = from
-                ?.SingleLaboratoryTests?.Select(x => SingleLaboratoryTestMapper.Map(x))
+                .SingleLaboratoryTests?.Select(x => SingleLaboratoryTestMapper.Map(x))
                 .ToArray(),
         };
 
