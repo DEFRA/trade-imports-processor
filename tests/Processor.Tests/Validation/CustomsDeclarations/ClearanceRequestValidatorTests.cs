@@ -193,7 +193,9 @@ public class ClearanceRequestValidatorTests
         Assert.Null(FindWithErrorCode(result, "ALVSVAL326"));
     }
 
+#pragma warning disable xUnit1045
     [Theory, ClassData(typeof(ClearanceRequestValidatorTestData))]
+#pragma warning restore xUnit1045
     public void TheoryTests(ClearanceRequest clearanceRequest, ExpectedResult expectedResult)
     {
         var result = _validator.TestValidate(
