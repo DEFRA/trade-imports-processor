@@ -55,11 +55,12 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             );
     }
 
-    private static bool BeANewFinalisation(FinalisationValidatorInput p, FinalStateValues newFinalState)
-    {
-        return newFinalState.IsNotCancelled()
-            && p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
-    }
+    //Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule
+    ////private static bool BeANewFinalisation(FinalisationValidatorInput p, FinalStateValues newFinalState)
+    ////{
+    ////    return newFinalState.IsNotCancelled()
+    ////        && p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
+    ////}
 
     private static bool NotBeAlreadyCancelled(FinalisationValidatorInput p, Finalisation? existingFinalisation)
     {
