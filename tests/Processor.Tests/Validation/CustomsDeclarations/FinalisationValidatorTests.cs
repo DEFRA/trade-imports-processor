@@ -18,7 +18,9 @@ public class FinalisationValidatorTests
         return result.Errors.Find(s => (string)s.CustomState == errorCode);
     }
 
-    [Fact(Skip = "Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule")]
+    [Fact(
+        Skip = "Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule"
+    )]
     public void Validate_Returns_ALVSVAL401_WhenFinalisationNotCancelled_AndTheExternalVersionDoesNotMatchTheClearanceRequest()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().With(c => c.ExternalVersion, 2).Create();
