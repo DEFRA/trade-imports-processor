@@ -17,12 +17,13 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             .Matches("[1-9]{2}[A-Za-z]{2}[A-Za-z0-9]{14}")
             .WithState(_ => "ALVSVAL401");
 
-        RuleFor(p => p.NewFinalisation.FinalStateValue())
-            .Must(BeANewFinalisation)
-            .WithState(_ => "ALVSVAL401")
-            .WithMessage(p =>
-                $"The finalised state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion}. This has already been replaced by a later version of the import declaration. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
-            );
+        //Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule
+        ////RuleFor(p => p.NewFinalisation.FinalStateValue())
+        ////    .Must(BeANewFinalisation)
+        ////    .WithState(_ => "ALVSVAL401")
+        ////    .WithMessage(p =>
+        ////        $"The finalised state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion}. This has already been replaced by a later version of the import declaration. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
+        ////    );
 
         RuleFor(p => p.NewFinalisation)
             .Must((_, f) => Enum.IsDefined(f.FinalStateValue()))
@@ -54,11 +55,12 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             );
     }
 
-    private static bool BeANewFinalisation(FinalisationValidatorInput p, FinalStateValues newFinalState)
-    {
-        return newFinalState.IsNotCancelled()
-            && p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
-    }
+    //Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule
+    ////private static bool BeANewFinalisation(FinalisationValidatorInput p, FinalStateValues newFinalState)
+    ////{
+    ////    return newFinalState.IsNotCancelled()
+    ////        && p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
+    ////}
 
     private static bool NotBeAlreadyCancelled(FinalisationValidatorInput p, Finalisation? existingFinalisation)
     {
