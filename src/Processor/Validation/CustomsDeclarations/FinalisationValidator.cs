@@ -11,6 +11,7 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
     {
         RuleFor(p => p.NewFinalisation.ExternalVersion).NotNull().InclusiveBetween(1, 99);
 
+        // INCORRECT CODE
         RuleFor(p => p.Mrn)
             .NotEmpty()
             .MaximumLength(22)

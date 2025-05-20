@@ -18,7 +18,7 @@ public class HeaderValidator : AbstractValidator<Header>
 
         // CDMS-256
         RuleFor(p => p.EntryVersionNumber)
-            .NotNull()
+            .NotEmpty()
             .WithState(p => "ALVSVAL153")
             .WithMessage(p =>
                 $"EntryVersionNumber has not been provided for the import document. Provide an EntryVersionNumber. Your request with correlation ID {correlationId} has been terminated."
