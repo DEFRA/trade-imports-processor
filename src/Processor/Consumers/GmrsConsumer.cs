@@ -25,7 +25,7 @@ public class GmrsConsumer(
             logger.LogInformation(
                 "Gmr {GmrId} failed validation with {ErrorCode}: {ErrorMessage}",
                 gmr.GmrId,
-                error.ErrorCode,
+                error.CustomState ?? error.ErrorCode,
                 error.ErrorMessage
             )
         );

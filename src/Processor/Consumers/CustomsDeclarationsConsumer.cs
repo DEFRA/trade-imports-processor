@@ -41,7 +41,7 @@ public class CustomsDeclarationsConsumer(
                 mrn,
                 customsDeclarationsMessage.Header.EntryVersionNumber,
                 messageType,
-                error.ErrorCode,
+                error.CustomState ?? error.ErrorCode,
                 error.ErrorMessage
             )
         );
