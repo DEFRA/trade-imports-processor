@@ -22,6 +22,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .SetValidator(item => new ImportDocumentValidator((int)item.ItemNumber!, correlationId));
         RuleForEach(p => p.Checks).SetValidator(item => new CheckValidator((int)item.ItemNumber!, correlationId));
 
+        // CDMS-275 - NEW
         RuleFor(p => p.SupplementaryUnits)
             .Must(HaveAValidCommodityDecimalFormat)
             .WithState(_ => "ALVSVAL108")
@@ -29,6 +30,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Supplementary units format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
+        // CDMS-254 - NEW
         RuleFor(p => p.NetMass)
             .Must(HaveAValidCommodityDecimalFormat)
             .WithState(_ => "ALVSVAL109")
@@ -36,6 +38,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Net mass format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
+        // CDMS-249 - NEW - REVIEW ACs
         RuleFor(p => p.Documents)
             .NotEmpty()
             .WithState(_ => "ALVSVAL318")
@@ -43,6 +46,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Item {p.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated."
             );
 
+        // CDMS-265
         RuleForEach(p => p.Documents)
             .Must(MustHaveCorrectDocumentCodesForChecks)
             .WithMessage(
@@ -52,6 +56,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL320")
             .When(p => p.Checks is not null);
 
+        // CDMS-328
         RuleForEach(p => p.Checks)
             .Must(MustHaveDocumentForCheck)
             .WithMessage(
@@ -60,6 +65,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             )
             .WithState(_ => "ALVSVAL321");
 
+        // CDMS-327 - DISABLED
         RuleFor(p => p.Checks)
             .Must(MustOnlyHaveOneCheckPerAuthority!)
             .WithMessage(p =>
@@ -68,6 +74,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL317")
             .When(p => p.Checks is not null);
 
+        // CDMS-267
         RuleFor(p => p.Checks)
             .Must(MustHavePoAoCheck!)
             .WithMessage(p =>
@@ -76,6 +83,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL328")
             .When(x => x.Checks is not null && x.Checks.Any(y => y.CheckCode == "H224"));
 
+        // CDMS-276
         RuleFor(p => p.Documents)
             .NotEmpty()
             .WithMessage(c =>

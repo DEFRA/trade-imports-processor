@@ -29,14 +29,6 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             )
             .When(p => p.NewClearanceRequest.ExternalVersion > 1);
 
-        // CDMS-256
-        RuleFor(p => p.NewClearanceRequest.ExternalVersion)
-            .NotNull()
-            .WithState(_ => "ALVSVAL153")
-            .WithMessage(p =>
-                $"EntryVersionNumber has not been provided for the import document. Provide an EntryVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
-            );
-
         // CDMS-257 - NEW
         RuleForEach(p =>
                 (p.NewClearanceRequest.Commodities ?? Array.Empty<Commodity>()).GroupBy(c => c.ItemNumber).ToList()

@@ -16,6 +16,7 @@ public class ErrorNotificationValidator : AbstractValidator<ErrorNotification>
 
     public ErrorNotificationValidator()
     {
+        // ???
         RuleForEach(n => n.Errors)
             .Must(BeAValidErrorCode)
             .WithMessage(
