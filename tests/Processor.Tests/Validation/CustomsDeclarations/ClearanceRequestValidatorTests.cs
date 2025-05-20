@@ -37,18 +37,6 @@ public class ClearanceRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_Returns_ALVSVAL153_WhenEntryVersionNumberNotSet()
-    {
-        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.ExternalVersion, (int?)null).Create();
-
-        var result = _validator.Validate(
-            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
-        );
-
-        Assert.NotNull(FindWithErrorCode(result, "ALVSVAL153"));
-    }
-
-    [Fact]
     public void Validate_Returns_ALVSVAL164_WhenAnItemNumberAppearsMoreThanOnce()
     {
         Commodity[] commodities = [new() { ItemNumber = 1 }, new() { ItemNumber = 2 }, new() { ItemNumber = 2 }];

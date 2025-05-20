@@ -7,6 +7,7 @@ public class ImportDocumentValidator : AbstractValidator<ImportDocument>
 {
     public ImportDocumentValidator(int itemNumber, string correlationId)
     {
+        // CDMS-276
         RuleFor(p => p.DocumentCode)
             .Must(BeAValidDocumentCode!)
             .WithMessage(c =>
