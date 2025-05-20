@@ -19,6 +19,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
         RuleForEach(p => p.NewClearanceRequest.Commodities)
             .SetValidator(p => new CommodityValidator(p.NewClearanceRequest.ExternalCorrelationId!));
 
+        // CDMS-255
         RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
             .NotNull()
             .WithState(_ => "ALVSVAL152")
@@ -26,19 +27,6 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                 $"PreviousVersionNumber has not been provided for the import document. Provide a PreviousVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             )
             .When(p => p.NewClearanceRequest.ExternalVersion > 1);
-
-        When(
-            p => p.NewClearanceRequest.ExternalVersion != 1,
-            () =>
-            {
-                RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
-                    .NotNull()
-                    .WithState(_ => "ALVSVAL152")
-                    .WithMessage(p =>
-                        $"PreviousVersionNumber has not been provided for the import document. Provide a PreviousVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
-                    );
-            }
-        );
 
         RuleFor(p => p.NewClearanceRequest.ExternalVersion)
             .NotNull()

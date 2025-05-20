@@ -7,6 +7,7 @@ public class CheckValidator : AbstractValidator<CommodityCheck>
 {
     public CheckValidator(int itemNumber, string correlationId)
     {
+        // CDMS-258
         RuleFor(p => p.CheckCode)
             .NotEmpty()
             .WithMessage(_ =>
