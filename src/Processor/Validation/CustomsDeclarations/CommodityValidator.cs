@@ -116,11 +116,21 @@ public class CommodityValidator : AbstractValidator<Commodity>
         return length <= 14 && numDecimals <= 3;
     }
 
+    private static bool IsNotAnIuuCheckCode(string? checkCode)
+    {
+        return checkCode != "H224";
+    }
+
     private static bool MustOnlyHaveOneCheckPerAuthority(Commodity commodity, CommodityCheck[] checks)
     {
-        // Revert commit for true implementation when needed
-        // See ticket CDMS-674 for why validation has been disabled
-        return true;
+        var checkCodes = checks.Select(x => x.CheckCode).Where(IsNotAnIuuCheckCode);
+
+        var authorityCheckCodeMatches = AuthorityCodeMappings
+            .DistinctBy(a => a.CheckCode)
+            .Where(a => checkCodes.Contains(a.CheckCode))
+            .GroupBy(a => a.Name);
+
+        return authorityCheckCodeMatches.All(a => a.Count() <= 1);
     }
 
     private static bool MustHavePoAoCheck(Commodity commodity, CommodityCheck[] checks)
