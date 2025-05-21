@@ -110,6 +110,19 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL318_WhenADocumentIsNotProvidedForCommodity_ButItIsAGmrNotification()
+    {
+        var commodity = new Commodity { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H220" }] };
+
+        var result = _validator.TestValidate(commodity);
+        result.ShouldHaveValidationErrorFor(c => c.Documents);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL318");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
     public void Validate_Returns_ALVSVAL320_WhenTheCheckCodesSpecified_ButAreNotRelevantToTheDocumentCodes()
     {
         var commodity = new Commodity
