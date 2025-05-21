@@ -19,6 +19,13 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             .WithState(_ => "ALVSVAL401");
 
         // CDMS-269 - NEW
+        RuleFor(p => p.NewFinalisation.FinalStateValue())
+            .Must(BeTheSameVersionAsTheExistingClearanceRequest)
+            .WithState(_ => "ALVSVAL401")
+            .WithMessage(p =>
+                $"The finalised state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion}. This has already been replaced by a later version of the import declaration. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
+            );
+
         RuleFor(p => p.NewFinalisation)
             .Must((_, f) => Enum.IsDefined(f.FinalStateValue()))
             .WithState(_ => "ALVSVAL402")
@@ -67,12 +74,13 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         );
     }
 
-    //Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule
-    ////private static bool BeANewFinalisation(FinalisationValidatorInput p, FinalStateValues newFinalState)
-    ////{
-    ////    return newFinalState.IsNotCancelled()
-    ////        && p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
-    ////}
+    private static bool BeTheSameVersionAsTheExistingClearanceRequest(
+        FinalisationValidatorInput p,
+        FinalStateValues newFinalState
+    )
+    {
+        return p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
+    }
 
     private static bool NotBeAlreadyCancelled(FinalisationValidatorInput p, Finalisation existingFinalisation)
     {
