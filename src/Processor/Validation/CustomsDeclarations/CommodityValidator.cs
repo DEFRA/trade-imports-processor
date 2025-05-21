@@ -38,13 +38,14 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Net mass format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
-        // CDMS-249 - NEW - REVIEW ACs
+        // CDMS-249 - NEW
         RuleFor(p => p.Documents)
             .NotEmpty()
             .WithState(_ => "ALVSVAL318")
             .WithMessage(p =>
                 $"Item {p.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated."
-            );
+            )
+            .When(IsNotAGmsNotification);
 
         // CDMS-265
         RuleForEach(p => p.Documents)
@@ -90,6 +91,11 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Item {c.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated.."
             )
             .WithState(_ => "ALVSVAL308");
+    }
+
+    private static bool IsNotAGmsNotification(Commodity commodity)
+    {
+        return commodity.Checks == null || commodity.Checks.All(c => c.CheckCode != "H220");
     }
 
     private static bool MustHaveCorrectDocumentCodesForChecks(Commodity commodity, ImportDocument importDocument)
