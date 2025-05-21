@@ -161,6 +161,22 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL321_WhenCheckCodesAreSpecified_NoDocumentsAreSpecified_ButTheCodeCodeIsForGms()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 2,
+            Checks = [new CommodityCheck { CheckCode = "H220", DepartmentCode = "PHA" }],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL321").ToList();
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
     public void Validate_Returns_ALVSVAL328_WhenAnIuuCheckIsSpecifiedButHasNoPoaoCheck()
     {
         var commodity = new Commodity

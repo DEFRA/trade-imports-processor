@@ -38,7 +38,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Net mass format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
-        // CDMS-249 - NEW
+        // CDMS-249 / CDMS-699 - NEW
         RuleFor(p => p.Documents)
             .NotEmpty()
             .WithState(_ => "ALVSVAL318")
@@ -57,8 +57,9 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL320")
             .When(p => p.Checks is not null);
 
-        // CDMS-328
+        // CDMS-328 / CDMS-700
         RuleForEach(p => p.Checks)
+            .Where(IsNotAGmsCheckCode)
             .Must(MustHaveDocumentForCheck)
             .WithMessage(
                 (item, check) =>
@@ -66,7 +67,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             )
             .WithState(_ => "ALVSVAL321");
 
-        // CDMS-327 - DISABLED
+        // CDMS-327 / CDMS-698
         RuleFor(p => p.Checks)
             .Must(MustOnlyHaveOneCheckPerAuthority!)
             .WithMessage(p =>
@@ -93,9 +94,14 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL308");
     }
 
+    private static bool IsNotAGmsCheckCode(CommodityCheck check)
+    {
+        return check.CheckCode != "H220";
+    }
+
     private static bool IsNotAGmsNotification(Commodity commodity)
     {
-        return commodity.Checks == null || commodity.Checks.All(c => c.CheckCode != "H220");
+        return commodity.Checks == null || commodity.Checks.All(IsNotAGmsCheckCode);
     }
 
     private static bool MustHaveCorrectDocumentCodesForChecks(Commodity commodity, ImportDocument importDocument)
