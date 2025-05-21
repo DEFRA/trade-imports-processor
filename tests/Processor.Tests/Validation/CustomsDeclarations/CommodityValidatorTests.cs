@@ -76,6 +76,26 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL317_WhenThereAreTwoChecks_ButAnIUUCheckCodeIsSpecified()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 1,
+            Checks =
+            [
+                new CommodityCheck { CheckCode = "H224", DepartmentCode = "HMI" },
+                new CommodityCheck { CheckCode = "H222", DepartmentCode = "HMI" },
+            ],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
     public void Validate_Returns_ALVSVAL318_WhenADocumentIsNotProvidedForCommodity()
     {
         var commodity = new Commodity { ItemNumber = 1 };

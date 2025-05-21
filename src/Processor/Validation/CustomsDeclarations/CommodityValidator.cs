@@ -116,9 +116,14 @@ public class CommodityValidator : AbstractValidator<Commodity>
         return length <= 14 && numDecimals <= 3;
     }
 
+    private static bool IsNotAnIuuCheckCode(string? checkCode)
+    {
+        return checkCode != "H224";
+    }
+
     private static bool MustOnlyHaveOneCheckPerAuthority(Commodity commodity, CommodityCheck[] checks)
     {
-        var checkCodes = checks.Select(x => x.CheckCode);
+        var checkCodes = checks.Select(x => x.CheckCode).Where(IsNotAnIuuCheckCode);
 
         var authorityCheckCodeMatches = AuthorityCodeMappings
             .DistinctBy(a => a.CheckCode)
