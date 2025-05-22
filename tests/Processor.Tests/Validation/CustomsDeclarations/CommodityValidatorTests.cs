@@ -55,6 +55,18 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL308_WhenNoDocumentsAreProvided()
+    {
+        var commodity = new Commodity { ItemNumber = 1 };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL308");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
     public void Validate_Returns_ALVSVAL317_WhenTwoChecksByTheSameAuthorityAreOnTheSameCommodity()
     {
         var commodity = new Commodity
@@ -115,7 +127,6 @@ public class CommodityValidatorTests
         var commodity = new Commodity { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H220" }] };
 
         var result = _validator.TestValidate(commodity);
-        result.ShouldHaveValidationErrorFor(c => c.Documents);
 
         var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL318");
 
