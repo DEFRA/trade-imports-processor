@@ -84,14 +84,6 @@ public class CommodityValidator : AbstractValidator<Commodity>
             )
             .WithState(_ => "ALVSVAL328")
             .When(x => x.Checks is not null && x.Checks.Any(y => y.CheckCode == "H224"));
-
-        // CDMS-276
-        RuleFor(p => p.Documents)
-            .NotEmpty()
-            .WithMessage(c =>
-                $"Item {c.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated.."
-            )
-            .WithState(_ => "ALVSVAL308");
     }
 
     private static bool IsNotAGmsCheckCode(CommodityCheck check)
