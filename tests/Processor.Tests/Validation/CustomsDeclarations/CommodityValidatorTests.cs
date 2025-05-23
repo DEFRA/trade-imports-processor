@@ -74,8 +74,8 @@ public class CommodityValidatorTests
             ItemNumber = 1,
             Checks =
             [
-                new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" },
-                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI" },
+                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI-GMS" },
+                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI-GMS" },
             ],
         };
 
@@ -88,6 +88,26 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL317_WhenTwoCheckCodesAreFromTheSameDepartment_ButAreADifferentImportType()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 1,
+            Checks =
+            [
+                new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA-POAO" },
+                new CommodityCheck { CheckCode = "H223", DepartmentCode = "PHA-FNAO" },
+            ],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
     public void Validate_DoesNotReturn_ALVSVAL317_WhenThereAreTwoChecks_ButAnIUUCheckCodeIsSpecified()
     {
         var commodity = new Commodity
@@ -95,8 +115,8 @@ public class CommodityValidatorTests
             ItemNumber = 1,
             Checks =
             [
-                new CommodityCheck { CheckCode = "H224", DepartmentCode = "HMI" },
-                new CommodityCheck { CheckCode = "H222", DepartmentCode = "HMI" },
+                new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA-IUU" },
+                new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA-POAO" },
             ],
         };
 
