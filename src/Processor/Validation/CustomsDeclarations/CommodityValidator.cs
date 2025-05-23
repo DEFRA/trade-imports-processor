@@ -129,12 +129,13 @@ public class CommodityValidator : AbstractValidator<Commodity>
     {
         var checkCodes = checks.Select(x => x.CheckCode).Where(IsNotAnIuuCheckCode);
 
-        var authorityCheckCodeMatches = AuthorityCodeMappings
-            .DistinctBy(a => a.CheckCode)
-            .Where(a => checkCodes.Contains(a.CheckCode))
-            .GroupBy(a => a.Name);
+        var multipleCheckCodeMatches = AuthorityCodeMappings
+            .Select(a => new { a.Name, a.CheckCode })
+            .Distinct()
+            .Select(a => new { a.Name, Count = checkCodes.Count(c => c == a.CheckCode) })
+            .Where(a => a.Count > 1);
 
-        return authorityCheckCodeMatches.All(a => a.Count() <= 1);
+        return !multipleCheckCodeMatches.Any();
     }
 
     private static bool MustHavePoAoCheck(Commodity commodity, CommodityCheck[] checks)
@@ -146,18 +147,18 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
     public static readonly List<AuthorityCodeMap> AuthorityCodeMappings =
     [
-        new("hmi", "N002", "H218"),
-        new("hmi", "N002", "H220"),
-        new("hmi", "C085", "H218"),
-        new("hmi", "C085", "H220"),
-        new("hmi", "9HCG", "H220"),
-        new("phsi", "N851", "H219"),
-        new("phsi", "9115", "H219"),
-        new("phsi", "C085", "H219"),
-        new("pha", "C673", "H224"),
-        new("pha", "C641", "H224"),
-        new("pha", "N853", "H222"),
-        new("pha", "C678", "H223"),
-        new("apha", "C640", "H221"),
+        new("HMI-SMS", "N002", "H218"),
+        new("HMI-GMS", "N002", "H220"),
+        new("HMI-SMS", "C085", "H218"),
+        new("HMI-GMS", "C085", "H220"),
+        new("HMI-GMS", "9HCG", "H220"),
+        new("PHSI", "N851", "H219"),
+        new("PHSI", "9115", "H219"),
+        new("PHSI", "C085", "H219"),
+        new("PHA-IUU", "C673", "H224"),
+        new("PHA-IUU", "C641", "H224"),
+        new("PHA-POAO", "N853", "H222"),
+        new("PHA-FNAO", "C678", "H223"),
+        new("APHA", "C640", "H221"),
     ];
 }
