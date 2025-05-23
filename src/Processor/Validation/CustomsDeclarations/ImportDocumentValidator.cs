@@ -32,7 +32,6 @@ public class ImportDocumentValidator : AbstractValidator<ImportDocument>
         "N852",
         "C678",
         "N853",
-        "9HCG",
         "9115",
     ];
 

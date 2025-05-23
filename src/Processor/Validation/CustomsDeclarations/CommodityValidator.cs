@@ -151,7 +151,6 @@ public class CommodityValidator : AbstractValidator<Commodity>
         new("HMI-GMS", "N002", "H220"),
         new("HMI-SMS", "C085", "H218"),
         new("HMI-GMS", "C085", "H220"),
-        new("HMI-GMS", "9HCG", "H220"),
         new("PHSI", "N851", "H219"),
         new("PHSI", "9115", "H219"),
         new("PHSI", "C085", "H219"),
