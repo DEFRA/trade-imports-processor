@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations.CommodityValidator;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
@@ -15,9 +16,11 @@ public static class ClearanceRequestFixtures
         return new Fixture();
     }
 
-    private static AuthorityCodeMap GetRandomDocumentCheckMap()
+    private static CustomsDeclarationMappings.AuthorityDocumentCheck GetRandomDocumentCheckMap()
     {
-        var withoutIuuDocuments = AuthorityCodeMappings.Where(d => d.CheckCode != "H224").ToList();
+        var withoutIuuDocuments = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Where(d => d.CheckCode != "H224")
+            .ToList();
 
         return withoutIuuDocuments[RandomNumberGenerator.GetInt32(0, withoutIuuDocuments.Count)];
     }

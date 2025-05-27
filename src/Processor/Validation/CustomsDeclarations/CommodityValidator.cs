@@ -98,16 +98,16 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
     private static bool MustHaveCorrectDocumentCodesForChecks(Commodity commodity, ImportDocument importDocument)
     {
-        var checkCodes = AuthorityCodeMappings
-            .Where(x => x.DocumentCode == importDocument.DocumentCode)
+        var checkCodes = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Where(x => x.DocumentCode == importDocument.DocumentCode)
             .Select(x => x.CheckCode);
         return commodity.Checks != null && commodity.Checks.Any(x => checkCodes.Contains(x.CheckCode));
     }
 
     private static bool MustHaveDocumentForCheck(Commodity commodity, CommodityCheck check)
     {
-        var documentCodes = AuthorityCodeMappings
-            .Where(x => x.CheckCode == check.CheckCode)
+        var documentCodes = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Where(x => x.CheckCode == check.CheckCode)
             .Select(x => x.DocumentCode);
         return commodity.Documents != null && commodity.Documents.Any(x => documentCodes.Contains(x.DocumentCode));
     }
@@ -129,8 +129,8 @@ public class CommodityValidator : AbstractValidator<Commodity>
     {
         var checkCodes = checks.Select(x => x.CheckCode).Where(IsNotAnIuuCheckCode);
 
-        var multipleCheckCodeMatches = AuthorityCodeMappings
-            .Select(a => new { a.Name, a.CheckCode })
+        var multipleCheckCodeMatches = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Select(a => new { a.Name, a.CheckCode })
             .Distinct()
             .Select(a => new { a.Name, Count = checkCodes.Count(c => c == a.CheckCode) })
             .Where(a => a.Count > 1);
@@ -142,22 +142,4 @@ public class CommodityValidator : AbstractValidator<Commodity>
     {
         return checks.Any(x => x.CheckCode == "H222");
     }
-
-    public sealed record AuthorityCodeMap(string Name, string DocumentCode, string CheckCode);
-
-    public static readonly List<AuthorityCodeMap> AuthorityCodeMappings =
-    [
-        new("HMI-SMS", "N002", "H218"),
-        new("HMI-GMS", "N002", "H220"),
-        new("HMI-SMS", "C085", "H218"),
-        new("HMI-GMS", "C085", "H220"),
-        new("PHSI", "N851", "H219"),
-        new("PHSI", "9115", "H219"),
-        new("PHSI", "C085", "H219"),
-        new("PHA-IUU", "C673", "H224"),
-        new("PHA-IUU", "C641", "H224"),
-        new("PHA-POAO", "N853", "H222"),
-        new("PHA-FNAO", "C678", "H223"),
-        new("APHA", "C640", "H221"),
-    ];
 }

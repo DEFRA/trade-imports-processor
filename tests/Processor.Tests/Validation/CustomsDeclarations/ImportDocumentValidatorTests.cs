@@ -44,7 +44,7 @@ public class ImportDocumentValidatorTests
         public ImportDocumentValidatorTestData()
         {
             Add(
-                new ImportDocument { DocumentCode = "C633" },
+                new ImportDocument { DocumentCode = "N002" },
                 new ExpectedResult(nameof(ImportDocument.DocumentCode), false)
             );
             Add(
