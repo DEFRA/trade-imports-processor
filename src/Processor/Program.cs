@@ -1,3 +1,5 @@
+using Defra.TradeImportsProcessor.Processor.Authentication;
+using Defra.TradeImportsProcessor.Processor.Endpoints;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Health;
 using Defra.TradeImportsProcessor.Processor.Metrics;
@@ -49,6 +51,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
 
     builder.ConfigureLoggingAndTracing();
 
+    builder.Services.AddAuthenticationAuthorization();
     builder.Services.AddProblemDetails();
     builder.Services.AddHealth(builder.Configuration);
     builder.Services.AddProcessorConfiguration(builder.Configuration);
@@ -67,6 +70,8 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseEmfExporter();
     app.MapHealth();
     app.UseStatusCodePages();
+    app.UseHeaderPropagation();
+    app.MapReplayEndpoints();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
         {
