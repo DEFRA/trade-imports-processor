@@ -44,9 +44,14 @@ public class NotificationConsumerTests
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
-        var importNotification = ImportNotificationFixture().Create();
+        var importNotification = ImportNotificationFixture()
+            .With(i => i.Status, ImportNotificationStatus.InProgress)
+            .Create();
         var dataApiImportNotification = (DataApiIpaffs.ImportPreNotification)
-            ImportNotificationFixture().With(i => i.LastUpdated, DateTime.UtcNow.AddMinutes(-5)).Create();
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, DateTime.UtcNow.AddMinutes(-5))
+                .With(i => i.Status, ImportNotificationStatus.InProgress)
+                .Create();
         var response = new ImportPreNotificationResponse(
             dataApiImportNotification,
             DateTime.Now,
@@ -188,6 +193,40 @@ public class NotificationConsumerTests
 
         var existingNotificationTimestamp = new DateTime(2025, 05, 05, 10, 07, 33, 817, DateTimeKind.Utc);
         var newNotificationTimestamp = new DateTime(2025, 05, 07, 13, 54, 23, 984, DateTimeKind.Utc);
+
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, newNotificationTimestamp)
+            .With(i => i.Status, ImportNotificationStatus.Validated)
+            .Create();
+        var existingNotification = (DataApiIpaffs.ImportPreNotification)
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, "SUBMITTED")
+                .Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Is<DataApiIpaffs.ImportPreNotification>(n => n.Status == ImportNotificationStatus.Validated),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenNewImportNotificationMovingFromSubmittedToValidated_WithAnOlderTimestamp_ItIsUpdated()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var existingNotificationTimestamp = new DateTime(2025, 05, 07, 10, 07, 33, 817, DateTimeKind.Utc);
+        var newNotificationTimestamp = new DateTime(2025, 05, 07, 10, 07, 33, 111, DateTimeKind.Utc);
 
         var newNotification = ImportNotificationFixture()
             .With(i => i.LastUpdated, newNotificationTimestamp)
