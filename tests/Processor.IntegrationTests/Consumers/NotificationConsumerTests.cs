@@ -4,7 +4,6 @@ using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
-using RestEase;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;

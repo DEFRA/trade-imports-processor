@@ -20,6 +20,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
         RuleForEach(p => p.Documents)
             .SetValidator(item => new ImportDocumentValidator((int)item.ItemNumber!, correlationId));
+
         RuleForEach(p => p.Checks).SetValidator(item => new CheckValidator((int)item.ItemNumber!, correlationId));
 
         // CDMS-275 - NEW

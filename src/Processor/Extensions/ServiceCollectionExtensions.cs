@@ -11,6 +11,7 @@ using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
+using SlimMessageBus;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
@@ -51,6 +52,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddTransient<IConsumer<JsonElement>, NotificationConsumer>();
+
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
                 configuration,
@@ -96,8 +99,6 @@ public static class ServiceCollectionExtensions
                         )
                     );
                     mbb.AddJsonSerializer();
-
-                    mbb.AddServicesFromAssemblyContaining<NotificationConsumer>();
                     mbb.Consume<JsonElement>(x =>
                     {
                         x.Topic(serviceBusOptions.Notifications.Topic)
