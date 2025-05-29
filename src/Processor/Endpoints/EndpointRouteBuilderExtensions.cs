@@ -18,14 +18,11 @@ public static class EndpointRouteBuilderExtensions
     private static async Task<IResult> ReplayImportPreNotifications(
         HttpRequest request,
         [FromServices] IConsumer<JsonElement> notificationConsumer,
+        [FromBody] JsonElement body,
         CancellationToken cancellationToken
     )
     {
-        using var reader = new StreamReader(request.Body);
-        var body = await reader.ReadToEndAsync(cancellationToken);
-        using var doc = JsonDocument.Parse(body);
-
-        await notificationConsumer.OnHandle(doc.RootElement, cancellationToken);
+        await notificationConsumer.OnHandle(body, cancellationToken);
 
         return Results.Accepted();
     }

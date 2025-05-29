@@ -45,7 +45,10 @@ public class ReplayImportPreNotificationEndpointsTests(WireMockClient wireMockCl
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
+        const string traceHeader = "x-cdp-request-id";
+        var traceId = Guid.NewGuid().ToString("N");
         var httpClient = CreateHttpClient();
+        httpClient.DefaultRequestHeaders.Add(traceHeader, traceId);
         var response = await httpClient.PostAsync("/replay/import-pre-notifications", body);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
@@ -56,8 +59,13 @@ public class ReplayImportPreNotificationEndpointsTests(WireMockClient wireMockCl
                 try
                 {
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
-                    var requests = await _wireMockAdminApi.FindRequestsAsync(requestModel);
-                    return requests.Count == 1;
+                    var requests = (await _wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
+                        x.Request.Headers != null
+                        && x.Request.Headers.ContainsKey(traceHeader)
+                        && x.Request.Headers.TryGetValue(traceHeader, out var list)
+                        && list.Contains(traceId)
+                    );
+                    return requests.Count() == 1;
                 }
                 catch (Exception)
                 {
@@ -68,9 +76,19 @@ public class ReplayImportPreNotificationEndpointsTests(WireMockClient wireMockCl
     }
 
     [Fact]
-    public async Task WhenPostingAnInvalidImportPreNotification_ItReturnsAnError()
+    public async Task WhenPostingAnInvalidBody_ItReturnsBadRequest()
     {
         var body = new StringContent("sosig", Encoding.UTF8, "application/json");
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.PostAsync("/replay/import-pre-notifications", body);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task WhenPostingAnInvalidImportPreNotification_ItReturnsAnError()
+    {
+        var body = new StringContent("{}", Encoding.UTF8, "application/json");
         var httpClient = CreateHttpClient();
         var response = await httpClient.PostAsync("/replay/import-pre-notifications", body);
 
