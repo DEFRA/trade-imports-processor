@@ -183,7 +183,8 @@ public class CustomsDeclarationsConsumer(
         var result = received.Deserialize<T>();
         if (result == null)
             throw new CustomsDeclarationMessageException(MessageId);
-        logger.LogInformation("Received {Type} for {Mrn}", typeof(T).Name, mrn);
+
+        logger.LogInformation("Received {Type} for {Mrn} with message ID {MessageId}", typeof(T).Name, mrn, MessageId);
 
         return result;
     }

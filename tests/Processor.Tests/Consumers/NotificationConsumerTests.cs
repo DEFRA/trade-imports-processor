@@ -1,9 +1,12 @@
 using System.Text.Json;
 using AutoFixture;
+using Azure.Core.Amqp;
+using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SlimMessageBus.Host;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
@@ -15,11 +18,27 @@ public class NotificationConsumerTests
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private readonly ITradeImportsDataApiClient _mockApi = Substitute.For<ITradeImportsDataApiClient>();
     private readonly ILogger<NotificationConsumer> _mockLogger = Substitute.For<ILogger<NotificationConsumer>>();
+    private readonly ConsumerContext _context = new()
+    {
+        Properties =
+        {
+            new KeyValuePair<string, object>(
+                "ServiceBus_Message",
+                ServiceBusReceivedMessage.FromAmqpMessage(
+                    new AmqpAnnotatedMessage(new AmqpMessageBody([]))
+                    {
+                        Properties = { MessageId = new AmqpMessageId("12345") },
+                    },
+                    BinaryData.Empty
+                )
+            ),
+        },
+    };
 
     [Fact]
     public async Task OnHandle_WhenImportNotificationReceived_AndNoImportNotificationExistsInTheDataApi_ThenItIsCreated()
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var importNotification = ImportNotificationFixture().Create();
 
@@ -42,7 +61,7 @@ public class NotificationConsumerTests
     [Fact]
     public async Task OnHandle_WhenImportNotificationReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated()
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var importNotification = ImportNotificationFixture().Create();
         var dataApiImportNotification = (DataApiIpaffs.ImportPreNotification)
@@ -71,7 +90,7 @@ public class NotificationConsumerTests
     [Fact]
     public async Task OnHandle_WhenNewImportNotificationIsValidated_AndTheExistingIsInProgress_ButHasTheSameTimestamp_ThenItIsUpdated()
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
         var existingNotificationTimestamp = DateTime.UtcNow;
         var newNotificationTimestamp = DateTime.UtcNow.AddMicroseconds(-1);
 
@@ -107,7 +126,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Deleted)]
     public async Task OnHandle_WhenTheImportNotificationIsDeletedOrCancelled_ItShouldStillBeProcessed(string status)
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var importNotification = ImportNotificationFixture().With(i => i.Status, status).Create();
 
@@ -128,7 +147,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Draft)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var importNotification = ImportNotificationFixture().With(i => i.Status, status).Create();
 
@@ -150,7 +169,7 @@ public class NotificationConsumerTests
     [Fact]
     public async Task OnHandle_WhenNewImportNotificationIsOlderThanExistingNotification_Skip()
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var existingNotificationTimestamp = DateTime.UtcNow;
         var newNotificationTimestamp = DateTime.UtcNow.AddMilliseconds(-1);
@@ -184,7 +203,7 @@ public class NotificationConsumerTests
     [Fact]
     public async Task OnHandle_WhenNewImportNotificationMovingFromSubmittedToValidated_ItIsUpdated()
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
 
         var existingNotificationTimestamp = new DateTime(2025, 05, 05, 10, 07, 33, 817, DateTimeKind.Utc);
         var newNotificationTimestamp = new DateTime(2025, 05, 07, 13, 54, 23, 984, DateTimeKind.Utc);
@@ -223,7 +242,7 @@ public class NotificationConsumerTests
         string existingStatus
     )
     {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi) { Context = _context };
         var existingNotificationTimestamp = DateTime.UtcNow;
         var newNotificationTimestamp = DateTime.UtcNow.AddMicroseconds(-1);
 

@@ -3,14 +3,19 @@ using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using SlimMessageBus;
+using SlimMessageBus.Host.AzureServiceBus;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
-    : IConsumer<JsonElement>
+    : IConsumer<JsonElement>,
+        IConsumerWithContext
 {
+    private string? MessageId => Context?.GetTransportMessage().MessageId;
+    public IConsumerContext? Context { get; set; }
+
     private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
     {
         { ImportNotificationStatus.Draft, 0 },
@@ -35,7 +40,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             throw new InvalidOperationException("Received invalid message");
         }
 
-        logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
+        logger.LogInformation(
+            "Received notification {ReferenceNumber} with message ID {MessageId}",
+            newNotification.ReferenceNumber,
+            MessageId ?? "none (no context)"
+        );
 
         if (ShouldNotProcess(newNotification))
         {

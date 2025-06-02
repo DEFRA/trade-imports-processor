@@ -47,7 +47,7 @@ public class GmrsConsumer(
             return;
         }
 
-        logger.LogInformation("Received Gmr for {GmrId}", gmr.GmrId);
+        logger.LogInformation("Received Gmr for {GmrId} with message ID {MessageId}", gmr.GmrId, MessageId);
 
         await api.PutGmr(dataApiGmr.Id!, dataApiGmr, null, cancellationToken);
     }
