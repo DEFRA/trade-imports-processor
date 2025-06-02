@@ -23,4 +23,6 @@ public class ServiceBusSubscriptionOptions
 
     [Required]
     public required string Subscription { get; init; }
+
+    public int ConsumersPerHost { get; init; } = 20;
 }
