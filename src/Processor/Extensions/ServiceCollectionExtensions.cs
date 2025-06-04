@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
@@ -155,7 +156,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IValidator<ClearanceRequestValidatorInput>, ClearanceRequestValidator>();
         services.AddScoped<IValidator<CustomsDeclarationsMessage>, CustomsDeclarationsMessageValidator>();
-        services.AddScoped<IValidator<ErrorNotification>, ErrorNotificationValidator>();
+        services.AddScoped<IValidator<ExternalError>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
 

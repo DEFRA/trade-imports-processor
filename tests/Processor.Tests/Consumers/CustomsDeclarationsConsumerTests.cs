@@ -3,7 +3,6 @@ using Amazon.SQS.Model;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.Errors;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
@@ -38,8 +37,8 @@ public class CustomsDeclarationsConsumerTests
         IValidator<CustomsDeclarationsMessage>
     >();
 
-    private readonly IValidator<ErrorNotification> _errorNotificationValidator = Substitute.For<
-        IValidator<ErrorNotification>
+    private readonly IValidator<DataApiCustomsDeclaration.ExternalError> _errorNotificationValidator = Substitute.For<
+        IValidator<DataApiCustomsDeclaration.ExternalError>
     >();
     private readonly IValidator<FinalisationValidatorInput> _finalisationValidator = Substitute.For<
         IValidator<FinalisationValidatorInput>
@@ -54,7 +53,7 @@ public class CustomsDeclarationsConsumerTests
             .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
         _errorNotificationValidator
-            .ValidateAsync(Arg.Any<ErrorNotification>(), Arg.Any<CancellationToken>())
+            .ValidateAsync(Arg.Any<DataApiCustomsDeclaration.ExternalError>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult { Errors = [] });
         _finalisationValidator
             .ValidateAsync(Arg.Any<FinalisationValidatorInput>(), Arg.Any<CancellationToken>())
@@ -160,23 +159,14 @@ public class CustomsDeclarationsConsumerTests
             ErrorMessage = "Too long",
         };
 
-        var existingProcessingNotifications = new ProcessingError
-        {
-            Notifications =
-            [
-                new ErrorNotification
-                {
-                    Created = DateTime.UtcNow,
-                    ExternalCorrelationId = "ANOTHER-CORRELATION-ID",
-                    ExternalVersion = 1,
-                    Errors = [new ErrorItem { Code = "PREVIOUSCODE", Message = "An error message" }],
-                    Message = "The Last Error",
-                },
-            ],
-        };
+        var existingProcessingErrors = new Fixture()
+            .Build<ProcessingError>()
+            .With(x => x.Errors, [new ErrorItem { Code = "PREVIOUSCODE", Message = "An error message" }])
+            .Create();
+
         var existingProcessingErrorResponse = new ProcessingErrorResponse(
             mrn,
-            existingProcessingNotifications,
+            [existingProcessingErrors],
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag
@@ -205,16 +195,15 @@ public class CustomsDeclarationsConsumerTests
             .Received()
             .PutProcessingError(
                 mrn,
-                Arg.Is<ProcessingError>(e =>
-                    e.Notifications != null
-                    && e.Notifications.Length == 2
-                    && e.Notifications[0].Errors[0].Code == "PREVIOUSCODE"
-                    && e.Notifications[1].Created != null
-                    && e.Notifications[1].ExternalVersion == version
-                    && e.Notifications[1].ExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
-                    && e.Notifications[1].Errors[0].Code == (string)cdsError.CustomState
-                    && e.Notifications[1].Errors[0].Message == cdsError.ErrorMessage
-                    && e.Notifications[1].Message == messageBody.GetRawText()
+                Arg.Is<ProcessingError[]>(e =>
+                    e.Length == 2
+                    && e[0].Errors[0].Code == "PREVIOUSCODE"
+                    && e[1].Created != null
+                    && e[1].ExternalVersion == version
+                    && e[1].SourceExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
+                    && e[1].Errors[0].Code == (string)cdsError.CustomState
+                    && e[1].Errors[0].Message == cdsError.ErrorMessage
+                    && e[1].Message == messageBody.GetRawText()
                 ),
                 Arg.Any<string>(),
                 _cancellationToken
@@ -268,7 +257,7 @@ public class CustomsDeclarationsConsumerTests
             .DidNotReceive()
             .PutProcessingError(
                 Arg.Any<string>(),
-                Arg.Any<ProcessingError>(),
+                Arg.Any<ProcessingError[]>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
@@ -375,7 +364,7 @@ public class CustomsDeclarationsConsumerTests
             existingClearanceRequest,
             clearanceDecision,
             finalisation,
-            inboundError,
+            [inboundError],
             DateTime.Now,
             DateTime.Now,
             ExpectedEtag
@@ -390,7 +379,7 @@ public class CustomsDeclarationsConsumerTests
             .PutCustomsDeclaration(
                 mrn,
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
-                    d.InboundError == inboundError
+                    d.ExternalErrors == response.ExternalErrors
                     && d.ClearanceDecision == clearanceDecision
                     && d.ClearanceRequest != null
                     && d.Finalisation == finalisation
@@ -480,7 +469,7 @@ public class CustomsDeclarationsConsumerTests
         };
 
         _errorNotificationValidator
-            .ValidateAsync(Arg.Any<ErrorNotification>(), Arg.Any<CancellationToken>())
+            .ValidateAsync(Arg.Any<DataApiCustomsDeclaration.ExternalError>(), Arg.Any<CancellationToken>())
             .Returns(validationResult);
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
 
@@ -525,10 +514,10 @@ public class CustomsDeclarationsConsumerTests
             .PutCustomsDeclaration(
                 Arg.Any<string>(),
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
-                    d.InboundError!.Notifications![0].ExternalCorrelationId == inboundError.ServiceHeader.CorrelationId
-                    && d.InboundError!.Notifications![0].ExternalVersion == inboundError.Header.EntryVersionNumber
-                    && d.InboundError!.Notifications![0].Errors[0].Code == inboundError.Errors[0].errorCode
-                    && d.InboundError!.Notifications![0].Errors[0].Message == inboundError.Errors[0].errorMessage
+                    d.ExternalErrors![0].ExternalCorrelationId == inboundError.ServiceHeader.CorrelationId
+                    && d.ExternalErrors![0].ExternalVersion == inboundError.Header.EntryVersionNumber
+                    && d.ExternalErrors![0].Errors![0].Code == inboundError.Errors[0].errorCode
+                    && d.ExternalErrors![0].Errors![0].Message == inboundError.Errors[0].errorMessage
                 ),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -554,7 +543,7 @@ public class CustomsDeclarationsConsumerTests
         var mrn = GenerateMrn();
         var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
         var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
-        var existingInboundErrors = DataApiInboundErrorFixture().Create();
+        var existingInboundErrors = (DataApiCustomsDeclaration.ExternalError[])[DataApiInboundErrorFixture().Create()];
 
         var response = new CustomsDeclarationResponse(
             mrn,
@@ -576,7 +565,7 @@ public class CustomsDeclarationsConsumerTests
             .PutCustomsDeclaration(
                 Arg.Any<string>(),
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
-                    d.InboundError!.Notifications!.Length == existingInboundErrors!.Notifications!.Length + 1
+                    d.ExternalErrors!.Length == existingInboundErrors.Length + 1
                 ),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -739,7 +728,7 @@ public class CustomsDeclarationsConsumerTests
 
         var clearanceDecision = DataApiClearanceDecisionFixture().Create();
         var clearanceRequest = DataApiClearanceRequestFixture().Create();
-        var inboundError = DataApiInboundErrorFixture().Create();
+        var inboundError = (DataApiCustomsDeclaration.ExternalError[]?)[DataApiInboundErrorFixture().Create()];
 
         var response = new CustomsDeclarationResponse(
             mrn,
@@ -764,7 +753,7 @@ public class CustomsDeclarationsConsumerTests
                     cd.ClearanceRequest == clearanceRequest
                     && cd.ClearanceDecision == clearanceDecision
                     && cd.Finalisation!.ExternalVersion == finalisation.Header.EntryVersionNumber
-                    && cd.InboundError == inboundError
+                    && cd.ExternalErrors == inboundError
                 ),
                 ExpectedEtag,
                 _cancellationToken
