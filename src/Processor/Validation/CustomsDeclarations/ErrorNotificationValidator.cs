@@ -1,10 +1,11 @@
 using System.Collections.Frozen;
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using FluentValidation;
 
 namespace Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 
-public class ErrorNotificationValidator : AbstractValidator<ErrorNotification>
+public class ErrorNotificationValidator : AbstractValidator<ExternalError>
 {
     private static readonly FrozenSet<string> s_validInboundErrorCodes = new[]
     {
@@ -24,7 +25,7 @@ public class ErrorNotificationValidator : AbstractValidator<ErrorNotification>
             );
     }
 
-    private static bool BeAValidErrorCode(ErrorNotification notification, ErrorItem item)
+    private static bool BeAValidErrorCode(ExternalError notification, ErrorItem item)
     {
         return s_validInboundErrorCodes.Contains(item.Code);
     }

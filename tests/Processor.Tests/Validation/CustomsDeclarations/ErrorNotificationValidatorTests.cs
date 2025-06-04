@@ -1,4 +1,5 @@
 using AutoFixture;
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.TestHelper;
@@ -20,8 +21,7 @@ public class ErrorNotificationValidatorTests
             new InboundErrorItem { errorCode = "HMRCVAL101", errorMessage = "A valid error code" },
         }.ToArray();
 
-        var inboundError = (DataApiErrors.ErrorNotification)
-            InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
+        var inboundError = (ExternalError)InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
 
         var result = await _errorNotificationValidator.TestValidateAsync(inboundError);
 
@@ -37,8 +37,7 @@ public class ErrorNotificationValidatorTests
             new InboundErrorItem { errorCode = "HMRCVAL102", errorMessage = "A valid error code" },
         }.ToArray();
 
-        var inboundError = (DataApiErrors.ErrorNotification)
-            InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
+        var inboundError = (ExternalError)InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
 
         var result = await _errorNotificationValidator.TestValidateAsync(inboundError);
 

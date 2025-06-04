@@ -1,3 +1,4 @@
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
 
@@ -10,7 +11,12 @@ public class InboundErrorTests
     {
         var inboundError = new InboundError
         {
-            Header = new Header { EntryReference = "25GB98ONYJQZT5TAR5", EntryVersionNumber = 1 },
+            Header = new InboundErrorHeader
+            {
+                EntryReference = "25GB98ONYJQZT5TAR5",
+                EntryVersionNumber = 1,
+                SourceCorrelationId = "54321",
+            },
             ServiceHeader = new ServiceHeader
             {
                 CorrelationId = "12345",
@@ -21,7 +27,7 @@ public class InboundErrorTests
             Errors = [new InboundErrorItem { errorCode = "T04ST", errorMessage = "It has been overcooked." }],
         };
 
-        var dataApiInboundError = (DataApiErrors.ErrorNotification)inboundError;
+        var dataApiInboundError = (ExternalError)inboundError;
 
         await Verify(dataApiInboundError).DontScrubDateTimes();
     }
