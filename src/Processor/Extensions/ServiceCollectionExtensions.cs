@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
     {
-        var resilienceOptions = new HttpStandardResilienceOptions();
+        var resilienceOptions = new HttpStandardResilienceOptions { Retry = { UseJitter = true } };
         resilienceOptions.Retry.DisableForUnsafeHttpMethods();
 
         services
