@@ -225,4 +225,24 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
 
         await errorEndpointWasNotCalled();
     }
+
+    [Fact]
+    public async Task WhenSendingInvalidMessage_ShouldEmitError()
+    {
+        var mrn = GenerateMrn();
+
+        await DrainAllMessages();
+
+        await SendMessage(
+            mrn,
+            """
+            { "invalid": "json" }
+            """,
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+        );
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () => (await GetQueueAttributes()).ApproximateNumberOfMessages == 0)
+        );
+    }
 }
