@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
-using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
@@ -12,6 +11,7 @@ using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
+using Polly;
 using SlimMessageBus;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
@@ -26,14 +26,32 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
     {
+        var resilienceOptions = new HttpStandardResilienceOptions();
+        resilienceOptions.Retry.DisableForUnsafeHttpMethods();
+
         services
             .AddTradeImportsDataApiClient()
-            .ConfigureHttpClient((sp, c) => sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c))
+            .ConfigureHttpClient(
+                (sp, c) =>
+                {
+                    sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c);
+
+                    // Disable the HttpClient timeout to allow the resilient pipeline below
+                    // to handle all timeouts
+                    c.Timeout = Timeout.InfiniteTimeSpan;
+                }
+            )
             .AddHeaderPropagation()
-            .AddStandardResilienceHandler(o =>
-            {
-                o.Retry.DisableForUnsafeHttpMethods();
-            });
+            .AddResilienceHandler(
+                "DataApi",
+                builder =>
+                {
+                    builder
+                        .AddTimeout(resilienceOptions.TotalRequestTimeout)
+                        .AddRetry(resilienceOptions.Retry)
+                        .AddTimeout(resilienceOptions.AttemptTimeout);
+                }
+            );
 
         return services;
     }
