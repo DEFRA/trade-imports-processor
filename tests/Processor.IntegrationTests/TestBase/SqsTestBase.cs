@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Amazon.Runtime;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Xunit.Abstractions;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -16,9 +17,17 @@ public class SqsTestBase(ITestOutputHelper output)
         new AmazonSQSConfig { AuthenticationRegion = "eu-west-2", ServiceURL = "http://localhost:4566" }
     );
 
-    protected Task<ReceiveMessageResponse> ReceiveMessage()
+    private Task<ReceiveMessageResponse> ReceiveMessage()
     {
-        return _sqsClient.ReceiveMessageAsync(QueueUrl, CancellationToken.None);
+        return _sqsClient.ReceiveMessageAsync(
+            new ReceiveMessageRequest
+            {
+                QueueUrl = QueueUrl,
+                MaxNumberOfMessages = 10,
+                WaitTimeSeconds = 0,
+            },
+            CancellationToken.None
+        );
     }
 
     protected Task<GetQueueAttributesResponse> GetQueueAttributes()
@@ -26,6 +35,27 @@ public class SqsTestBase(ITestOutputHelper output)
         return _sqsClient.GetQueueAttributesAsync(
             new GetQueueAttributesRequest { AttributeNames = ["ApproximateNumberOfMessages"], QueueUrl = QueueUrl },
             CancellationToken.None
+        );
+    }
+
+    protected async Task DrainAllMessages()
+    {
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var response = await ReceiveMessage();
+
+                foreach (var message in response.Messages)
+                {
+                    output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
+                }
+
+                var approximateNumberOfMessages = (await GetQueueAttributes()).ApproximateNumberOfMessages;
+
+                output?.WriteLine("ApproximateNumberOfMessages: {0}", approximateNumberOfMessages);
+
+                return approximateNumberOfMessages == 0;
+            })
         );
     }
 

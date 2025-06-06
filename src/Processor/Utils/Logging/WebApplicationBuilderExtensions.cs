@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Defra.TradeImportsProcessor.Processor.Extensions;
 using Elastic.Serilog.Enrichers.Web;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -21,7 +20,6 @@ public static class WebApplicationBuilderExtensions
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        builder.Services.AddTracingForConsumers().AddMetricsForConsumers();
 
         // Replaces use of AddHeaderPropagation so we can configure outside startup
         // and use the TraceHeader options configured above that will have been validated
@@ -64,6 +62,12 @@ public static class WebApplicationBuilderExtensions
                 && x.Properties.TryGetValue("RequestPath", out var path)
                 && path.ToString().Contains("/health")
                 && !x.MessageTemplate.Text.StartsWith("Request finished")
+            )
+            .Filter.ByExcluding(x =>
+                x.Level == LogEventLevel.Error
+                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                && sourceContext.ToString().Contains("SlimMessageBus.Host.AmazonSQS.SqsQueueConsumer")
+                && x.MessageTemplate.Text.StartsWith("Message processing error")
             );
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))

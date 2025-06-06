@@ -81,6 +81,12 @@ public static class ServiceCollectionExtensions
             .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
             .Get();
 
+        // Order or interceptors is important here
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
+        services.AddSingleton<ConsumerMetrics>();
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
         services.AddSlimMessageBus(smb =>
         {
             smb.AddChildBus(
@@ -149,23 +155,6 @@ public static class ServiceCollectionExtensions
                 }
             );
         });
-
-        return services;
-    }
-
-    public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
-    {
-        services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
-
-        return services;
-    }
-
-    public static IServiceCollection AddMetricsForConsumers(this IServiceCollection services)
-    {
-        services.AddSingleton<ConsumerMetrics>();
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
         return services;
     }
