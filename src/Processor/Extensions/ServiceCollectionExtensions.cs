@@ -81,7 +81,7 @@ public static class ServiceCollectionExtensions
             .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
             .Get();
 
-        // Order or interceptors is important here
+        // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
         services.AddSingleton<ConsumerMetrics>();
