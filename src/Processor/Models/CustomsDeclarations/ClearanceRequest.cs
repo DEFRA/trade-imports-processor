@@ -9,7 +9,7 @@ public class ClearanceRequest : CustomsDeclarationsBase
     public required ClearanceRequestHeader Header { get; init; }
 
     [JsonPropertyName("items")]
-    public required Item[] Items { get; init; }
+    public Item[] Items { get; init; } = [];
 
     public static explicit operator DataApiCustomsDeclaration.ClearanceRequest(ClearanceRequest clearanceRequest)
     {
