@@ -33,7 +33,7 @@ public static class EndpointRouteBuilderExtensions
             var logger = loggerFactory.CreateLogger(nameof(ReplayImportPreNotifications));
             logger.LogWarning(httpRequestException, "409 Conflict");
 
-            return Results.InternalServerError();
+            return Results.Conflict();
         }
 
         return Results.Accepted();
