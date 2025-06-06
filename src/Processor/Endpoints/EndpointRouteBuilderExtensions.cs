@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Text.Json;
-using Defra.TradeImportsProcessor.Processor.Consumers;
 using Microsoft.AspNetCore.Mvc;
 using SlimMessageBus;
 
@@ -19,10 +19,22 @@ public static class EndpointRouteBuilderExtensions
         HttpRequest request,
         [FromServices] IConsumer<JsonElement> notificationConsumer,
         [FromBody] JsonElement body,
+        [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken
     )
     {
-        await notificationConsumer.OnHandle(body, cancellationToken);
+        try
+        {
+            await notificationConsumer.OnHandle(body, cancellationToken);
+        }
+        catch (HttpRequestException httpRequestException)
+            when (httpRequestException.StatusCode == HttpStatusCode.Conflict)
+        {
+            var logger = loggerFactory.CreateLogger(nameof(ReplayImportPreNotifications));
+            logger.LogWarning(httpRequestException, "409 Conflict");
+
+            return Results.InternalServerError();
+        }
 
         return Results.Accepted();
     }
