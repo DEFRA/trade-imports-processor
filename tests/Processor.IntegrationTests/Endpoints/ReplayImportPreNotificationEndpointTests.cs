@@ -14,7 +14,7 @@ using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Endpoints;
 
 [Collection("UsesWireMockClient")]
-public class ReplayImportPreNotificationEndpointsTests(WireMockClient wireMockClient)
+public class ReplayImportPreNotificationEndpointTests(WireMockClient wireMockClient)
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
