@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Defra.TradeImportsProcessor.Processor.Extensions;
 using Elastic.Serilog.Enrichers.Web;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -21,7 +20,6 @@ public static class WebApplicationBuilderExtensions
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        builder.Services.AddTracingForConsumers().AddMetricsForConsumers();
 
         // Replaces use of AddHeaderPropagation so we can configure outside startup
         // and use the TraceHeader options configured above that will have been validated
