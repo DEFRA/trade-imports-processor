@@ -1,7 +1,8 @@
 ﻿{
   ExternalCorrelationId: 12345,
+  SourceCorrelationId: 54321,
   ExternalVersion: 1,
-  Created: 2025-04-15 12:00 Utc,
+  MessageSentAt: 2025-04-15 12:00 Utc,
   Errors: [
     {
       Code: T04ST,

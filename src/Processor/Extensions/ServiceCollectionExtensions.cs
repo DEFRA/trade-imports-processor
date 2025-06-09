@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsDataApi.Domain.Errors;
+using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
@@ -11,6 +11,8 @@ using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
+using Polly;
+using SlimMessageBus;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
@@ -22,18 +24,34 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    private const int ConsumersInstanceCount = 20;
-
     public static IServiceCollection AddDataApiHttpClient(this IServiceCollection services)
     {
+        var resilienceOptions = new HttpStandardResilienceOptions { Retry = { UseJitter = true } };
+        resilienceOptions.Retry.DisableForUnsafeHttpMethods();
+
         services
             .AddTradeImportsDataApiClient()
-            .ConfigureHttpClient((sp, c) => sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c))
+            .ConfigureHttpClient(
+                (sp, c) =>
+                {
+                    sp.GetRequiredService<IOptions<DataApiOptions>>().Value.Configure(c);
+
+                    // Disable the HttpClient timeout to allow the resilient pipeline below
+                    // to handle all timeouts
+                    c.Timeout = Timeout.InfiniteTimeSpan;
+                }
+            )
             .AddHeaderPropagation()
-            .AddStandardResilienceHandler(o =>
-            {
-                o.Retry.DisableForUnsafeHttpMethods();
-            });
+            .AddResilienceHandler(
+                "DataApi",
+                builder =>
+                {
+                    builder
+                        .AddTimeout(resilienceOptions.TotalRequestTimeout)
+                        .AddRetry(resilienceOptions.Retry)
+                        .AddTimeout(resilienceOptions.AttemptTimeout);
+                }
+            );
 
         return services;
     }
@@ -51,6 +69,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddTransient<IConsumer<JsonElement>, NotificationConsumer>();
+
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
                 configuration,
@@ -61,6 +81,12 @@ public static class ServiceCollectionExtensions
             .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
             .Get();
 
+        // Order of interceptors is important here
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
+        services.AddSingleton<ConsumerMetrics>();
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
         services.AddSlimMessageBus(smb =>
         {
             smb.AddChildBus(
@@ -70,7 +96,7 @@ public static class ServiceCollectionExtensions
                     mbb.WithProviderServiceBus(
                         CdpServiceBusClientFactory.ConfigureServiceBus(
                             serviceBusOptions.Gmrs.ConnectionString,
-                            ConsumersInstanceCount
+                            serviceBusOptions.Gmrs.ConsumersPerHost
                         )
                     );
                     mbb.AddJsonSerializer();
@@ -80,7 +106,7 @@ public static class ServiceCollectionExtensions
                         x.Topic(serviceBusOptions.Gmrs.Topic)
                             .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
                             .WithConsumer<GmrsConsumer>()
-                            .Instances(ConsumersInstanceCount);
+                            .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
                     });
                 }
             );
@@ -92,18 +118,16 @@ public static class ServiceCollectionExtensions
                     mbb.WithProviderServiceBus(
                         CdpServiceBusClientFactory.ConfigureServiceBus(
                             serviceBusOptions.Notifications.ConnectionString,
-                            ConsumersInstanceCount
+                            serviceBusOptions.Notifications.ConsumersPerHost
                         )
                     );
                     mbb.AddJsonSerializer();
-
-                    mbb.AddServicesFromAssemblyContaining<NotificationConsumer>();
                     mbb.Consume<JsonElement>(x =>
                     {
                         x.Topic(serviceBusOptions.Notifications.Topic)
                             .SubscriptionName(serviceBusOptions.Notifications.Subscription)
                             .WithConsumer<NotificationConsumer>()
-                            .Instances(ConsumersInstanceCount);
+                            .Instances(serviceBusOptions.Notifications.ConsumersPerHost);
                     });
                 }
             );
@@ -126,7 +150,7 @@ public static class ServiceCollectionExtensions
                     mbb.Consume<JsonElement>(x =>
                         x.WithConsumer<CustomsDeclarationsConsumer>()
                             .Queue(customsDeclarationsConsumerOptions.QueueName)
-                            .Instances(ConsumersInstanceCount)
+                            .Instances(customsDeclarationsConsumerOptions.ConsumersPerHost)
                     );
                 }
             );
@@ -135,28 +159,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddTracingForConsumers(this IServiceCollection services)
-    {
-        services.AddScoped(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton(typeof(IServiceBusConsumerErrorHandler<>), typeof(SerilogTraceErrorHandler<>));
-
-        return services;
-    }
-
-    public static IServiceCollection AddMetricsForConsumers(this IServiceCollection services)
-    {
-        services.AddSingleton<ConsumerMetrics>();
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
-
-        return services;
-    }
-
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<ClearanceRequestValidatorInput>, ClearanceRequestValidator>();
         services.AddScoped<IValidator<CustomsDeclarationsMessage>, CustomsDeclarationsMessageValidator>();
-        services.AddScoped<IValidator<ErrorNotification>, ErrorNotificationValidator>();
+        services.AddScoped<IValidator<ExternalError>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
 

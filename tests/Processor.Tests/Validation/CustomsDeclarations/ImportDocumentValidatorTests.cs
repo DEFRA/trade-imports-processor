@@ -22,7 +22,9 @@ public class ImportDocumentValidatorTests
         Assert.Contains("DocumentCode UNKNOWN on item number 1 is invalid.", error.ErrorMessage);
     }
 
+#pragma warning disable xUnit1045
     [Theory, ClassData(typeof(ImportDocumentValidatorTestData))]
+#pragma warning restore xUnit1045
     public void TheoryTests(ImportDocument model, ExpectedResult expectedResult)
     {
         var result = _validator.TestValidate(model);
@@ -42,7 +44,7 @@ public class ImportDocumentValidatorTests
         public ImportDocumentValidatorTestData()
         {
             Add(
-                new ImportDocument { DocumentCode = "C633" },
+                new ImportDocument { DocumentCode = "N002" },
                 new ExpectedResult(nameof(ImportDocument.DocumentCode), false)
             );
             Add(

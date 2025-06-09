@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsDataApi.Domain.ProcessingErrors;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
@@ -18,7 +17,7 @@ public class CustomsDeclarationsConsumer(
     ITradeImportsDataApiClient api,
     IValidator<ClearanceRequestValidatorInput> clearanceRequestValidator,
     IValidator<CustomsDeclarationsMessage> customsDeclarationsMessageValidator,
-    IValidator<DataApiErrors.ErrorNotification> errorNotificationValidator,
+    IValidator<DataApiCustomsDeclaration.ExternalError> errorNotificationValidator,
     IValidator<FinalisationValidatorInput> finalisationValidator
 ) : IConsumer<JsonElement>, IConsumerWithContext
 {
@@ -41,7 +40,7 @@ public class CustomsDeclarationsConsumer(
                 mrn,
                 customsDeclarationsMessage.Header.EntryVersionNumber,
                 messageType,
-                error.ErrorCode,
+                error.CustomState ?? error.ErrorCode,
                 error.ErrorMessage
             )
         );
@@ -60,21 +59,19 @@ public class CustomsDeclarationsConsumer(
         if (alvsValErrors.Length == 0)
             return;
 
-        var processingErrorNotification = new DataApiErrors.ErrorNotification
+        var processingErrorNotification = new DataApiErrors.ProcessingError
         {
             Created = DateTime.UtcNow,
-            ExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
+            CorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
+            SourceExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
             ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
             Errors = alvsValErrors,
             Message = messageBody,
         };
 
-        var updatedValidationErrors = new ProcessingError
-        {
-            Notifications = (existingValidationErrors?.ProcessingError.Notifications ?? [])
-                .Append(processingErrorNotification)
-                .ToArray(),
-        };
+        var updatedValidationErrors = (existingValidationErrors?.ProcessingErrors ?? [])
+            .Append(processingErrorNotification)
+            .ToArray();
 
         await api.PutProcessingError(mrn, updatedValidationErrors, existingValidationErrors?.ETag, cancellationToken);
     }
@@ -91,8 +88,8 @@ public class CustomsDeclarationsConsumer(
                 updated as DataApiCustomsDeclaration.ClearanceRequest ?? existingCustomsDeclaration?.ClearanceRequest,
             Finalisation =
                 updated as DataApiCustomsDeclaration.Finalisation ?? existingCustomsDeclaration?.Finalisation,
-            InboundError =
-                updated as DataApiCustomsDeclaration.InboundError ?? existingCustomsDeclaration?.InboundError,
+            ExternalErrors =
+                updated as DataApiCustomsDeclaration.ExternalError[] ?? existingCustomsDeclaration?.ExternalErrors,
         };
     }
 
@@ -237,7 +234,7 @@ public class CustomsDeclarationsConsumer(
         CancellationToken cancellationToken
     )
     {
-        var inboundErrorNotifications = (DataApiErrors.ErrorNotification)
+        var inboundErrorNotifications = (DataApiCustomsDeclaration.ExternalError)
             DeserializeMessage<InboundError>(received, mrn);
 
         var validationResult = await errorNotificationValidator.ValidateAsync(
@@ -250,12 +247,9 @@ public class CustomsDeclarationsConsumer(
             return (null, validationResult);
         }
 
-        var updatedInboundError = new DataApiCustomsDeclaration.InboundError
-        {
-            Notifications = (existingCustomsDeclaration?.InboundError?.Notifications ?? [])
-                .Append(inboundErrorNotifications)
-                .ToArray(),
-        };
+        var updatedInboundError = (existingCustomsDeclaration?.ExternalErrors ?? [])
+            .Append(inboundErrorNotifications)
+            .ToArray();
 
         return (UpdatedCustomsDeclaration(existingCustomsDeclaration, updatedInboundError), null);
     }

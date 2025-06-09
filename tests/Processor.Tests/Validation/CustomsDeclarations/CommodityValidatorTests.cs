@@ -55,6 +55,18 @@ public class CommodityValidatorTests
     }
 
     [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL308_WhenNoDocumentsAreProvided()
+    {
+        var commodity = new Commodity { ItemNumber = 1 };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL308");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
     public void Validate_Returns_ALVSVAL317_WhenTwoChecksByTheSameAuthorityAreOnTheSameCommodity()
     {
         var commodity = new Commodity
@@ -62,8 +74,8 @@ public class CommodityValidatorTests
             ItemNumber = 1,
             Checks =
             [
-                new CommodityCheck { CheckCode = "H218", DepartmentCode = "HMI" },
-                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI" },
+                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI-GMS" },
+                new CommodityCheck { CheckCode = "H220", DepartmentCode = "HMI-GMS" },
             ],
         };
 
@@ -71,8 +83,47 @@ public class CommodityValidatorTests
 
         var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
 
-        // Revert commit for true assertion when needed
-        // See ticket CDMS-674 for why validation has been disabled
+        Assert.NotNull(error);
+        Assert.Contains("Item 1 has more than one Item Check defined for the same authority.", error.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL317_WhenTwoCheckCodesAreFromTheSameDepartment_ButAreADifferentImportType()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 1,
+            Checks =
+            [
+                new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA-POAO" },
+                new CommodityCheck { CheckCode = "H223", DepartmentCode = "PHA-FNAO" },
+            ],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL317_WhenThereAreTwoChecks_ButAnIUUCheckCodeIsSpecified()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 1,
+            Checks =
+            [
+                new CommodityCheck { CheckCode = "H224", DepartmentCode = "PHA-IUU" },
+                new CommodityCheck { CheckCode = "H222", DepartmentCode = "PHA-POAO" },
+            ],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL317");
+
         Assert.Null(error);
     }
 
@@ -88,6 +139,18 @@ public class CommodityValidatorTests
 
         Assert.NotNull(error);
         Assert.Contains("Item 1 has no document code.", error.ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL318_WhenADocumentIsNotProvidedForCommodity_ButItIsAGmrNotification()
+    {
+        var commodity = new Commodity { ItemNumber = 1, Checks = [new CommodityCheck { CheckCode = "H220" }] };
+
+        var result = _validator.TestValidate(commodity);
+
+        var error = result.Errors.Find(e => (string)e.CustomState == "ALVSVAL318");
+
+        Assert.Null(error);
     }
 
     [Fact]
@@ -126,6 +189,22 @@ public class CommodityValidatorTests
 
         Assert.Single(errors);
         Assert.Contains("Check code H222 on ItemNumber 2 must have a document code.", errors[0].ErrorMessage);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL321_WhenCheckCodesAreSpecified_NoDocumentsAreSpecified_ButTheCodeCodeIsForGms()
+    {
+        var commodity = new Commodity
+        {
+            ItemNumber = 2,
+            Checks = [new CommodityCheck { CheckCode = "H220", DepartmentCode = "PHA" }],
+        };
+
+        var result = _validator.TestValidate(commodity);
+
+        var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL321").ToList();
+
+        Assert.Empty(errors);
     }
 
     [Fact]

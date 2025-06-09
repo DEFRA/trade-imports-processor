@@ -18,7 +18,9 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
         RuleFor(p => p.NewClearanceRequest.DeclarationType).Must(p => p is "S" or "F");
         RuleForEach(p => p.NewClearanceRequest.Commodities)
             .SetValidator(p => new CommodityValidator(p.NewClearanceRequest.ExternalCorrelationId!));
+        RuleFor(p => p.NewClearanceRequest.ExternalVersion).InclusiveBetween(1, 99);
 
+        // CDMS-255
         RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
             .NotNull()
             .WithState(_ => "ALVSVAL152")
@@ -27,26 +29,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             )
             .When(p => p.NewClearanceRequest.ExternalVersion > 1);
 
-        When(
-            p => p.NewClearanceRequest.ExternalVersion != 1,
-            () =>
-            {
-                RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
-                    .NotNull()
-                    .WithState(_ => "ALVSVAL152")
-                    .WithMessage(p =>
-                        $"PreviousVersionNumber has not been provided for the import document. Provide a PreviousVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
-                    );
-            }
-        );
-
-        RuleFor(p => p.NewClearanceRequest.ExternalVersion)
-            .NotNull()
-            .WithState(_ => "ALVSVAL153")
-            .WithMessage(p =>
-                $"EntryVersionNumber has not been provided for the import document. Provide an EntryVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
-            );
-
+        // CDMS-257 - NEW
         RuleForEach(p =>
                 (p.NewClearanceRequest.Commodities ?? Array.Empty<Commodity>()).GroupBy(c => c.ItemNumber).ToList()
             )
@@ -58,6 +41,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                     $"Item number {grouping.Key} is invalid as it appears more than once. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             );
 
+        // CDMS-378
         When(
             p => p.ExistingClearanceRequest is not null,
             () =>
@@ -71,13 +55,15 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             }
         );
 
+        // CMDS-259
         RuleFor(p => p.NewClearanceRequest.DeclarationUcr)
-            .NotNull()
+            .NotEmpty()
             .WithState(_ => "ALVSVAL313")
             .WithMessage(p =>
                 $"The DeclarationUCR field must have a value.  Your service request with Correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             );
 
+        // CDMS-266
         When(
             p => p.ExistingFinalisation is not null,
             () =>
@@ -91,6 +77,7 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
             }
         );
 
+        // CDMS-333
         RuleFor(p => p)
             .Must(p => p.NewClearanceRequest.ExternalVersion > p.NewClearanceRequest.PreviousExternalVersion)
             .WithState(_ => "ALVSVAL326")
@@ -110,6 +97,6 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
 
     private static bool NotBeCancelled(Finalisation? existingFinalisation)
     {
-        return !existingFinalisation?.FinalStateValue().IsCancelled() ?? true;
+        return !(existingFinalisation?.FinalStateValue().IsCancelled()).GetValueOrDefault();
     }
 }

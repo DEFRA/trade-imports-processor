@@ -28,10 +28,10 @@ public static class CustomsDeclarationFixtures
         return year + countryCode + randomIdentifier;
     }
 
-    public static IPostprocessComposer<Header> HeaderFixture(string? mrn = null)
+    public static IPostprocessComposer<InboundErrorHeader> InboundErrorHeaderFixture(string? mrn = null)
     {
         return GetFixture()
-            .Build<Header>()
+            .Build<InboundErrorHeader>()
             .With(h => h.EntryReference, mrn ?? GenerateMrn())
             .With(h => h.EntryVersionNumber, 1);
     }

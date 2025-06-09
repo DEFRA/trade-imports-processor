@@ -8,4 +8,6 @@ public class CustomsDeclarationsConsumerOptions
 
     [Required]
     public required string QueueName { get; init; }
+
+    public int ConsumersPerHost { get; init; } = 20;
 }

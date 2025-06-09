@@ -3,7 +3,6 @@ using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -16,6 +15,7 @@ using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.InboundErrorFixtures;
+using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations.ClearanceRequest;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
@@ -130,6 +130,47 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
     }
 
     [Fact]
+    public async Task WhenClearanceRequestSent_ButNoItems_ThenClearanceRequestIsProcessedAndSentToTheDataApi()
+    {
+        var mrn = GenerateMrn();
+        var clearanceRequest = ClearanceRequestFixture(mrn).Create();
+
+        var createPath = $"/customs-declarations/{mrn}";
+        var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
+        mappingBuilder.Given(m =>
+            m.WithRequest(req => req.UsingPut().WithPath(createPath))
+                .WithResponse(rsp => rsp.WithStatusCode(HttpStatusCode.Created))
+        );
+        var status = await mappingBuilder.BuildAndPostAsync();
+        Assert.NotNull(status.Guid);
+
+        var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
+
+        var body = JsonSerializer.Serialize(
+            clearanceRequest,
+#pragma warning disable CA1869
+            new JsonSerializerOptions
+#pragma warning restore CA1869
+            {
+                Converters = { new ExcludePropertyJsonConverter<ClearanceRequest>(nameof(ClearanceRequest.Items)) },
+            }
+        );
+
+        await SendMessage(mrn, body, WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest));
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                var requestsModel = new RequestModel { Methods = ["PUT"], Path = createPath };
+                var requests = await _wireMockAdminApi.FindRequestsAsync(requestsModel);
+                return requests.Count == 1;
+            })
+        );
+
+        await errorEndpointWasNotCalled();
+    }
+
+    [Fact]
     public async Task WhenFinalisationSent_ThenFinalisationIsProcessedAndSentToTheDataApi()
     {
         var mrn = GenerateMrn();
@@ -224,5 +265,25 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         );
 
         await errorEndpointWasNotCalled();
+    }
+
+    [Fact]
+    public async Task WhenSendingInvalidMessage_ShouldEmitError()
+    {
+        var mrn = GenerateMrn();
+
+        await DrainAllMessages();
+
+        await SendMessage(
+            mrn,
+            """
+            { "invalid": "json" }
+            """,
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+        );
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () => (await GetQueueAttributes()).ApproximateNumberOfMessages == 0)
+        );
     }
 }

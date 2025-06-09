@@ -4,12 +4,12 @@ namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mapper
 
 public static class CommodityComplementMapper
 {
-    public static IpaffsDataApi.CommodityComplement Map(CommodityComplement? from)
+    public static IpaffsDataApi.CommodityComplements Map(CommodityComplement? from)
     {
         if (from is null)
             return null!;
 
-        var to = new IpaffsDataApi.CommodityComplement
+        var to = new IpaffsDataApi.CommodityComplements
         {
             UniqueComplementId = from.UniqueComplementId,
             CommodityDescription = from.CommodityDescription,

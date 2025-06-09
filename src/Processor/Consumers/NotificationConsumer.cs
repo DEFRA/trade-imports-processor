@@ -37,7 +37,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
 
-        if (ShouldNotProcess(newNotification))
+        if (IsInvalidStatus(newNotification))
         {
             logger.LogInformation("Skipping {ReferenceNumber} due to status", newNotification.ReferenceNumber);
             return;
@@ -50,6 +50,14 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             cancellationToken
         );
 
+        if (
+            existingNotification != null
+            && !ShouldProcess(dataApiImportPreNotification, existingNotification.ImportPreNotification)
+        )
+        {
+            return;
+        }
+
         if (existingNotification == null)
         {
             logger.LogInformation(
@@ -61,33 +69,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
                 dataApiImportPreNotification,
                 null,
                 cancellationToken
-            );
-            return;
-        }
-
-        if (
-            NewNotificationIsOlderThanExistingNotification(
-                dataApiImportPreNotification,
-                existingNotification.ImportPreNotification
-            )
-        )
-        {
-            logger.LogInformation(
-                "Skipping {ReferenceNumber} because new notification is going back in time: {NewTime} < {OldTime}",
-                newNotification.ReferenceNumber,
-                dataApiImportPreNotification.UpdatedSource,
-                existingNotification.ImportPreNotification.UpdatedSource
-            );
-            return;
-        }
-
-        if (!IsLaterInTheLifecycle(dataApiImportPreNotification, existingNotification.ImportPreNotification))
-        {
-            logger.LogInformation(
-                "Skipping {ReferenceNumber} because new notification is going back progress status: {NewStatus} < {OldStatus}",
-                newNotification.ReferenceNumber,
-                dataApiImportPreNotification.Status,
-                existingNotification.ImportPreNotification.Status
             );
             return;
         }
@@ -105,15 +86,51 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         );
     }
 
+    private bool ShouldProcess(
+        DataApiIpaffs.ImportPreNotification newNotification,
+        DataApiIpaffs.ImportPreNotification existingNotification
+    )
+    {
+        if (
+            newNotification.Status == existingNotification.Status
+            && NewNotificationIsOlderThanExistingNotification(newNotification, existingNotification)
+        )
+        {
+            logger.LogInformation(
+                "Skipping {ReferenceNumber} because new notification of the same status {Status} is older: {NewTime} < {OldTime}",
+                newNotification.ReferenceNumber,
+                newNotification.Status,
+                newNotification.UpdatedSource,
+                existingNotification.UpdatedSource
+            );
+            return false;
+        }
+
+        if (IsLaterInTheLifecycle(newNotification, existingNotification))
+            return true;
+
+        logger.LogInformation(
+            "Skipping {ReferenceNumber} because new notification is going backwards: {NewStatus} < {OldStatus} or {NewTime} < {OldTime}",
+            newNotification.ReferenceNumber,
+            newNotification.Status,
+            existingNotification.Status,
+            newNotification.UpdatedSource,
+            existingNotification.UpdatedSource
+        );
+
+        return false;
+    }
+
     private static bool NewNotificationIsOlderThanExistingNotification(
         DataApiIpaffs.ImportPreNotification newNotification,
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        return newNotification.UpdatedSource.TrimMicroseconds() < existingNotification.UpdatedSource.TrimMicroseconds();
+        return newNotification.UpdatedSource.TrimMicroseconds()
+            <= existingNotification.UpdatedSource.TrimMicroseconds();
     }
 
-    private static bool ShouldNotProcess(ImportNotification notification)
+    private static bool IsInvalidStatus(ImportNotification notification)
     {
         return notification.Status == ImportNotificationStatus.Amend
             || notification.Status == ImportNotificationStatus.Draft

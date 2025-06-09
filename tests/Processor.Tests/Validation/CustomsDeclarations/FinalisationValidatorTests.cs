@@ -19,7 +19,7 @@ public class FinalisationValidatorTests
     }
 
     [Fact]
-    public void Validate_Returns_ALVSVAL401_WhenFinalisationNotCancelled_AndTheExternalVersionDoesNotMatchTheClearanceRequest()
+    public void Validate_Returns_ALVSVAL401_WhenFinalisationExternalVersionDoesNotMatchTheClearanceRequestExternalVersion()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().With(c => c.ExternalVersion, 2).Create();
         var newFinalisation = DataApiFinalisationFixture()

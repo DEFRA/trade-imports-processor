@@ -20,8 +20,10 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
         RuleForEach(p => p.Documents)
             .SetValidator(item => new ImportDocumentValidator((int)item.ItemNumber!, correlationId));
+
         RuleForEach(p => p.Checks).SetValidator(item => new CheckValidator((int)item.ItemNumber!, correlationId));
 
+        // CDMS-275 - NEW
         RuleFor(p => p.SupplementaryUnits)
             .Must(HaveAValidCommodityDecimalFormat)
             .WithState(_ => "ALVSVAL108")
@@ -29,6 +31,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Supplementary units format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
+        // CDMS-254 - NEW
         RuleFor(p => p.NetMass)
             .Must(HaveAValidCommodityDecimalFormat)
             .WithState(_ => "ALVSVAL109")
@@ -36,13 +39,16 @@ public class CommodityValidator : AbstractValidator<Commodity>
                 $"Net mass format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
             );
 
+        // CDMS-249 / CDMS-699 - NEW
         RuleFor(p => p.Documents)
             .NotEmpty()
             .WithState(_ => "ALVSVAL318")
             .WithMessage(p =>
                 $"Item {p.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated."
-            );
+            )
+            .When(IsNotAGmsNotification);
 
+        // CDMS-265
         RuleForEach(p => p.Documents)
             .Must(MustHaveCorrectDocumentCodesForChecks)
             .WithMessage(
@@ -52,7 +58,9 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL320")
             .When(p => p.Checks is not null);
 
+        // CDMS-328 / CDMS-700
         RuleForEach(p => p.Checks)
+            .Where(IsNotAGmsCheckCode)
             .Must(MustHaveDocumentForCheck)
             .WithMessage(
                 (item, check) =>
@@ -60,6 +68,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             )
             .WithState(_ => "ALVSVAL321");
 
+        // CDMS-327 / CDMS-698
         RuleFor(p => p.Checks)
             .Must(MustOnlyHaveOneCheckPerAuthority!)
             .WithMessage(p =>
@@ -68,6 +77,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .WithState(_ => "ALVSVAL317")
             .When(p => p.Checks is not null);
 
+        // CDMS-267
         RuleFor(p => p.Checks)
             .Must(MustHavePoAoCheck!)
             .WithMessage(p =>
@@ -75,27 +85,30 @@ public class CommodityValidator : AbstractValidator<Commodity>
             )
             .WithState(_ => "ALVSVAL328")
             .When(x => x.Checks is not null && x.Checks.Any(y => y.CheckCode == "H224"));
+    }
 
-        RuleFor(p => p.Documents)
-            .NotEmpty()
-            .WithMessage(c =>
-                $"Item {c.ItemNumber} has no document code. BTMS requires at least one item document. Your request with correlation ID {correlationId} has been terminated.."
-            )
-            .WithState(_ => "ALVSVAL308");
+    private static bool IsNotAGmsCheckCode(CommodityCheck check)
+    {
+        return check.CheckCode != "H220";
+    }
+
+    private static bool IsNotAGmsNotification(Commodity commodity)
+    {
+        return commodity.Checks == null || commodity.Checks.All(IsNotAGmsCheckCode);
     }
 
     private static bool MustHaveCorrectDocumentCodesForChecks(Commodity commodity, ImportDocument importDocument)
     {
-        var checkCodes = AuthorityCodeMappings
-            .Where(x => x.DocumentCode == importDocument.DocumentCode)
+        var checkCodes = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Where(x => x.DocumentCode == importDocument.DocumentCode)
             .Select(x => x.CheckCode);
         return commodity.Checks != null && commodity.Checks.Any(x => checkCodes.Contains(x.CheckCode));
     }
 
     private static bool MustHaveDocumentForCheck(Commodity commodity, CommodityCheck check)
     {
-        var documentCodes = AuthorityCodeMappings
-            .Where(x => x.CheckCode == check.CheckCode)
+        var documentCodes = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Where(x => x.CheckCode == check.CheckCode)
             .Select(x => x.DocumentCode);
         return commodity.Documents != null && commodity.Documents.Any(x => documentCodes.Contains(x.DocumentCode));
     }
@@ -108,34 +121,26 @@ public class CommodityValidator : AbstractValidator<Commodity>
         return length <= 14 && numDecimals <= 3;
     }
 
+    private static bool IsNotAnIuuCheckCode(string? checkCode)
+    {
+        return checkCode != "H224";
+    }
+
     private static bool MustOnlyHaveOneCheckPerAuthority(Commodity commodity, CommodityCheck[] checks)
     {
-        // Revert commit for true implementation when needed
-        // See ticket CDMS-674 for why validation has been disabled
-        return true;
+        var checkCodes = checks.Select(x => x.CheckCode).Where(IsNotAnIuuCheckCode);
+
+        var multipleCheckCodeMatches = CustomsDeclarationMappings
+            .AuthorityDocumentChecks.Select(a => new { a.Name, a.CheckCode })
+            .Distinct()
+            .Select(a => new { a.Name, Count = checkCodes.Count(c => c == a.CheckCode) })
+            .Where(a => a.Count > 1);
+
+        return !multipleCheckCodeMatches.Any();
     }
 
     private static bool MustHavePoAoCheck(Commodity commodity, CommodityCheck[] checks)
     {
         return checks.Any(x => x.CheckCode == "H222");
     }
-
-    public sealed record AuthorityCodeMap(string Name, string DocumentCode, string CheckCode);
-
-    public static readonly List<AuthorityCodeMap> AuthorityCodeMappings =
-    [
-        new("hmi", "N002", "H218"),
-        new("hmi", "N002", "H220"),
-        new("hmi", "C085", "H218"),
-        new("hmi", "C085", "H220"),
-        new("hmi", "9HCG", "H220"),
-        new("phsi", "N851", "H219"),
-        new("phsi", "9115", "H219"),
-        new("phsi", "C085", "H219"),
-        new("pha", "C673", "H224"),
-        new("pha", "C641", "H224"),
-        new("pha", "N853", "H222"),
-        new("pha", "C678", "H223"),
-        new("apha", "C640", "H221"),
-    ];
 }

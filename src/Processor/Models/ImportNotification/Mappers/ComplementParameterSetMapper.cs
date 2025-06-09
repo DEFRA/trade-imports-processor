@@ -4,12 +4,12 @@ namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mapper
 
 public static class ComplementParameterSetMapper
 {
-    public static IpaffsDataApi.ComplementParameterSet Map(ComplementParameterSet? from)
+    public static IpaffsDataApi.ComplementParameterSets Map(ComplementParameterSet? from)
     {
         if (from is null)
             return null!;
 
-        var to = new IpaffsDataApi.ComplementParameterSet
+        var to = new IpaffsDataApi.ComplementParameterSets
         {
             UniqueComplementId = from.UniqueComplementId,
             ComplementId = from.ComplementId,
