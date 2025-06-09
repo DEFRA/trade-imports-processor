@@ -69,8 +69,6 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<IConsumer<JsonElement>, NotificationConsumer>();
-
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
                 configuration,
@@ -155,6 +153,10 @@ public static class ServiceCollectionExtensions
                 }
             );
         });
+
+        // Concrete consumers added for temporary replay endpoints
+        services.AddTransient<NotificationConsumer>();
+        services.AddTransient<CustomsDeclarationsConsumer>();
 
         return services;
     }
