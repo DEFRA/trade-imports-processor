@@ -22,6 +22,7 @@ public static class Proxy
         {
             var options = sp.GetRequiredService<IOptions<CdpOptions>>();
             var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger(ProxyClient);
+
             return CreateProxy(options.Value.CdpHttpsProxy, logger);
         });
     }
