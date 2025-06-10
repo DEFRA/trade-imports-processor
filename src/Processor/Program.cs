@@ -6,10 +6,11 @@ using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
+using Elastic.CommonSchema.Serilog;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();
 
 try
 {

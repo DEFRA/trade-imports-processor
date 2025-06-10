@@ -115,6 +115,7 @@ public class CustomsDeclarationsConsumer(
                 inboundHmrcMessageType,
                 cancellationToken
             );
+
             return;
         }
 
@@ -153,6 +154,7 @@ public class CustomsDeclarationsConsumer(
                 inboundHmrcMessageType,
                 cancellationToken
             );
+
             return;
         }
 
@@ -164,6 +166,7 @@ public class CustomsDeclarationsConsumer(
             existingCustomsDeclaration != null ? "Updating" : "Creating",
             mrn
         );
+
         await api.PutCustomsDeclaration(
             mrn,
             updatedCustomsDeclaration,
@@ -180,6 +183,7 @@ public class CustomsDeclarationsConsumer(
         var result = received.Deserialize<T>();
         if (result == null)
             throw new CustomsDeclarationMessageException(MessageId);
+
         logger.LogInformation("Received {Type} for {Mrn}", typeof(T).Name, mrn);
 
         return result;
@@ -266,6 +270,7 @@ public class CustomsDeclarationsConsumer(
         if (existingCustomsDeclaration?.ClearanceRequest == null)
         {
             logger.LogInformation("Skipping finalisation of {Mrn} because no clearance request exists", mrn);
+
             return (null, null);
         }
 

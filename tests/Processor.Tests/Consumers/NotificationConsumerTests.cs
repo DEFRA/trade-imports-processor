@@ -17,6 +17,18 @@ public class NotificationConsumerTests
     private readonly ILogger<NotificationConsumer> _mockLogger = Substitute.For<ILogger<NotificationConsumer>>();
 
     [Fact]
+    public async Task OnHandle_WhenImportNotificationReceived_AndDoesNotDeserialize_ThenItThrows()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+
+        var act = async () => await consumer.OnHandle(JsonDocument.Parse("null").RootElement, _cancellationToken);
+
+        (await act.Should().ThrowAsync<InvalidOperationException>())
+            .And.Message.Should()
+            .Be("Received invalid message, deserialised as null");
+    }
+
+    [Fact]
     public async Task OnHandle_WhenImportNotificationReceived_AndNoImportNotificationExistsInTheDataApi_ThenItIsCreated()
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
