@@ -54,6 +54,7 @@ services:
       ServiceBus__Gmrs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       SQS_ENDPOINT: http://localstack:4566
+      AWS_EMF_ENVIRONMENT: Local
     image: trade-imports-processor:latest
     ports:
       - "8080:8080"
@@ -107,53 +108,3 @@ services:
       interval: 5s
       start_period: 5s
       retries: 10
-
-#  redis:
-#    image: redis:7.2.3-alpine3.18
-#    ports:
-#      - '6379:6379'
-#    restart: always
-#    networks:
-#      - cdp-tenant
-#
-#  mongodb:
-#    image: mongo:6.0.13
-#    networks:
-#      - cdp-tenant
-#    ports:
-#      - '27017:27017'
-#    volumes:
-#      - mongodb-data:/data
-#    restart: always
-
-  ################################################################################
-
-  # your-frontend:
-  #   image: defradigital/your-frontend:${YOUR_FRONTEND_VERSION:-latest}
-  #   ports:
-  #     - '3000:3000'
-  #   links:
-  #     - 'localstack:localstack'
-  #     - 'redis:redis'
-  #   depends_on:
-  #     localstack:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #   env_file:
-  #     - 'compose/aws.env'
-  #   environment:
-  #     PORT: 3000
-  #     NODE_ENV: development
-  #     REDIS_HOST: redis
-  #     LOCALSTACK_ENDPOINT: http://localstack:4566
-  #     USE_SINGLE_INSTANCE_CACHE: true
-  #   networks:
-  #     - cdp-tenant
-
-
-
-################################################################################
-
-volumes:
-  mongodb-data:
