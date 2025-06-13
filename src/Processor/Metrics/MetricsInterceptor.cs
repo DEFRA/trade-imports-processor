@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
@@ -20,6 +21,13 @@ public class MetricsInterceptor<TMessage>(ConsumerMetrics consumerMetrics) : ICo
             consumerMetrics.Start(context.Path, consumerName, resourceType);
 
             return await next();
+        }
+        catch (HttpRequestException httpRequestException)
+            when (httpRequestException.StatusCode == HttpStatusCode.Conflict)
+        {
+            consumerMetrics.Warn(context.Path, consumerName, resourceType, httpRequestException);
+
+            throw;
         }
         catch (Exception exception)
         {
