@@ -6,12 +6,6 @@ using Amazon.CloudWatch.EMF.Model;
 namespace Defra.TradeImportsProcessor.Processor.Metrics;
 
 [ExcludeFromCodeCoverage]
-public static class MetricNames
-{
-    public const string MeterName = "Defra.TradeImportsProcessor";
-}
-
-[ExcludeFromCodeCoverage]
 public class ConsumerMetrics
 {
     private readonly Histogram<double> consumeDuration;
@@ -21,7 +15,7 @@ public class ConsumerMetrics
 
     public ConsumerMetrics(IMeterFactory meterFactory)
     {
-        var meter = meterFactory.Create(MetricNames.MeterName);
+        var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
         consumeTotal = meter.CreateCounter<long>(
             "MessagingConsume",
             Unit.COUNT.ToString(),

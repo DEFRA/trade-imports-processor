@@ -62,6 +62,9 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
+
+    builder.Services.AddTransient<MetricsMiddleware>();
+    builder.Services.AddSingleton<RequestMetrics>();
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
@@ -72,6 +75,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.MapHealth();
     app.UseStatusCodePages();
     app.UseHeaderPropagation();
+    app.UseMiddleware<MetricsMiddleware>();
     app.MapReplayEndpoints();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
