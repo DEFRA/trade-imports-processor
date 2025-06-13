@@ -40,7 +40,7 @@ When messages are received the Imports Processor will map the messages to intern
 Run the application with the command:
 
 ```bash
-dotnet run --project Defra.TradeImportsProcessor --launch-profile Defra.TradeImportsProcessor 
+dotnet run --project src/Processor/Processor.csproj
 ```
 
 ### How to run Tests
