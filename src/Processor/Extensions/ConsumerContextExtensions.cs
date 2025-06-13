@@ -1,17 +1,23 @@
+using System.Diagnostics.CodeAnalysis;
 using Amazon.SQS.Model;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsDataApi.Domain.Gvms;
 using Defra.TradeImportsDataApi.Domain.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Consumers;
 using SlimMessageBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class MessageBusHeaders
 {
     public const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
     public const string SqsBusMessage = "Sqs_Message";
     public const string ServiceBusMessage = "ServiceBus_Message";
+    public const string ResourceId = "ResourceId";
 }
 
+[ExcludeFromCodeCoverage]
 public static class ConsumerContextExtensions
 {
     public static string GetMessageId(this IConsumerContext consumerContext)
@@ -36,6 +42,21 @@ public static class ConsumerContextExtensions
             return value.ToString()!;
         }
 
-        return nameof(ImportPreNotification);
+        return consumerContext.Consumer switch
+        {
+            GmrsConsumer => nameof(Gmr),
+            NotificationConsumer => nameof(ImportPreNotification),
+            _ => "Unknown",
+        };
+    }
+
+    public static string GetResourceId(this IConsumerContext consumerContext)
+    {
+        if (consumerContext.Headers.TryGetValue(MessageBusHeaders.ResourceId, out var value))
+        {
+            return value.ToString()!;
+        }
+
+        return string.Empty;
     }
 }

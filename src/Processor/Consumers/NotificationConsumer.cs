@@ -31,8 +31,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         var newNotification = received.Deserialize<ImportNotification>();
         if (newNotification == null)
         {
-            logger.LogWarning("Received invalid message {Received}", received);
-            throw new InvalidOperationException("Received invalid message");
+            throw new InvalidOperationException("Received invalid message, deserialised as null");
         }
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
@@ -40,6 +39,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         if (IsInvalidStatus(newNotification))
         {
             logger.LogInformation("Skipping {ReferenceNumber} due to status", newNotification.ReferenceNumber);
+
             return;
         }
 
@@ -60,19 +60,26 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         if (existingNotification == null)
         {
-            logger.LogInformation(
-                "Creating new notification {ReferenceNumber}",
-                dataApiImportPreNotification.ReferenceNumber
-            );
-            await api.PutImportPreNotification(
-                newNotification.ReferenceNumber,
-                dataApiImportPreNotification,
-                null,
-                cancellationToken
-            );
+            await CreateNotification(dataApiImportPreNotification, newNotification, cancellationToken);
+
             return;
         }
 
+        await UpdateNotification(
+            existingNotification,
+            newNotification,
+            dataApiImportPreNotification,
+            cancellationToken
+        );
+    }
+
+    private async Task UpdateNotification(
+        ImportPreNotificationResponse existingNotification,
+        ImportNotification newNotification,
+        DataApiIpaffs.ImportPreNotification dataApiImportPreNotification,
+        CancellationToken cancellationToken
+    )
+    {
         logger.LogInformation(
             "Updating existing notification {ReferenceNumber}",
             existingNotification.ImportPreNotification.ReferenceNumber
@@ -82,6 +89,25 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             newNotification.ReferenceNumber,
             dataApiImportPreNotification,
             existingNotification.ETag,
+            cancellationToken
+        );
+    }
+
+    private async Task CreateNotification(
+        DataApiIpaffs.ImportPreNotification dataApiImportPreNotification,
+        ImportNotification newNotification,
+        CancellationToken cancellationToken
+    )
+    {
+        logger.LogInformation(
+            "Creating new notification {ReferenceNumber}",
+            dataApiImportPreNotification.ReferenceNumber
+        );
+
+        await api.PutImportPreNotification(
+            newNotification.ReferenceNumber,
+            dataApiImportPreNotification,
+            null,
             cancellationToken
         );
     }
@@ -103,6 +129,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
                 newNotification.UpdatedSource,
                 existingNotification.UpdatedSource
             );
+
             return false;
         }
 

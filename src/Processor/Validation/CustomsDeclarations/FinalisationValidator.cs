@@ -38,15 +38,6 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             p => p.ExistingFinalisation is not null,
             () =>
             {
-                // CDMS-268
-                //Disabled as part of https://eaflood.atlassian.net/browse/CDMS-685 until we better understand this rule
-                ////RuleFor(p => p.NewFinalisation.FinalStateValue())
-                ////    .Must(BeANewFinalisation)
-                ////    .WithState(_ => "ALVSVAL401")
-                ////    .WithMessage(p =>
-                ////        $"The finalised state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion}. This has already been replaced by a later version of the import declaration. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
-                ////    );
-
                 // CDMS-270
                 RuleFor(p => p.ExistingFinalisation!)
                     .Must(NotBeAlreadyCancelled)
