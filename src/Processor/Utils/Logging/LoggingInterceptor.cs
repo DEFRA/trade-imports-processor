@@ -29,6 +29,7 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
                 messageId,
                 resourceId
             );
+
             throw;
         }
         catch (Exception exception)
@@ -39,6 +40,7 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
                 messageId,
                 resourceId
             );
+
             throw;
         }
     }
