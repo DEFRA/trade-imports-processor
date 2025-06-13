@@ -8,32 +8,33 @@ namespace Defra.TradeImportsProcessor.Processor.Metrics;
 [ExcludeFromCodeCoverage]
 public class ConsumerMetrics
 {
-    private readonly Histogram<double> consumeDuration;
-    private readonly Counter<long> consumeTotal;
-    private readonly Counter<long> consumeFaultTotal;
-    private readonly Counter<long> consumerInProgress;
+    private readonly Histogram<double> _consumeDuration;
+    private readonly Counter<long> _consumeTotal;
+    private readonly Counter<long> _consumeFaultTotal;
+    private readonly Counter<long> _consumerInProgress;
 
     public ConsumerMetrics(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
-        consumeTotal = meter.CreateCounter<long>(
+
+        _consumeTotal = meter.CreateCounter<long>(
             "MessagingConsume",
-            Unit.COUNT.ToString(),
+            nameof(Unit.COUNT),
             description: "Number of messages consumed"
         );
-        consumeFaultTotal = meter.CreateCounter<long>(
+        _consumeFaultTotal = meter.CreateCounter<long>(
             "MessagingConsumeErrors",
-            Unit.COUNT.ToString(),
+            nameof(Unit.COUNT),
             description: "Number of message consume faults"
         );
-        consumerInProgress = meter.CreateCounter<long>(
+        _consumerInProgress = meter.CreateCounter<long>(
             "MessagingConsumeActive",
-            Unit.COUNT.ToString(),
+            nameof(Unit.COUNT),
             description: "Number of consumers in progress"
         );
-        consumeDuration = meter.CreateHistogram<double>(
+        _consumeDuration = meter.CreateHistogram<double>(
             "MessagingConsumeDuration",
-            Unit.MILLISECONDS.ToString(),
+            nameof(Unit.MILLISECONDS),
             "Elapsed time spent consuming a message, in millis"
         );
     }
@@ -42,8 +43,8 @@ public class ConsumerMetrics
     {
         var tagList = BuildTags(path, consumerName, resourceType);
 
-        consumeTotal.Add(1, tagList);
-        consumerInProgress.Add(1, tagList);
+        _consumeTotal.Add(1, tagList);
+        _consumerInProgress.Add(1, tagList);
     }
 
     public void Faulted(string queueName, string consumerName, string resourceType, Exception exception)
@@ -51,15 +52,15 @@ public class ConsumerMetrics
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
         tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
-        consumeFaultTotal.Add(1, tagList);
+        _consumeFaultTotal.Add(1, tagList);
     }
 
     public void Complete(string queueName, string consumerName, double milliseconds, string resourceType)
     {
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
-        consumerInProgress.Add(-1, tagList);
-        consumeDuration.Record(milliseconds, tagList);
+        _consumerInProgress.Add(-1, tagList);
+        _consumeDuration.Record(milliseconds, tagList);
     }
 
     private static TagList BuildTags(string path, string consumerName, string resourceType)
@@ -73,7 +74,7 @@ public class ConsumerMetrics
         };
     }
 
-    public static class Constants
+    private static class Constants
     {
         public static class Tags
         {
