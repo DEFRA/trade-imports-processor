@@ -50,6 +50,7 @@ public static class WebApplicationBuilderExtensions
     )
     {
         var httpAccessor = services.GetRequiredService<IHttpContextAccessor>();
+        var traceIdHeader = hostBuilderContext.Configuration.GetValue<string>("TraceHeader");
         var serviceVersion = Environment.GetEnvironmentVariable("SERVICE_VERSION") ?? "";
 
         config
@@ -72,5 +73,10 @@ public static class WebApplicationBuilderExtensions
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))
             config.Enrich.WithProperty("service.version", serviceVersion);
+
+        if (traceIdHeader != null)
+        {
+            config.Enrich.WithCorrelationId(traceIdHeader);
+        }
     }
 }
