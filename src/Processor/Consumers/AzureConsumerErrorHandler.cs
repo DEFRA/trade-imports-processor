@@ -9,8 +9,11 @@ using SlimMessageBus.Host.AzureServiceBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics, IOptions<ServiceBusOptions> options)
-    : ServiceBusConsumerErrorHandler<T>
+public class AzureConsumerErrorHandler<T>(
+    IConsumerMetrics consumerMetrics,
+    IOptions<ServiceBusOptions> options,
+    ILogger<AzureConsumerErrorHandler<T>> logger
+) : ServiceBusConsumerErrorHandler<T>
 {
     public override Task<ProcessResult> OnHandleError(
         T message,
@@ -26,6 +29,8 @@ public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics, IOpt
             && jsonException.Message.Contains("deserialization")
         )
         {
+            logger.LogWarning("Dead letter message early due to JSON deserialisation exception");
+
             DeadLetterMetric(consumerContext, jsonException);
 
             return Task.FromResult(DeadLetter());
@@ -33,6 +38,8 @@ public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics, IOpt
 
         if (attempts >= options.Value.AttemptsDeadLetterTolerance)
         {
+            logger.LogWarning("Max attempts reached, dead lettering message");
+
             DeadLetterMetric(consumerContext, exception);
         }
 
