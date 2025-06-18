@@ -2,6 +2,7 @@ using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation;
 using FluentValidation.Results;
@@ -18,7 +19,8 @@ public class CustomsDeclarationsConsumer(
     IValidator<ClearanceRequestValidatorInput> clearanceRequestValidator,
     IValidator<CustomsDeclarationsMessage> customsDeclarationsMessageValidator,
     IValidator<DataApiCustomsDeclaration.ExternalError> errorNotificationValidator,
-    IValidator<FinalisationValidatorInput> finalisationValidator
+    IValidator<FinalisationValidatorInput> finalisationValidator,
+    ICorrelationIdGenerator correlationIdGenerator
 ) : IConsumer<JsonElement>, IConsumerWithContext
 {
     private const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
@@ -62,7 +64,7 @@ public class CustomsDeclarationsConsumer(
         var processingErrorNotification = new DataApiErrors.ProcessingError
         {
             Created = DateTime.UtcNow,
-            CorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
+            CorrelationId = correlationIdGenerator.Generate(),
             SourceExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
             ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
             Errors = alvsValErrors,

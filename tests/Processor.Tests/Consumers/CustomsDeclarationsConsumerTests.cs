@@ -88,7 +88,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = unknownMessageTypeContext,
@@ -116,7 +117,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = unknownMessageTypeContext,
@@ -138,7 +140,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -219,7 +222,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -273,7 +277,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -313,7 +318,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -346,7 +352,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -399,7 +406,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
@@ -444,7 +452,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
@@ -495,7 +504,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
@@ -534,7 +544,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.InboundError),
@@ -582,7 +593,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -617,7 +629,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -671,7 +684,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -716,7 +730,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
@@ -770,7 +785,8 @@ public class CustomsDeclarationsConsumerTests
             _clearanceRequestValidator,
             _customsDeclarationsMessageValidation,
             _errorNotificationValidator,
-            _finalisationValidator
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
         )
         {
             Context = GetConsumerContext(InboundHmrcMessageType.Finalisation),
