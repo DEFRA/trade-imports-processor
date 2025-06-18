@@ -9,10 +9,15 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : IAs
 
     private ServiceBusClient? _serviceBusClient;
     private ServiceBusReceiver? _serviceBusReceiver;
+    private ServiceBusReceiver? _serviceBusDeadLetterReceiver;
     private ServiceBusSender? _serviceBusSender;
 
     protected ServiceBusReceiver Receiver =>
         _serviceBusReceiver ?? throw new InvalidOperationException("Service Bus Receiver not initialized");
+
+    protected ServiceBusReceiver DeadLetterReceiver =>
+        _serviceBusDeadLetterReceiver
+        ?? throw new InvalidOperationException("Service Bus Dead Letter Receiver not initialized");
 
     protected ServiceBusSender Sender =>
         _serviceBusSender ?? throw new InvalidOperationException("Service Bus Sender not initialized");
@@ -21,7 +26,13 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : IAs
     {
         _serviceBusClient = new ServiceBusClient(ConnectionString);
         _serviceBusReceiver = _serviceBusClient.CreateReceiver(topicName, subscriptionName);
+        _serviceBusDeadLetterReceiver = _serviceBusClient.CreateReceiver(
+            topicName,
+            subscriptionName,
+            new ServiceBusReceiverOptions { SubQueue = SubQueue.DeadLetter }
+        );
         _serviceBusSender = _serviceBusClient.CreateSender(topicName);
+
         return Task.CompletedTask;
     }
 
@@ -29,6 +40,7 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : IAs
     {
         // Need to clear out the topic
         await Dispose(_serviceBusReceiver);
+        await Dispose(_serviceBusDeadLetterReceiver);
         await Dispose(_serviceBusSender);
         await Dispose(_serviceBusClient);
     }
