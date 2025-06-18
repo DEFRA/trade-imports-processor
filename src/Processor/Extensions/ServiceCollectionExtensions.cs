@@ -87,7 +87,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
-        services.AddTransient(typeof(ISqsConsumerErrorHandler<>), typeof(AwsConsumerErrorHandler<>));
         services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));
 
         services.AddSlimMessageBus(smb =>
