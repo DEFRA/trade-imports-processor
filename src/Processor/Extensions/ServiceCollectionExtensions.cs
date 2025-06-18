@@ -84,8 +84,11 @@ public static class ServiceCollectionExtensions
         // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton<ConsumerMetrics>();
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
+        services.AddTransient(typeof(ISqsConsumerErrorHandler<>), typeof(AwsConsumerErrorHandler<>));
+        services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));
 
         services.AddSlimMessageBus(smb =>
         {
@@ -145,7 +148,6 @@ public static class ServiceCollectionExtensions
                         );
                     });
                     mbb.AddJsonSerializer();
-
                     mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
                     mbb.Consume<JsonElement>(x =>
                         x.WithConsumer<CustomsDeclarationsConsumer>()
