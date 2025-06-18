@@ -1,14 +1,16 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Metrics;
+using Microsoft.Extensions.Options;
 using SlimMessageBus;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics) : ServiceBusConsumerErrorHandler<T>
+public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics, IOptions<ServiceBusOptions> options)
+    : ServiceBusConsumerErrorHandler<T>
 {
     public override Task<ProcessResult> OnHandleError(
         T message,
@@ -29,9 +31,7 @@ public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics) : Se
             return Task.FromResult(DeadLetter());
         }
 
-        // Our Azure subscription allow 10 attempts and it's not
-        // something that can be controlled in our connection string
-        if (attempts >= 10)
+        if (attempts >= options.Value.AttemptsDeadLetterTolerance)
         {
             DeadLetterMetric(consumerContext, exception);
         }

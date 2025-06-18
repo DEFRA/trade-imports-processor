@@ -1,6 +1,8 @@
 using System.Text.Json;
+using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
@@ -13,7 +15,7 @@ public class AzureConsumerErrorHandlerTests
     public async Task WhenFirstAttempt_DoesNotIncrementMetric()
     {
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics);
+        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions());
 
         var result = await subject.OnHandleError(new { }, new ConsumerContext(), new Exception(), 1);
 
@@ -26,8 +28,9 @@ public class AzureConsumerErrorHandlerTests
     [Fact]
     public async Task WhenFinalAttempt_IncrementsMetric()
     {
+        const int tolerance = 2;
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics);
+        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions(tolerance));
         var exception = new Exception();
 
         var result = await subject.OnHandleError(
@@ -39,7 +42,7 @@ public class AzureConsumerErrorHandlerTests
                 Headers = new Dictionary<string, object>().AsReadOnly(),
             },
             exception,
-            10
+            tolerance
         );
 
         result.Should().Be(ProcessResult.Failure);
@@ -52,7 +55,7 @@ public class AzureConsumerErrorHandlerTests
     public async Task WhenJsonDeserializationError_DeadLetterEarly()
     {
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics);
+        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions());
         var exception = new JsonException("deserialization", "path", lineNumber: 1, bytePositionInLine: 1);
 
         var result = await subject.OnHandleError(
@@ -73,6 +76,26 @@ public class AzureConsumerErrorHandlerTests
             .Received(1)
             .DeadLetter(queueName: "path", consumerName: "FixtureConsumer", resourceType: "Unknown", exception);
     }
+
+    private static OptionsWrapper<ServiceBusOptions> CreateOptions(int attemptsDeadLetterTolerance = 10) =>
+        new(
+            new ServiceBusOptions
+            {
+                Gmrs = new ServiceBusSubscriptionOptions
+                {
+                    ConnectionString = nameof(ServiceBusSubscriptionOptions.ConnectionString),
+                    Topic = nameof(ServiceBusSubscriptionOptions.Topic),
+                    Subscription = nameof(ServiceBusSubscriptionOptions.Subscription),
+                },
+                Notifications = new ServiceBusSubscriptionOptions
+                {
+                    ConnectionString = nameof(ServiceBusSubscriptionOptions.ConnectionString),
+                    Topic = nameof(ServiceBusSubscriptionOptions.Topic),
+                    Subscription = nameof(ServiceBusSubscriptionOptions.Subscription),
+                },
+                AttemptsDeadLetterTolerance = attemptsDeadLetterTolerance,
+            }
+        );
 
 #pragma warning disable S2094
     private class FixtureConsumer;
