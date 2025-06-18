@@ -29,7 +29,8 @@ public class AzureConsumerErrorHandler<T>(IConsumerMetrics consumerMetrics) : Se
             return Task.FromResult(DeadLetter());
         }
 
-        // Our Azure connection strings allow 10 attempts
+        // Our Azure subscription allow 10 attempts and it's not
+        // something that can be controlled in our connection string
         if (attempts >= 10)
         {
             DeadLetterMetric(consumerContext, exception);
