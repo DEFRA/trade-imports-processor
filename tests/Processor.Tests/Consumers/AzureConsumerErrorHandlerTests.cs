@@ -2,6 +2,7 @@ using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using SlimMessageBus.Host;
@@ -15,7 +16,11 @@ public class AzureConsumerErrorHandlerTests
     public async Task WhenFirstAttempt_DoesNotIncrementMetric()
     {
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions());
+        var subject = new AzureConsumerErrorHandler<object>(
+            consumerMetrics,
+            CreateOptions(),
+            NullLogger<AzureConsumerErrorHandler<object>>.Instance
+        );
 
         var result = await subject.OnHandleError(new { }, new ConsumerContext(), new Exception(), 1);
 
@@ -30,7 +35,11 @@ public class AzureConsumerErrorHandlerTests
     {
         const int tolerance = 2;
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions(tolerance));
+        var subject = new AzureConsumerErrorHandler<object>(
+            consumerMetrics,
+            CreateOptions(tolerance),
+            NullLogger<AzureConsumerErrorHandler<object>>.Instance
+        );
         var exception = new Exception();
 
         var result = await subject.OnHandleError(
@@ -55,7 +64,11 @@ public class AzureConsumerErrorHandlerTests
     public async Task WhenJsonDeserializationError_DeadLetterEarly()
     {
         var consumerMetrics = Substitute.For<IConsumerMetrics>();
-        var subject = new AzureConsumerErrorHandler<object>(consumerMetrics, CreateOptions());
+        var subject = new AzureConsumerErrorHandler<object>(
+            consumerMetrics,
+            CreateOptions(),
+            NullLogger<AzureConsumerErrorHandler<object>>.Instance
+        );
         var exception = new JsonException("deserialization", "path", lineNumber: 1, bytePositionInLine: 1);
 
         var result = await subject.OnHandleError(

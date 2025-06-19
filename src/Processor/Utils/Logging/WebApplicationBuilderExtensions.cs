@@ -69,6 +69,14 @@ public static class WebApplicationBuilderExtensions
                 && x.Properties.TryGetValue("SourceContext", out var sourceContext)
                 && sourceContext.ToString().Contains("SlimMessageBus.Host.AmazonSQS.SqsQueueConsumer")
                 && x.MessageTemplate.Text.StartsWith("Message processing error")
+            )
+            .Filter.ByExcluding(x =>
+                x.Level == LogEventLevel.Error
+                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                && sourceContext
+                    .ToString()
+                    .Contains("SlimMessageBus.Host.AzureServiceBus.Consumer.AsbTopicSubscriptionConsumer")
+                && x.MessageTemplate.Text.StartsWith("Dead letter message")
             );
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))
