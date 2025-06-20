@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
@@ -61,6 +62,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration
     )
     {
+        services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
 
@@ -82,8 +84,10 @@ public static class ServiceCollectionExtensions
         // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton<ConsumerMetrics>();
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
+        services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));
 
         services.AddSlimMessageBus(smb =>
         {
@@ -143,7 +147,6 @@ public static class ServiceCollectionExtensions
                         );
                     });
                     mbb.AddJsonSerializer();
-
                     mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
                     mbb.Consume<JsonElement>(x =>
                         x.WithConsumer<CustomsDeclarationsConsumer>()

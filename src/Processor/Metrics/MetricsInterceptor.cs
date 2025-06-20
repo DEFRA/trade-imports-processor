@@ -7,7 +7,7 @@ using SlimMessageBus.Host.Interceptor;
 namespace Defra.TradeImportsProcessor.Processor.Metrics;
 
 [ExcludeFromCodeCoverage]
-public class MetricsInterceptor<TMessage>(ConsumerMetrics consumerMetrics) : IConsumerInterceptor<TMessage>
+public class MetricsInterceptor<TMessage>(IConsumerMetrics consumerMetrics) : IConsumerInterceptor<TMessage>
     where TMessage : notnull
 {
     public async Task<object> OnHandle(TMessage message, Func<Task<object>> next, IConsumerContext context)

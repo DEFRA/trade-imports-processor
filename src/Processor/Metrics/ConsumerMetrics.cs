@@ -6,12 +6,13 @@ using Amazon.CloudWatch.EMF.Model;
 namespace Defra.TradeImportsProcessor.Processor.Metrics;
 
 [ExcludeFromCodeCoverage]
-public class ConsumerMetrics
+public class ConsumerMetrics : IConsumerMetrics
 {
     private readonly Histogram<double> _consumeDuration;
     private readonly Counter<long> _consumeTotal;
     private readonly Counter<long> _consumeFaultTotal;
     private readonly Counter<long> _consumeWarnTotal;
+    private readonly Counter<long> _consumeDeadLetterTotal;
     private readonly Counter<long> _consumerInProgress;
 
     public ConsumerMetrics(IMeterFactory meterFactory)
@@ -32,6 +33,11 @@ public class ConsumerMetrics
             "MessagingConsumeWarnings",
             nameof(Unit.COUNT),
             description: "Number of message consume warnings"
+        );
+        _consumeDeadLetterTotal = meter.CreateCounter<long>(
+            "MessagingConsumeDeadLetters",
+            nameof(Unit.COUNT),
+            description: "Number of message consume dead letters"
         );
         _consumerInProgress = meter.CreateCounter<long>(
             "MessagingConsumeActive",
@@ -67,6 +73,14 @@ public class ConsumerMetrics
 
         tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
         _consumeWarnTotal.Add(1, tagList);
+    }
+
+    public void DeadLetter(string queueName, string consumerName, string resourceType, Exception exception)
+    {
+        var tagList = BuildTags(queueName, consumerName, resourceType);
+
+        tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
+        _consumeDeadLetterTotal.Add(1, tagList);
     }
 
     public void Complete(string queueName, string consumerName, double milliseconds, string resourceType)

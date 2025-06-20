@@ -58,4 +58,33 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
             })
         );
     }
+
+    [Fact]
+    public async Task WhenNotificationCannotDeserialize_ShouldDeadLetter()
+    {
+        var message = new ServiceBusMessage { Body = new BinaryData("{ \"prop\": 1 }") };
+        var traceId = Guid.NewGuid().ToString("N");
+        const string traceHeader = "x-cdp-request-id";
+        message.ApplicationProperties.Add(traceHeader, traceId);
+        await Sender.SendMessageAsync(message);
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                try
+                {
+                    var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10);
+
+                    return messages.FirstOrDefault(x =>
+                            x.ApplicationProperties.TryGetValue(traceHeader, out var traceIdValue)
+                            && traceIdValue.ToString() == traceId
+                        ) != null;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            })
+        );
+    }
 }
