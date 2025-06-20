@@ -96,12 +96,14 @@ public class AzureConsumerErrorHandlerTests
             {
                 Gmrs = new ServiceBusSubscriptionOptions
                 {
+                    AutoStartConsumers = true,
                     ConnectionString = nameof(ServiceBusSubscriptionOptions.ConnectionString),
                     Topic = nameof(ServiceBusSubscriptionOptions.Topic),
                     Subscription = nameof(ServiceBusSubscriptionOptions.Subscription),
                 },
                 Notifications = new ServiceBusSubscriptionOptions
                 {
+                    AutoStartConsumers = true,
                     ConnectionString = nameof(ServiceBusSubscriptionOptions.ConnectionString),
                     Topic = nameof(ServiceBusSubscriptionOptions.Topic),
                     Subscription = nameof(ServiceBusSubscriptionOptions.Subscription),

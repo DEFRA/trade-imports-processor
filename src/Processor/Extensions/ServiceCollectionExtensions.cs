@@ -13,7 +13,6 @@ using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
-using SlimMessageBus;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
@@ -103,13 +102,14 @@ public static class ServiceCollectionExtensions
                     );
                     mbb.AddJsonSerializer();
                     mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
-                    mbb.Consume<JsonElement>(x =>
-                    {
-                        x.Topic(serviceBusOptions.Gmrs.Topic)
-                            .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
-                            .WithConsumer<GmrsConsumer>()
-                            .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
-                    });
+                    mbb.AutoStartConsumersEnabled(serviceBusOptions.Gmrs.AutoStartConsumers)
+                        .Consume<JsonElement>(x =>
+                        {
+                            x.Topic(serviceBusOptions.Gmrs.Topic)
+                                .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
+                                .WithConsumer<GmrsConsumer>()
+                                .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
+                        });
                 }
             );
 
@@ -124,13 +124,14 @@ public static class ServiceCollectionExtensions
                         )
                     );
                     mbb.AddJsonSerializer();
-                    mbb.Consume<JsonElement>(x =>
-                    {
-                        x.Topic(serviceBusOptions.Notifications.Topic)
-                            .SubscriptionName(serviceBusOptions.Notifications.Subscription)
-                            .WithConsumer<NotificationConsumer>()
-                            .Instances(serviceBusOptions.Notifications.ConsumersPerHost);
-                    });
+                    mbb.AutoStartConsumersEnabled(serviceBusOptions.Notifications.AutoStartConsumers)
+                        .Consume<JsonElement>(x =>
+                        {
+                            x.Topic(serviceBusOptions.Notifications.Topic)
+                                .SubscriptionName(serviceBusOptions.Notifications.Subscription)
+                                .WithConsumer<NotificationConsumer>()
+                                .Instances(serviceBusOptions.Notifications.ConsumersPerHost);
+                        });
                 }
             );
 
@@ -148,11 +149,12 @@ public static class ServiceCollectionExtensions
                     });
                     mbb.AddJsonSerializer();
                     mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
-                    mbb.Consume<JsonElement>(x =>
-                        x.WithConsumer<CustomsDeclarationsConsumer>()
-                            .Queue(customsDeclarationsConsumerOptions.QueueName)
-                            .Instances(customsDeclarationsConsumerOptions.ConsumersPerHost)
-                    );
+                    mbb.AutoStartConsumersEnabled(customsDeclarationsConsumerOptions.AutoStartConsumers)
+                        .Consume<JsonElement>(x =>
+                            x.WithConsumer<CustomsDeclarationsConsumer>()
+                                .Queue(customsDeclarationsConsumerOptions.QueueName)
+                                .Instances(customsDeclarationsConsumerOptions.ConsumersPerHost)
+                        );
                 }
             );
         });
