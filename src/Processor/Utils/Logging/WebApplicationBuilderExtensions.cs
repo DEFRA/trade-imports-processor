@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
+using SlimMessageBus.Host.AmazonSQS;
+using SlimMessageBus.Host.AzureServiceBus.Consumer;
 
 namespace Defra.TradeImportsProcessor.Processor.Utils.Logging;
 
@@ -67,16 +69,20 @@ public static class WebApplicationBuilderExtensions
             .Filter.ByExcluding(x =>
                 x.Level == LogEventLevel.Error
                 && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                && sourceContext.ToString().Contains("SlimMessageBus.Host.AmazonSQS.SqsQueueConsumer")
+                && sourceContext.ToString().Contains(typeof(SqsQueueConsumer).FullName!)
                 && x.MessageTemplate.Text.StartsWith("Message processing error")
             )
             .Filter.ByExcluding(x =>
                 x.Level == LogEventLevel.Error
                 && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                && sourceContext
-                    .ToString()
-                    .Contains("SlimMessageBus.Host.AzureServiceBus.Consumer.AsbTopicSubscriptionConsumer")
+                && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
                 && x.MessageTemplate.Text.StartsWith("Dead letter message")
+            )
+            .Filter.ByExcluding(x =>
+                x.Level == LogEventLevel.Error
+                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
+                && x.MessageTemplate.Text.StartsWith("Abandon message (exception occurred while processing)")
             );
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))
