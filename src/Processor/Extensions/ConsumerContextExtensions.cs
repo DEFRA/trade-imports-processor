@@ -35,6 +35,21 @@ public static class ConsumerContextExtensions
         return string.Empty;
     }
 
+    public static string GetMessageBody(this IConsumerContext consumerContext)
+    {
+        if (consumerContext.Properties.TryGetValue(MessageBusHeaders.SqsBusMessage, out var sqsMessage))
+        {
+            return ((Message)sqsMessage).Body;
+        }
+
+        if (consumerContext.Properties.TryGetValue(MessageBusHeaders.ServiceBusMessage, out var sbMessage))
+        {
+            return ((ServiceBusReceivedMessage)sbMessage).Body.ToString();
+        }
+
+        return string.Empty;
+    }
+
     public static string GetResourceType(this IConsumerContext consumerContext)
     {
         if (consumerContext.Headers.TryGetValue(MessageBusHeaders.InboundHmrcMessageTypeHeader, out var value))
