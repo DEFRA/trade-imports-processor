@@ -22,6 +22,9 @@ public class ServiceBusOptions
 public class ServiceBusSubscriptionOptions
 {
     [Required]
+    public required bool AutoStartConsumers { get; init; }
+
+    [Required]
     public required string ConnectionString { get; init; }
 
     [Required]
