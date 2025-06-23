@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
@@ -30,6 +31,17 @@ public class LoggingInterceptor<TMessage>(ILogger<LoggingInterceptor<TMessage>> 
                 resourceId
             );
 
+            throw;
+        }
+        catch (JsonException jsonException)
+        {
+            logger.LogError(
+                jsonException,
+                "Error processing message {MessageId} for resource {ResourceId} with message: {Message}",
+                messageId,
+                resourceId,
+                context.GetMessageBody()
+            );
             throw;
         }
         catch (Exception exception)
