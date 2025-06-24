@@ -90,73 +90,82 @@ public static class ServiceCollectionExtensions
 
         services.AddSlimMessageBus(smb =>
         {
-            smb.AddChildBus(
-                "ASB_Gmrs",
-                mbb =>
-                {
-                    mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(
-                            serviceBusOptions.Gmrs.ConnectionString,
-                            serviceBusOptions.Gmrs.ConsumersPerHost
-                        )
-                    );
-                    mbb.AddJsonSerializer();
-                    mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
-                    mbb.AutoStartConsumersEnabled(serviceBusOptions.Gmrs.AutoStartConsumers)
-                        .Consume<JsonElement>(x =>
-                        {
-                            x.Topic(serviceBusOptions.Gmrs.Topic)
-                                .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
-                                .WithConsumer<GmrsConsumer>()
-                                .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
-                        });
-                }
-            );
-
-            smb.AddChildBus(
-                "ASB_Notification",
-                mbb =>
-                {
-                    mbb.WithProviderServiceBus(
-                        CdpServiceBusClientFactory.ConfigureServiceBus(
-                            serviceBusOptions.Notifications.ConnectionString,
-                            serviceBusOptions.Notifications.ConsumersPerHost
-                        )
-                    );
-                    mbb.AddJsonSerializer();
-                    mbb.AutoStartConsumersEnabled(serviceBusOptions.Notifications.AutoStartConsumers)
-                        .Consume<JsonElement>(x =>
-                        {
-                            x.Topic(serviceBusOptions.Notifications.Topic)
-                                .SubscriptionName(serviceBusOptions.Notifications.Subscription)
-                                .WithConsumer<NotificationConsumer>()
-                                .Instances(serviceBusOptions.Notifications.ConsumersPerHost);
-                        });
-                }
-            );
-
-            smb.AddChildBus(
-                "SQS_CustomsDeclarations",
-                mbb =>
-                {
-                    mbb.WithProviderAmazonSQS(cfg =>
+            if (serviceBusOptions.Gmrs.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "ASB_Gmrs",
+                    mbb =>
                     {
-                        cfg.TopologyProvisioning.Enabled = false;
-                        cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
-                            cfg.SqsClientConfig,
-                            configuration
+                        mbb.WithProviderServiceBus(
+                            CdpServiceBusClientFactory.ConfigureServiceBus(
+                                serviceBusOptions.Gmrs.ConnectionString,
+                                serviceBusOptions.Gmrs.ConsumersPerHost
+                            )
                         );
-                    });
-                    mbb.AddJsonSerializer();
-                    mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
-                    mbb.AutoStartConsumersEnabled(customsDeclarationsConsumerOptions.AutoStartConsumers)
-                        .Consume<JsonElement>(x =>
-                            x.WithConsumer<CustomsDeclarationsConsumer>()
-                                .Queue(customsDeclarationsConsumerOptions.QueueName)
-                                .Instances(customsDeclarationsConsumerOptions.ConsumersPerHost)
+                        mbb.AddJsonSerializer();
+                        mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
+                        mbb.AutoStartConsumersEnabled(serviceBusOptions.Gmrs.AutoStartConsumers)
+                            .Consume<JsonElement>(x =>
+                            {
+                                x.Topic(serviceBusOptions.Gmrs.Topic)
+                                    .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
+                                    .WithConsumer<GmrsConsumer>()
+                                    .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
+                            });
+                    }
+                );
+            }
+
+            if (serviceBusOptions.Notifications.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "ASB_Notification",
+                    mbb =>
+                    {
+                        mbb.WithProviderServiceBus(
+                            CdpServiceBusClientFactory.ConfigureServiceBus(
+                                serviceBusOptions.Notifications.ConnectionString,
+                                serviceBusOptions.Notifications.ConsumersPerHost
+                            )
                         );
-                }
-            );
+                        mbb.AddJsonSerializer();
+                        mbb.AutoStartConsumersEnabled(serviceBusOptions.Notifications.AutoStartConsumers)
+                            .Consume<JsonElement>(x =>
+                            {
+                                x.Topic(serviceBusOptions.Notifications.Topic)
+                                    .SubscriptionName(serviceBusOptions.Notifications.Subscription)
+                                    .WithConsumer<NotificationConsumer>()
+                                    .Instances(serviceBusOptions.Notifications.ConsumersPerHost);
+                            });
+                    }
+                );
+            }
+
+            if (customsDeclarationsConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_CustomsDeclarations",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                cfg.SqsClientConfig,
+                                configuration
+                            );
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.AddServicesFromAssemblyContaining<CustomsDeclarationsConsumer>();
+                        mbb.AutoStartConsumersEnabled(customsDeclarationsConsumerOptions.AutoStartConsumers)
+                            .Consume<JsonElement>(x =>
+                                x.WithConsumer<CustomsDeclarationsConsumer>()
+                                    .Queue(customsDeclarationsConsumerOptions.QueueName)
+                                    .Instances(customsDeclarationsConsumerOptions.ConsumersPerHost)
+                            );
+                    }
+                );
+            }
         });
 
         // Concrete consumers added for temporary replay endpoints
