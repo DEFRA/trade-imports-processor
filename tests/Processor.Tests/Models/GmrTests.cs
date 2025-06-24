@@ -60,6 +60,57 @@ public class GmrTests
     }
 
     [Fact]
+    public async Task Gmr_DeserializesCorrectly_PlannedCrossing_Departure_Nullable()
+    {
+        const string gmr = """
+            {
+              "GmrId": "GMRAADYA9J8G",
+              "HaulierEori": "GB1196193155298",
+              "State": "OPEN",
+              "InspectionRequired": null,
+              "ReportToLocations": null,
+              "UpdatedDateTime": "2025-04-18T19:00:00.353Z",
+              "Direction": "UK_INBOUND",
+              "HaulierType": "NATO_MOD",
+              "IsUnaccompanied": true,
+              "VehicleRegNum": "RXPXOW",
+              "TrailerRegistrationNums": [
+                "7PIHPW",
+                "E4FWLP"
+              ],
+              "ContainerReferenceNums": null,
+              "ActualCrossing": {
+                "LocalDateTimeOfArrival": "2025-04-28T19:00",
+                "RouteId": "19"
+              },
+              "CheckedInCrossing": {
+                "LocalDateTimeOfArrival": "2025-04-28T19:00",
+                "RouteId": "19"
+              },
+              "PlannedCrossing": {
+                "LocalDateTimeOfDeparture": null,
+                "RouteId": "19"
+              },
+              "Declarations": {
+                "Transits": [
+                  {
+                    "Id": "ABCD"
+                  }
+                ],
+                "Customs": [
+                  {
+                    "Id": "ALVSCDSSTAND9930082"
+                  }
+                ]
+              }
+            }
+            """;
+
+        var deserializedGmr = JsonSerializer.Deserialize<Gmr>(gmr)!;
+        await Verify(deserializedGmr).DontScrubDateTimes();
+    }
+
+    [Fact]
     public async Task Gmr_ConversionToDataApiGmr_IsCorrect()
     {
         var timestamp = new DateTime(2025, 04, 15, 12, 0, 0, DateTimeKind.Utc);
