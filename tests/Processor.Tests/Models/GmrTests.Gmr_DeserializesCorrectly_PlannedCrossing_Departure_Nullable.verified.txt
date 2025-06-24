@@ -1,0 +1,37 @@
+﻿{
+  GmrId: GMRAADYA9J8G,
+  HaulierEori: GB1196193155298,
+  State: OPEN,
+  UpdatedDateTime: 2025-04-18 19:00:00.353 Utc,
+  Direction: UK_INBOUND,
+  HaulierType: NATO_MOD,
+  IsUnaccompanied: true,
+  VehicleRegNum: RXPXOW,
+  TrailerRegistrationNums: [
+    7PIHPW,
+    E4FWLP
+  ],
+  PlannedCrossing: {
+    RouteId: 19
+  },
+  CheckedInCrossing: {
+    LocalDateTimeOfArrival: 2025-04-28 19:00,
+    RouteId: 19
+  },
+  ActualCrossing: {
+    LocalDateTimeOfArrival: 2025-04-28 19:00,
+    RouteId: 19
+  },
+  Declarations: {
+    Customs: [
+      {
+        Id: ALVSCDSSTAND9930082
+      }
+    ],
+    Transits: [
+      {
+        Id: ABCD
+      }
+    ]
+  }
+}
