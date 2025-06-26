@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Http.Headers;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -32,6 +31,7 @@ public static class Proxy
     {
         var options = sp.GetRequiredService<IOptions<CdpOptions>>();
         var proxy = sp.GetRequiredService<IWebProxy>();
+
         return CreateHttpClientHandler(proxy, options.Value.CdpHttpsProxy!);
     }
 
@@ -58,12 +58,14 @@ public static class Proxy
     public static void ConfigureProxy(WebProxy proxy, string proxyUri, ILogger logger)
     {
         logger.LogDebug("Creating proxy http client");
+
         var uri = new UriBuilder(proxyUri);
 
         var credentials = GetCredentialsFromUri(uri);
         if (credentials != null)
         {
             logger.LogDebug("Setting proxy credentials");
+
             proxy.Credentials = credentials;
         }
 
@@ -77,8 +79,10 @@ public static class Proxy
     {
         var username = uri.UserName;
         var password = uri.Password;
+
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             return null;
+
         return new NetworkCredential(username, password);
     }
 }
