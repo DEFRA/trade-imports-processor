@@ -12,7 +12,6 @@ public class ConsumerMetrics : IConsumerMetrics
     private readonly Counter<long> _consumeTotal;
     private readonly Counter<long> _consumeFaultTotal;
     private readonly Counter<long> _consumeWarnTotal;
-    private readonly Counter<long> _consumeDeadLetterTotal;
     private readonly Counter<long> _consumerInProgress;
 
     public ConsumerMetrics(IMeterFactory meterFactory)
@@ -39,11 +38,6 @@ public class ConsumerMetrics : IConsumerMetrics
             nameof(Unit.COUNT),
             description: "Number of message consume warnings"
         );
-        _consumeDeadLetterTotal = meter.CreateCounter<long>(
-            "MessagingConsumeDeadLetters",
-            nameof(Unit.COUNT),
-            description: "Number of message consume dead letters"
-        );
         _consumerInProgress = meter.CreateCounter<long>(
             "MessagingConsumeActive",
             nameof(Unit.COUNT),
@@ -64,6 +58,7 @@ public class ConsumerMetrics : IConsumerMetrics
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
         tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
+
         _consumeFaultTotal.Add(1, tagList);
     }
 
@@ -72,15 +67,8 @@ public class ConsumerMetrics : IConsumerMetrics
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
         tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
+
         _consumeWarnTotal.Add(1, tagList);
-    }
-
-    public void DeadLetter(string queueName, string consumerName, string resourceType, Exception exception)
-    {
-        var tagList = BuildTags(queueName, consumerName, resourceType);
-
-        tagList.Add(Constants.Tags.ExceptionType, exception.GetType().Name);
-        _consumeDeadLetterTotal.Add(1, tagList);
     }
 
     public void Complete(string queueName, string consumerName, double milliseconds, string resourceType)
