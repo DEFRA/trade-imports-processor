@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
@@ -68,6 +69,42 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddCustomMetrics(this IServiceCollection services)
+    {
+        services.AddTransient<MetricsMiddleware>();
+
+        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton<RequestMetrics>();
+        services.AddSingleton<AzureMetrics>();
+
+        services.Add(
+            ServiceDescriptor.Singleton<IHostedService>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
+                    sp,
+                    options.Notifications,
+                    nameof(ImportNotification)
+                );
+            })
+        );
+        services.Add(
+            ServiceDescriptor.Singleton<IHostedService>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
+                    sp,
+                    options.Gmrs,
+                    nameof(Gmr)
+                );
+            })
+        );
+
+        return services;
+    }
+
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
         var customsDeclarationsConsumerOptions = services
@@ -83,7 +120,6 @@ public static class ServiceCollectionExtensions
         // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
 
         services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));

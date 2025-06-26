@@ -1,17 +1,13 @@
 using Defra.TradeImportsProcessor.Processor.Authentication;
-using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Endpoints;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Health;
 using Defra.TradeImportsProcessor.Processor.Metrics;
-using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
-using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Elastic.CommonSchema.Serilog;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Options;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();
@@ -66,30 +62,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
-
-    builder.Services.AddTransient<MetricsMiddleware>();
-    builder.Services.AddSingleton<RequestMetrics>();
-    builder.Services.AddSingleton<AzureMetrics>();
-    builder.Services.Add(
-        ServiceDescriptor.Singleton<IHostedService>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
-
-            return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
-                sp,
-                options.Notifications,
-                nameof(ImportNotification)
-            );
-        })
-    );
-    builder.Services.Add(
-        ServiceDescriptor.Singleton<IHostedService>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
-
-            return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(sp, options.Gmrs, nameof(Gmr));
-        })
-    );
+    builder.Services.AddCustomMetrics();
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
