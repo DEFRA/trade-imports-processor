@@ -19,14 +19,12 @@ public class RequestMetrics
             nameof(Unit.COUNT),
             "Count of messages received"
         );
-
+        _requestsFaulted = meter.CreateCounter<long>("RequestFaulted", nameof(Unit.COUNT), "Count of request faults");
         _requestDuration = meter.CreateHistogram<double>(
             "RequestDuration",
             nameof(Unit.MILLISECONDS),
             "Duration of request"
         );
-
-        _requestsFaulted = meter.CreateCounter<long>("RequestFaulted", nameof(Unit.COUNT), "Count of request faults");
     }
 
     public void RequestCompleted(string requestPath, string httpMethod, int statusCode, double milliseconds)
