@@ -19,6 +19,11 @@ public class ConsumerMetrics : IConsumerMetrics
     {
         var meter = meterFactory.Create(MetricsConstants.MetricNames.MeterName);
 
+        _consumeDuration = meter.CreateHistogram<double>(
+            "MessagingConsumeDuration",
+            nameof(Unit.MILLISECONDS),
+            "Elapsed time spent consuming a message, in millis"
+        );
         _consumeTotal = meter.CreateCounter<long>(
             "MessagingConsume",
             nameof(Unit.COUNT),
@@ -43,11 +48,6 @@ public class ConsumerMetrics : IConsumerMetrics
             "MessagingConsumeActive",
             nameof(Unit.COUNT),
             description: "Number of consumers in progress"
-        );
-        _consumeDuration = meter.CreateHistogram<double>(
-            "MessagingConsumeDuration",
-            nameof(Unit.MILLISECONDS),
-            "Elapsed time spent consuming a message, in millis"
         );
     }
 
