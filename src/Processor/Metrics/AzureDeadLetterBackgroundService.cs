@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsProcessor.Processor.Configuration;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Defra.TradeImportsProcessor.Processor.Metrics;
 
+[ExcludeFromCodeCoverage]
 public class AzureDeadLetterBackgroundService : BackgroundService
 {
     private readonly TimeSpan _delay = TimeSpan.FromMinutes(5);
