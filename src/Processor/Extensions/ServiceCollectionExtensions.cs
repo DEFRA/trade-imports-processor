@@ -77,6 +77,31 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestMetrics>();
         services.AddSingleton<AzureMetrics>();
 
+        services.Add(
+            ServiceDescriptor.Singleton<IHostedService>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
+                    sp,
+                    options.Notifications,
+                    nameof(ImportNotification)
+                );
+            })
+        );
+        services.Add(
+            ServiceDescriptor.Singleton<IHostedService>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
+                    sp,
+                    options.Gmrs,
+                    nameof(Gmr)
+                );
+            })
+        );
+
         return services;
     }
 
