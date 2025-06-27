@@ -16,7 +16,7 @@ public class AzureMetrics
 
         _deadLetterTotal = meter.CreateGauge<long>(
             "MessagingAzureDeadLetter",
-            nameof(Unit.COUNT),
+            nameof(Unit.NONE),
             description: "Number of messages on DLQ"
         );
     }
