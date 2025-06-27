@@ -11,12 +11,6 @@ public class ServiceBusOptions
 
     [Required]
     public required ServiceBusSubscriptionOptions Notifications { get; init; }
-
-    /// <summary>
-    /// Our Azure subscription allows 10 attempts and it's not
-    /// something that can be controlled in our connection string.
-    /// </summary>
-    public int AttemptsDeadLetterTolerance { get; init; } = 10;
 }
 
 public class ServiceBusSubscriptionOptions
