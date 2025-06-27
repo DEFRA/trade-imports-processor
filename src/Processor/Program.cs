@@ -62,9 +62,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
-
-    builder.Services.AddTransient<MetricsMiddleware>();
-    builder.Services.AddSingleton<RequestMetrics>();
+    builder.Services.AddCustomMetrics();
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)

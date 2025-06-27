@@ -1,10 +1,8 @@
 using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Metrics;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using SlimMessageBus.Host;
 using SlimMessageBus.Host.AzureServiceBus;
 
@@ -15,9 +13,7 @@ public class AzureConsumerErrorHandlerTests
     [Fact]
     public async Task WhenFirstAttempt_DoesNotIncrementMetric()
     {
-        var consumerMetrics = Substitute.For<IConsumerMetrics>();
         var subject = new AzureConsumerErrorHandler<object>(
-            consumerMetrics,
             CreateOptions(),
             NullLogger<AzureConsumerErrorHandler<object>>.Instance
         );
@@ -25,18 +21,13 @@ public class AzureConsumerErrorHandlerTests
         var result = await subject.OnHandleError(new { }, new ConsumerContext(), new Exception(), 1);
 
         result.Should().Be(ProcessResult.Failure);
-        consumerMetrics
-            .Received(0)
-            .DeadLetter(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Exception>());
     }
 
     [Fact]
     public async Task WhenFinalAttempt_IncrementsMetric()
     {
         const int tolerance = 2;
-        var consumerMetrics = Substitute.For<IConsumerMetrics>();
         var subject = new AzureConsumerErrorHandler<object>(
-            consumerMetrics,
             CreateOptions(tolerance),
             NullLogger<AzureConsumerErrorHandler<object>>.Instance
         );
@@ -55,17 +46,12 @@ public class AzureConsumerErrorHandlerTests
         );
 
         result.Should().Be(ProcessResult.Failure);
-        consumerMetrics
-            .Received(1)
-            .DeadLetter(queueName: "path", consumerName: "FixtureConsumer", resourceType: "Unknown", exception);
     }
 
     [Fact]
     public async Task WhenJsonDeserializationError_DeadLetterEarly()
     {
-        var consumerMetrics = Substitute.For<IConsumerMetrics>();
         var subject = new AzureConsumerErrorHandler<object>(
-            consumerMetrics,
             CreateOptions(),
             NullLogger<AzureConsumerErrorHandler<object>>.Instance
         );
@@ -84,10 +70,6 @@ public class AzureConsumerErrorHandlerTests
         );
 
         result.Should().Be(ServiceBusProcessResult.DeadLetter);
-
-        consumerMetrics
-            .Received(1)
-            .DeadLetter(queueName: "path", consumerName: "FixtureConsumer", resourceType: "Unknown", exception);
     }
 
     private static OptionsWrapper<ServiceBusOptions> CreateOptions(int attemptsDeadLetterTolerance = 10) =>
