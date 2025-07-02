@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using SlimMessageBus;
 using SlimMessageBus.Host;
@@ -8,20 +9,28 @@ namespace Defra.TradeImportsProcessor.Processor.Consumers;
 public class AzureConsumerErrorHandler<T>(ILogger<AzureConsumerErrorHandler<T>> logger)
     : ServiceBusConsumerErrorHandler<T>
 {
-    public override Task<ProcessResult> OnHandleError(
+    public override async Task<ProcessResult> OnHandleError(
         T message,
         IConsumerContext consumerContext,
         Exception exception,
         int attempts
     )
     {
-        if (exception is JsonException jsonException)
+        switch (exception)
         {
-            logger.LogWarning(jsonException, "Dead letter message early due to JSON deserialisation exception");
+            case HttpRequestException { StatusCode: HttpStatusCode.Conflict } when attempts < 3:
+            {
+                var delay = attempts * 250 + (Random.Shared.Next(1000) - 500);
+                await Task.Delay(delay, consumerContext.CancellationToken);
 
-            return Task.FromResult(DeadLetter());
+                return Retry();
+            }
+            case JsonException jsonException:
+                logger.LogWarning(jsonException, "Dead letter message early due to JSON deserialisation exception");
+
+                return DeadLetter();
+            default:
+                return ProcessResult.Failure;
         }
-
-        return Task.FromResult(ProcessResult.Failure);
     }
 }
