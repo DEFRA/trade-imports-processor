@@ -13,6 +13,6 @@ public static class GmrFixtures
 
     public static IPostprocessComposer<Gmr> GmrFixture()
     {
-        return GetFixture().Build<Gmr>();
+        return GetFixture().Build<Gmr>().With(x => x.UpdatedDateTime, DateTime.UtcNow);
     }
 }
