@@ -4,7 +4,7 @@ namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
 public class ServiceBusTestBase(string topicName, string subscriptionName) : IAsyncLifetime
 {
-    private const string ConnectionString =
+    protected const string ConnectionString =
         "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";
 
     private ServiceBusClient? _serviceBusClient;
@@ -34,6 +34,35 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : IAs
         _serviceBusSender = _serviceBusClient.CreateSender(topicName);
 
         return Task.CompletedTask;
+    }
+
+    protected async Task ClearDeadLetter()
+    {
+        const int batch = 100;
+        var messages = await DeadLetterReceiver.ReceiveMessagesAsync(batch, TimeSpan.FromSeconds(5));
+        while (messages.Count > 0)
+        {
+            foreach (var message in messages)
+            {
+                await DeadLetterReceiver.CompleteMessageAsync(message);
+            }
+
+            if (messages.Count < batch)
+                break;
+
+            messages = await DeadLetterReceiver.ReceiveMessagesAsync(batch, TimeSpan.FromSeconds(5));
+        }
+
+        // IReadOnlyList<ServiceBusReceivedMessage>? messages = await receiver.ReceiveMessagesAsync(100);
+        // foreach (var message in messages)
+        // {
+        //     await receiver.CompleteMessageAsync(message);
+        // }
+        //
+        // while (messages.Count > 0)
+        // {
+        //     messages = await receiver.ReceiveMessagesAsync(100);
+        // }
     }
 
     public async Task DisposeAsync()

@@ -77,6 +77,41 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RequestMetrics>();
         services.AddSingleton<AzureMetrics>();
 
+        services.AddAzureDeadLetterPolling(nameof(ImportNotification), options => options.Notifications);
+        services.AddAzureDeadLetterPolling(nameof(Gmr), options => options.Gmrs);
+
+        return services;
+    }
+
+    private static IServiceCollection AddAzureDeadLetterPolling(
+        this IServiceCollection services,
+        string consumerName,
+        Func<ServiceBusOptions, ServiceBusSubscriptionOptions> resolve
+    )
+    {
+        services.AddKeyedSingleton<IDeadLetterService, ServiceBusDeadLetterService>(
+            consumerName,
+            (sp, _) =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<ServiceBusDeadLetterService>(sp, 100, resolve(options));
+            }
+        );
+        services.Add(
+            ServiceDescriptor.Singleton<IHostedService>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
+
+                return ActivatorUtilities.CreateInstance<AzureDeadLetterBackgroundService>(
+                    sp,
+                    resolve(options),
+                    consumerName,
+                    sp.GetRequiredKeyedService<IDeadLetterService>(consumerName)
+                );
+            })
+        );
+
         return services;
     }
 
