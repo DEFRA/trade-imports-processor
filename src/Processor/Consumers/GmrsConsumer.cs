@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using FluentValidation;
 using FluentValidation.Results;
@@ -47,8 +48,47 @@ public class GmrsConsumer(
             return;
         }
 
-        logger.LogInformation("Received Gmr for {GmrId}", gmr.GmrId);
+        var gmrId = dataApiGmr.Id!;
 
-        await api.PutGmr(dataApiGmr.Id!, dataApiGmr, null, cancellationToken);
+        logger.LogInformation("Received Gmr for {GmrId}", gmrId);
+
+        var existingGmr = await api.GetGmr(gmrId, cancellationToken);
+        if (existingGmr != null && !ShouldProcess(dataApiGmr, existingGmr.Gmr))
+        {
+            return;
+        }
+
+        if (existingGmr == null)
+        {
+            await api.PutGmr(gmrId, dataApiGmr, null, cancellationToken);
+
+            return;
+        }
+
+        logger.LogInformation("Updating existing Gmr {GmrId}", gmrId);
+
+        await api.PutGmr(gmrId, dataApiGmr, existingGmr.ETag, cancellationToken);
+    }
+
+    private bool ShouldProcess(DataApiGvms.Gmr newGmr, DataApiGvms.Gmr existingGmr)
+    {
+        if (NewGmrIsOlderThanExistingGmr(newGmr, existingGmr))
+        {
+            logger.LogInformation(
+                "Skipping {GmrId} because new Gmr is older: {NewTime} < {OldTime}",
+                newGmr.Id,
+                newGmr.UpdatedSource,
+                existingGmr.UpdatedSource
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool NewGmrIsOlderThanExistingGmr(DataApiGvms.Gmr newGmr, DataApiGvms.Gmr existingGmr)
+    {
+        return newGmr.UpdatedSource.TrimMicroseconds() <= existingGmr.UpdatedSource.TrimMicroseconds();
     }
 }
