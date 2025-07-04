@@ -95,7 +95,7 @@ public static class ServiceCollectionExtensions
             {
                 var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value;
 
-                return ActivatorUtilities.CreateInstance<ServiceBusDeadLetterService>(sp, 100, resolve(options));
+                return ActivatorUtilities.CreateInstance<ServiceBusDeadLetterService>(sp, resolve(options));
             }
         );
         services.Add(
