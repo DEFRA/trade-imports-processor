@@ -29,7 +29,11 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : IAs
         _serviceBusDeadLetterReceiver = _serviceBusClient.CreateReceiver(
             topicName,
             subscriptionName,
-            new ServiceBusReceiverOptions { SubQueue = SubQueue.DeadLetter }
+            new ServiceBusReceiverOptions
+            {
+                SubQueue = SubQueue.DeadLetter,
+                ReceiveMode = ServiceBusReceiveMode.PeekLock,
+            }
         );
         _serviceBusSender = _serviceBusClient.CreateSender(topicName);
 

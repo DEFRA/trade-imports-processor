@@ -60,7 +60,7 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
             {
                 try
                 {
-                    var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10);
+                    var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
                     return messages.FirstOrDefault(x =>
                             x.ApplicationProperties.TryGetValue(traceHeader, out var traceIdValue)
