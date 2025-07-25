@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using AutoFixture;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using FluentAssertions;
@@ -47,10 +48,9 @@ public class ReplayClearanceRequestsEndpointTests(WireMockClient wireMockClient)
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
-        const string traceHeader = "x-cdp-request-id";
         var traceId = Guid.NewGuid().ToString("N");
         var httpClient = CreateHttpClient();
-        httpClient.DefaultRequestHeaders.Add(traceHeader, traceId);
+        httpClient.DefaultRequestHeaders.Add(MessageBusHeaders.TraceId, traceId);
         var response = await httpClient.PostAsync("/replay/clearance-requests", body);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
@@ -63,8 +63,8 @@ public class ReplayClearanceRequestsEndpointTests(WireMockClient wireMockClient)
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
                     var requests = (await _wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
                         x.Request.Headers != null
-                        && x.Request.Headers.ContainsKey(traceHeader)
-                        && x.Request.Headers.TryGetValue(traceHeader, out var list)
+                        && x.Request.Headers.ContainsKey(MessageBusHeaders.TraceId)
+                        && x.Request.Headers.TryGetValue(MessageBusHeaders.TraceId, out var list)
                         && list.Contains(traceId)
                     );
                     return requests.Count() == 1;

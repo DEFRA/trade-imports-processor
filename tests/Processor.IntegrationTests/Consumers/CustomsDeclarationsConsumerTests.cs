@@ -3,6 +3,7 @@ using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -25,15 +26,28 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
-    private static Dictionary<string, MessageAttributeValue> WithInboundHmrcMessageType(string messageType)
+    private static Dictionary<string, MessageAttributeValue> WithInboundHmrcMessageType(
+        string messageType,
+        string? resourceId = null
+    )
     {
-        return new Dictionary<string, MessageAttributeValue>
+        var result = new Dictionary<string, MessageAttributeValue>
         {
             {
-                "InboundHmrcMessageType",
+                MessageBusHeaders.InboundHmrcMessageTypeHeader,
                 new MessageAttributeValue { DataType = "String", StringValue = messageType }
             },
         };
+
+        if (resourceId is not null)
+        {
+            result.Add(
+                MessageBusHeaders.ResourceId,
+                new MessageAttributeValue { DataType = "String", StringValue = resourceId }
+            );
+        }
+
+        return result;
     }
 
     private async Task<Func<Task>> WithProcessingErrorEndpoint(string mrn)
@@ -279,7 +293,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
             """
             { "invalid": "json" }
             """,
-            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, "123")
         );
 
         Assert.True(
