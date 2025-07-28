@@ -81,8 +81,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     )
     {
         logger.LogInformation(
-            "Updating existing notification {ReferenceNumber}",
-            existingNotification.ImportPreNotification.ReferenceNumber
+            "Updating existing notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource}, version {Version}",
+            existingNotification.ImportPreNotification.ReferenceNumber,
+            dataApiImportPreNotification.Status,
+            dataApiImportPreNotification.UpdatedSource,
+            dataApiImportPreNotification.Version
         );
 
         await api.PutImportPreNotification(
@@ -100,8 +103,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     )
     {
         logger.LogInformation(
-            "Creating new notification {ReferenceNumber}",
-            dataApiImportPreNotification.ReferenceNumber
+            "Creating new notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource}, version {Version}",
+            dataApiImportPreNotification.ReferenceNumber,
+            dataApiImportPreNotification.Status,
+            dataApiImportPreNotification.UpdatedSource,
+            dataApiImportPreNotification.Version
         );
 
         await api.PutImportPreNotification(
