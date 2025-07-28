@@ -81,7 +81,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     )
     {
         logger.LogInformation(
-            "Updating existing notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource}, version {Version}",
+            "Updating existing notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}, version {Version}",
             existingNotification.ImportPreNotification.ReferenceNumber,
             dataApiImportPreNotification.Status,
             dataApiImportPreNotification.UpdatedSource,
@@ -103,7 +103,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     )
     {
         logger.LogInformation(
-            "Creating new notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource}, version {Version}",
+            "Creating new notification {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}, version {Version}",
             dataApiImportPreNotification.ReferenceNumber,
             dataApiImportPreNotification.Status,
             dataApiImportPreNotification.UpdatedSource,
@@ -129,7 +129,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         )
         {
             logger.LogInformation(
-                "Skipping {ReferenceNumber} because new notification of the same status {Status} is older: {NewTime} < {OldTime}",
+                "Skipping {ReferenceNumber} because new notification of the same status {Status} is older: {NewTime:O} < {OldTime:O}",
                 newNotification.ReferenceNumber,
                 newNotification.Status,
                 newNotification.UpdatedSource,
@@ -143,7 +143,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return true;
 
         logger.LogInformation(
-            "Skipping {ReferenceNumber} because new notification is going backwards: {NewStatus} < {OldStatus} or {NewTime} < {OldTime}",
+            "Skipping {ReferenceNumber} because new notification is going backwards: {NewStatus} < {OldStatus} or {NewTime:O} < {OldTime:O}",
             newNotification.ReferenceNumber,
             newNotification.Status,
             existingNotification.Status,

@@ -302,7 +302,7 @@ public class CustomsDeclarationsConsumer(
             return (UpdatedCustomsDeclaration(existingCustomsDeclaration, finalisation), null);
 
         logger.LogInformation(
-            "Skipping {Mrn} because new {Type} {NewFinalisationSentAt} is older than existing {ExistingFinalisationSentAt}",
+            "Skipping {Mrn} because new {Type} {NewFinalisationSentAt:O} is older than existing {ExistingFinalisationSentAt:O}",
             mrn,
             nameof(Finalisation),
             finalisation.MessageSentAt,

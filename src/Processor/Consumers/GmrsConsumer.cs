@@ -75,7 +75,7 @@ public class GmrsConsumer(
         if (NewGmrIsOlderThanExistingGmr(newGmr, existingGmr))
         {
             logger.LogInformation(
-                "Skipping {GmrId} because new Gmr is older: {NewTime} < {OldTime}",
+                "Skipping {GmrId} because new Gmr is older: {NewTime:O} < {OldTime:O}",
                 newGmr.Id,
                 newGmr.UpdatedSource,
                 existingGmr.UpdatedSource
