@@ -1,6 +1,7 @@
 using System.Net;
 using AutoFixture;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -51,8 +52,8 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
     {
         var message = new ServiceBusMessage { Body = new BinaryData("{ \"GmrId\": 1 }") };
         var traceId = Guid.NewGuid().ToString("N");
-        const string traceHeader = "x-cdp-request-id";
-        message.ApplicationProperties.Add(traceHeader, traceId);
+        message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
+        message.ApplicationProperties.Add(MessageBusHeaders.ResourceId, "123");
         await Sender.SendMessageAsync(message);
 
         Assert.True(
@@ -63,7 +64,7 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
                     var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
                     return messages.FirstOrDefault(x =>
-                            x.ApplicationProperties.TryGetValue(traceHeader, out var traceIdValue)
+                            x.ApplicationProperties.TryGetValue(MessageBusHeaders.TraceId, out var traceIdValue)
                             && traceIdValue.ToString() == traceId
                         ) != null;
                 }

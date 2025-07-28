@@ -15,6 +15,7 @@ public static class MessageBusHeaders
     public const string SqsBusMessage = "Sqs_Message";
     public const string ServiceBusMessage = "ServiceBus_Message";
     public const string ResourceId = "ResourceId";
+    public const string TraceId = "x-cdp-request-id";
 }
 
 [ExcludeFromCodeCoverage]

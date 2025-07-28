@@ -1,6 +1,7 @@
 using System.Net;
 using AutoFixture;
 using Azure.Messaging.ServiceBus;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
@@ -32,8 +33,7 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
 
         var message = new ServiceBusMessage { Body = new BinaryData(importNotification) };
         var traceId = Guid.NewGuid().ToString("N");
-        const string traceHeader = "x-cdp-request-id";
-        message.ApplicationProperties.Add(traceHeader, traceId);
+        message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
         await Sender.SendMessageAsync(message);
 
         Assert.True(
@@ -44,8 +44,8 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
                     var requests = (await _wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
                         x.Request.Headers != null
-                        && x.Request.Headers.ContainsKey(traceHeader)
-                        && x.Request.Headers.TryGetValue(traceHeader, out var list)
+                        && x.Request.Headers.ContainsKey(MessageBusHeaders.TraceId)
+                        && x.Request.Headers.TryGetValue(MessageBusHeaders.TraceId, out var list)
                         && list.Contains(traceId)
                     );
 
@@ -64,8 +64,8 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
     {
         var message = new ServiceBusMessage { Body = new BinaryData("{ \"prop\": 1 }") };
         var traceId = Guid.NewGuid().ToString("N");
-        const string traceHeader = "x-cdp-request-id";
-        message.ApplicationProperties.Add(traceHeader, traceId);
+        message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
+        message.ApplicationProperties.Add(MessageBusHeaders.ResourceId, "123");
         await Sender.SendMessageAsync(message);
 
         Assert.True(
@@ -76,7 +76,7 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
                     var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
                     return messages.FirstOrDefault(x =>
-                            x.ApplicationProperties.TryGetValue(traceHeader, out var traceIdValue)
+                            x.ApplicationProperties.TryGetValue(MessageBusHeaders.TraceId, out var traceIdValue)
                             && traceIdValue.ToString() == traceId
                         ) != null;
                 }
