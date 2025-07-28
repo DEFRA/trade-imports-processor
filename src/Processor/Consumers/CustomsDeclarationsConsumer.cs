@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
@@ -164,9 +165,11 @@ public class CustomsDeclarationsConsumer(
             return;
 
         logger.LogInformation(
-            "{Action} customs declaration for {Mrn}",
+            "{Action} customs declaration for {Mrn} with Etag {Etag} and new state {State}",
             existingCustomsDeclaration != null ? "Updating" : "Creating",
-            mrn
+            mrn,
+            existingCustomsDeclaration?.ETag,
+            updatedCustomsDeclaration.State()
         );
 
         await api.PutCustomsDeclaration(
