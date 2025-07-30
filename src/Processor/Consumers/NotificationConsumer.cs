@@ -3,13 +3,15 @@ using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using SlimMessageBus;
+using SlimMessageBus.Host.AzureServiceBus;
 using DataApiIpaffs = Defra.TradeImportsDataApi.Domain.Ipaffs;
 using ImportNotification = Defra.TradeImportsProcessor.Processor.Models.ImportNotification.ImportNotification;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
-    : IConsumer<JsonElement>
+    : IConsumer<JsonElement>,
+        IConsumerWithContext
 {
     private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
     {
@@ -25,6 +27,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         { ImportNotificationStatus.SplitConsignment, 3 },
         { ImportNotificationStatus.Replaced, 3 },
     }.ToFrozenDictionary();
+
+    public IConsumerContext? Context { get; set; }
+    private string? MessageId => Context?.GetTransportMessage().MessageId;
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
@@ -50,10 +55,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             cancellationToken
         );
 
-        if (
-            existingNotification != null
-            && !ShouldProcess(dataApiImportPreNotification, existingNotification.ImportPreNotification)
-        )
+        if (existingNotification != null && !ShouldProcess(dataApiImportPreNotification, existingNotification))
         {
             return;
         }
@@ -92,7 +94,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             newNotification.ReferenceNumber,
             dataApiImportPreNotification,
             existingNotification.ETag,
-            cancellationToken
+            cancellationToken,
+            MessageId
         );
     }
 
@@ -114,15 +117,34 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             newNotification.ReferenceNumber,
             dataApiImportPreNotification,
             null,
-            cancellationToken
+            cancellationToken,
+            MessageId
         );
     }
 
     private bool ShouldProcess(
         DataApiIpaffs.ImportPreNotification newNotification,
-        DataApiIpaffs.ImportPreNotification existingNotification
+        ImportPreNotificationResponse existingNotificationResponse
     )
     {
+        var existingNotification = existingNotificationResponse.ImportPreNotification;
+
+        if (MessageId is not null && MessageId.Equals(existingNotificationResponse.RequestId))
+        {
+            // Assumption:
+            //  if the data returned from the data API has a request ID matching the current message ID
+            //  then the data originated from this message, and it should be updated as such
+            //
+            // Outstanding questions:
+            //  1. if the data was newly created first time around, it would be updated second time
+            //     around as it's there on the second attempt - what should happen?
+            //          - the changeset generated within the data API would be different
+            //              - first time would create
+            //              - second time would be no differences for update as it's the same data
+            //              - does anything use changeset?
+            return true;
+        }
+
         if (
             newNotification.Status == existingNotification.Status
             && NewNotificationIsOlderThanExistingNotification(newNotification, existingNotification)
