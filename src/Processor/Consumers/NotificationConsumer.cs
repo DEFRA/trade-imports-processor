@@ -94,8 +94,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             newNotification.ReferenceNumber,
             dataApiImportPreNotification,
             existingNotification.ETag,
-            cancellationToken,
-            MessageId
+            cancellationToken /*,
+            MessageId would be passed here
+            */
         );
     }
 
@@ -117,8 +118,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             newNotification.ReferenceNumber,
             dataApiImportPreNotification,
             null,
-            cancellationToken,
-            MessageId
+            cancellationToken /*,
+            MessageId would be passed here
+            */
         );
     }
 
