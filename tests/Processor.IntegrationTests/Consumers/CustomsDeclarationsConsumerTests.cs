@@ -8,6 +8,7 @@ using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using FluentAssertions;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -92,10 +93,11 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
 
         var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
 
-        await SendMessage(
+        var body = JsonSerializer.Serialize(clearanceRequest);
+        var messageId = await SendMessage(
             mrn,
-            JsonSerializer.Serialize(clearanceRequest),
-            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+            body,
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
         Assert.True(
@@ -103,11 +105,19 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
             {
                 var requestsModel = new RequestModel { Methods = ["PUT"], Path = createPath };
                 var requests = await _wireMockAdminApi.FindRequestsAsync(requestsModel);
+
                 return requests.Count == 1;
             })
         );
 
         await errorEndpointWasNotCalled();
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.Get(messageId));
+        response.EnsureSuccessStatusCode();
+
+        response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.GetJson(messageId));
+        body.Should().Be(await response.Content.ReadAsStringAsync());
     }
 
     [Fact]
@@ -130,7 +140,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(clearanceRequest),
-            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest)
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
         Assert.True(
@@ -170,7 +180,11 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
             }
         );
 
-        await SendMessage(mrn, body, WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest));
+        await SendMessage(
+            mrn,
+            body,
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
+        );
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
@@ -231,7 +245,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(finalisation),
-            WithInboundHmrcMessageType(InboundHmrcMessageType.Finalisation)
+            WithInboundHmrcMessageType(InboundHmrcMessageType.Finalisation, resourceId: mrn)
         );
 
         Assert.True(
@@ -266,7 +280,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(inboundError),
-            WithInboundHmrcMessageType(InboundHmrcMessageType.InboundError)
+            WithInboundHmrcMessageType(InboundHmrcMessageType.InboundError, resourceId: mrn)
         );
 
         Assert.True(
@@ -293,7 +307,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
             """
             { "invalid": "json" }
             """,
-            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, "123")
+            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
         Assert.True(

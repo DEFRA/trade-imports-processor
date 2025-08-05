@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -8,7 +6,6 @@ public static class OptionsExtensions
 {
     public static OptionsBuilder<TOptions> AddValidateOptions<TOptions>(
         this IServiceCollection services,
-        IConfiguration configuration,
         string section
     )
         where TOptions : class
