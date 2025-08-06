@@ -17,34 +17,30 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         { ImportNotificationStatus.Deleted, 0 },
         { ImportNotificationStatus.Amend, 0 },
         { ImportNotificationStatus.Submitted, 0 },
-        { ImportNotificationStatus.InProgress, 1 },
-        { ImportNotificationStatus.Cancelled, 2 },
-        { ImportNotificationStatus.PartiallyRejected, 2 },
-        { ImportNotificationStatus.Rejected, 2 },
-        { ImportNotificationStatus.Validated, 2 },
-        { ImportNotificationStatus.SplitConsignment, 3 },
-        { ImportNotificationStatus.Replaced, 3 },
+        { ImportNotificationStatus.InProgress, 0 },
+        { ImportNotificationStatus.Cancelled, 1 },
+        { ImportNotificationStatus.PartiallyRejected, 1 },
+        { ImportNotificationStatus.Rejected, 1 },
+        { ImportNotificationStatus.Validated, 1 },
+        { ImportNotificationStatus.SplitConsignment, 2 },
+        { ImportNotificationStatus.Replaced, 2 },
     }.ToFrozenDictionary();
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
-        var newNotification = received.Deserialize<ImportNotification>();
-        if (newNotification == null)
-        {
-            throw new InvalidOperationException("Received invalid message, deserialised as null");
-        }
+        var newNotification =
+            received.Deserialize<ImportNotification>()
+            ?? throw new InvalidOperationException("Received invalid message, deserialised as null");
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
 
-        if (IsInvalidStatus(newNotification))
+        if (IsDraftStatus(newNotification))
         {
-            logger.LogInformation("Skipping {ReferenceNumber} due to status", newNotification.ReferenceNumber);
-
+            logger.LogInformation("Skipping {ReferenceNumber} due to draft status", newNotification.ReferenceNumber);
             return;
         }
 
         var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
-
         var existingNotification = await api.GetImportPreNotification(
             newNotification.ReferenceNumber,
             cancellationToken
@@ -61,7 +57,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         if (existingNotification == null)
         {
             await CreateNotification(dataApiImportPreNotification, newNotification, cancellationToken);
-
             return;
         }
 
@@ -163,10 +158,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             <= existingNotification.UpdatedSource.TrimMicroseconds();
     }
 
-    private static bool IsInvalidStatus(ImportNotification notification)
+    private static bool IsDraftStatus(ImportNotification notification)
     {
-        return notification.Status == ImportNotificationStatus.Amend
-            || notification.Status == ImportNotificationStatus.Draft
+        return notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 

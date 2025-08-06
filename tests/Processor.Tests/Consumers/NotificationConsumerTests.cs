@@ -141,7 +141,6 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(ImportNotificationStatus.Amend)]
     [InlineData(ImportNotificationStatus.Draft)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
     {
@@ -300,6 +299,39 @@ public class NotificationConsumerTests
             .PutImportPreNotification(
                 Arg.Any<string>(),
                 Arg.Any<DataApiIpaffs.ImportPreNotification>(),
+                Arg.Any<string>(),
+                Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Fact]
+    public async Task OnHandle_WhenImportNotificationMovingFromInProgressToAmend_ItIsUpdated()
+    {
+        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
+        var existingNotificationTimestamp = DateTime.UtcNow;
+        var newNotificationTimestamp = DateTime.UtcNow.AddSeconds(5);
+
+        var newNotification = ImportNotificationFixture()
+            .With(i => i.LastUpdated, newNotificationTimestamp)
+            .With(i => i.Status, ImportNotificationStatus.Amend)
+            .Create();
+        var existingNotification = (DataApiIpaffs.ImportPreNotification)
+            ImportNotificationFixture()
+                .With(i => i.LastUpdated, existingNotificationTimestamp)
+                .With(i => i.Status, ImportNotificationStatus.InProgress)
+                .Create();
+
+        _mockApi
+            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
+            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
+
+        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
+
+        await _mockApi
+            .Received()
+            .PutImportPreNotification(
+                Arg.Any<string>(),
+                Arg.Is<DataApiIpaffs.ImportPreNotification>(n => n.Status == ImportNotificationStatus.Amend),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
