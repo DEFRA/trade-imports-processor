@@ -65,32 +65,37 @@ public static class WebApplicationBuilderExtensions
                 && x.Properties.TryGetValue("RequestPath", out var path)
                 && path.ToString().Contains("/health")
                 && !x.MessageTemplate.Text.StartsWith("Request finished")
-            )
-            .Filter.ByExcluding(x =>
-                x.Level == LogEventLevel.Error
-                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                && sourceContext.ToString().Contains(typeof(SqsQueueConsumer).FullName!)
-                && x.MessageTemplate.Text.StartsWith("Message processing error")
-            )
-            .Filter.ByExcluding(x =>
-                x.Level == LogEventLevel.Error
-                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
-                && x.MessageTemplate.Text.StartsWith("Dead letter message")
-            )
-            .Filter.ByExcluding(x =>
-                x.Level == LogEventLevel.Error
-                && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
-                && x.MessageTemplate.Text.StartsWith("Abandon message (exception occurred while processing)")
             );
 
         if (!string.IsNullOrWhiteSpace(serviceVersion))
+        {
             config.Enrich.WithProperty("service.version", serviceVersion);
 
-        if (traceIdHeader != null)
-        {
-            config.Enrich.WithCorrelationId(traceIdHeader);
+            // Integration tests run with SERVICE_VERSION of local (see compose.yml)
+            // so we can skip the filters below and show all errors
+            if (serviceVersion != "local")
+                config
+                    .Filter.ByExcluding(x =>
+                        x.Level == LogEventLevel.Error
+                        && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                        && sourceContext.ToString().Contains(typeof(SqsQueueConsumer).FullName!)
+                        && x.MessageTemplate.Text.StartsWith("Message processing error")
+                    )
+                    .Filter.ByExcluding(x =>
+                        x.Level == LogEventLevel.Error
+                        && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                        && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
+                        && x.MessageTemplate.Text.StartsWith("Dead letter message")
+                    )
+                    .Filter.ByExcluding(x =>
+                        x.Level == LogEventLevel.Error
+                        && x.Properties.TryGetValue("SourceContext", out var sourceContext)
+                        && sourceContext.ToString().Contains(typeof(AsbTopicSubscriptionConsumer).FullName!)
+                        && x.MessageTemplate.Text.StartsWith("Abandon message (exception occurred while processing)")
+                    );
         }
+
+        if (traceIdHeader != null)
+            config.Enrich.WithCorrelationId(traceIdHeader);
     }
 }

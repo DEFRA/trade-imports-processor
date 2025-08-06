@@ -1,4 +1,5 @@
 using Defra.TradeImportsProcessor.Processor.Authentication;
+using Defra.TradeImportsProcessor.Processor.Data.Extensions;
 using Defra.TradeImportsProcessor.Processor.Endpoints;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Health;
@@ -63,6 +64,8 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
 
     builder.Services.AddConsumers(builder.Configuration);
     builder.Services.AddCustomMetrics();
+
+    builder.Services.AddDbContext(builder.Configuration, integrationTest);
 }
 
 static WebApplication BuildWebApplication(WebApplicationBuilder builder)
@@ -75,6 +78,7 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseHeaderPropagation();
     app.UseMiddleware<MetricsMiddleware>();
     app.MapReplayEndpoints();
+    app.MapRawMessageEndpoints();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
         {

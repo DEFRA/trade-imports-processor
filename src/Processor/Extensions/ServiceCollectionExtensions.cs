@@ -118,19 +118,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
     {
         var customsDeclarationsConsumerOptions = services
-            .AddValidateOptions<CustomsDeclarationsConsumerOptions>(
-                configuration,
-                CustomsDeclarationsConsumerOptions.SectionName
-            )
+            .AddValidateOptions<CustomsDeclarationsConsumerOptions>(CustomsDeclarationsConsumerOptions.SectionName)
             .Get();
-        var serviceBusOptions = services
-            .AddValidateOptions<ServiceBusOptions>(configuration, ServiceBusOptions.SectionName)
+        var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
+        var rawMessageLoggingOptions = services
+            .AddValidateOptions<RawMessageLoggingOptions>(RawMessageLoggingOptions.SectionName)
             .Get();
 
         // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+
+        if (rawMessageLoggingOptions.Enabled)
+            services.AddScoped(typeof(IConsumerInterceptor<>), typeof(RawMessageLoggingInterceptor<>));
 
         services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));
 

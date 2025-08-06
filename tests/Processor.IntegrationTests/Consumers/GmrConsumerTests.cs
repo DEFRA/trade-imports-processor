@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
+using FluentAssertions;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -35,7 +36,8 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
-        var message = new ServiceBusMessage { Body = new BinaryData(gmr) };
+        var body = new BinaryData(gmr);
+        var message = new ServiceBusMessage { Body = body, MessageId = Guid.NewGuid().ToString("N") };
         await Sender.SendMessageAsync(message);
 
         var assertionRequestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
@@ -45,6 +47,13 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
                 (await _wireMockAdminApi.FindRequestsAsync(assertionRequestModel)).Count == 1
             )
         );
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.Get(message.MessageId));
+        response.EnsureSuccessStatusCode();
+
+        response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.GetJson(message.MessageId));
+        body.ToString().Should().Be(await response.Content.ReadAsStringAsync());
     }
 
     [Fact]

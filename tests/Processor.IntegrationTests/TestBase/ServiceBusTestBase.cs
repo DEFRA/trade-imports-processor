@@ -2,7 +2,7 @@ using Azure.Messaging.ServiceBus;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
-public class ServiceBusTestBase(string topicName, string subscriptionName) : IAsyncLifetime
+public class ServiceBusTestBase(string topicName, string subscriptionName) : TestBase, IAsyncLifetime
 {
     private const string ConnectionString =
         "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";

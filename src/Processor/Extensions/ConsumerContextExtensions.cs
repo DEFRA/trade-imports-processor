@@ -1,9 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Amazon.SQS.Model;
 using Azure.Messaging.ServiceBus;
-using Defra.TradeImportsDataApi.Domain.Gvms;
-using Defra.TradeImportsDataApi.Domain.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using SlimMessageBus;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -16,6 +15,17 @@ public static class MessageBusHeaders
     public const string ServiceBusMessage = "ServiceBus_Message";
     public const string ResourceId = "ResourceId";
     public const string TraceId = "x-cdp-request-id";
+}
+
+[ExcludeFromCodeCoverage]
+public static class ResourceTypes
+{
+    public const string Unknown = "Unknown";
+    public const string Gmr = nameof(TradeImportsDataApi.Domain.Gvms.Gmr);
+    public const string ImportPreNotification = nameof(TradeImportsDataApi.Domain.Ipaffs.ImportPreNotification);
+    public const string ClearanceRequest = InboundHmrcMessageType.ClearanceRequest;
+    public const string InboundError = InboundHmrcMessageType.InboundError;
+    public const string Finalisation = InboundHmrcMessageType.Finalisation;
 }
 
 [ExcludeFromCodeCoverage]
@@ -40,14 +50,20 @@ public static class ConsumerContextExtensions
     {
         if (consumerContext.Headers.TryGetValue(MessageBusHeaders.InboundHmrcMessageTypeHeader, out var value))
         {
-            return value.ToString()!;
+            return value.ToString()! switch
+            {
+                ResourceTypes.ClearanceRequest => ResourceTypes.ClearanceRequest,
+                ResourceTypes.Finalisation => ResourceTypes.Finalisation,
+                ResourceTypes.InboundError => ResourceTypes.InboundError,
+                _ => ResourceTypes.Unknown,
+            };
         }
 
         return consumerContext.Consumer switch
         {
-            GmrsConsumer => nameof(Gmr),
-            NotificationConsumer => nameof(ImportPreNotification),
-            _ => "Unknown",
+            GmrsConsumer => ResourceTypes.Gmr,
+            NotificationConsumer => ResourceTypes.ImportPreNotification,
+            _ => ResourceTypes.Unknown,
         };
     }
 

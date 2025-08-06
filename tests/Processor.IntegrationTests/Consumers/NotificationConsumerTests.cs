@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
+using FluentAssertions;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -31,7 +32,8 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
         var status = await mappingBuilder.BuildAndPostAsync();
         Assert.NotNull(status.Guid);
 
-        var message = new ServiceBusMessage { Body = new BinaryData(importNotification) };
+        var body = new BinaryData(importNotification);
+        var message = new ServiceBusMessage { Body = body, MessageId = Guid.NewGuid().ToString("N") };
         var traceId = Guid.NewGuid().ToString("N");
         message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
         await Sender.SendMessageAsync(message);
@@ -57,6 +59,13 @@ public class NotificationConsumerTests(WireMockClient wireMockClient) : ServiceB
                 }
             })
         );
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.Get(message.MessageId));
+        response.EnsureSuccessStatusCode();
+
+        response = await httpClient.GetAsync(Testing.Endpoints.RawMessages.GetJson(message.MessageId));
+        body.ToString().Should().Be(await response.Content.ReadAsStringAsync());
     }
 
     [Fact]
