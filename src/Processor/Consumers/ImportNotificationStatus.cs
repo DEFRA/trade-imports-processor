@@ -7,6 +7,7 @@ public static class ImportNotificationStatus
     public const string Deleted = "DELETED";
     public const string Draft = "DRAFT";
     public const string InProgress = "IN_PROGRESS";
+    public const string Modify = "MODIFY";
     public const string PartiallyRejected = "PARTIALLY_REJECTED";
     public const string Replaced = "REPLACED";
     public const string Rejected = "REJECTED";
