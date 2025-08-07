@@ -35,6 +35,10 @@ public class RawMessageLoggingInterceptor<TMessage>(
 
             return await next();
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
 #pragma warning disable S2139
         catch (Exception exception)
 #pragma warning restore S2139
@@ -64,6 +68,10 @@ public class RawMessageLoggingInterceptor<TMessage>(
             dbContext.RawMessages.Insert(entity);
             await dbContext.SaveChanges(context.CancellationToken);
             await dbContext.CommitTransaction(context.CancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception exception)
         {
