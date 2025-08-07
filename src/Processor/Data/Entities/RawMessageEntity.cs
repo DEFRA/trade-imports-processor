@@ -23,7 +23,7 @@ public class RawMessageEntity : IDataEntity
     public required string ResourceType { get; set; }
 
     [JsonPropertyName("headers")]
-    public Dictionary<string, object> Headers { get; set; } = [];
+    public Dictionary<string, string?> Headers { get; set; } = [];
 
     [JsonPropertyName("messageId")]
     public required string MessageId { get; set; }

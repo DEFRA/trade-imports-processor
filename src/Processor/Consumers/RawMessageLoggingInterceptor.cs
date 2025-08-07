@@ -59,7 +59,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
                 ResourceId = GetResourceId(resourceType, jsonElement, context),
                 ResourceType = resourceType,
                 MessageId = context.GetMessageId(),
-                Headers = context.Headers.ToDictionary(x => x.Key, x => x.Value),
+                Headers = context.Headers.ToDictionary(x => x.Key, x => x.Value?.ToString()),
                 Message = jsonElement.GetRawText(),
                 ExpiresAt = DateTime.UtcNow.AddDays(options.Value.TtlDays),
             };
