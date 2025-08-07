@@ -8,6 +8,6 @@ public class RawMessageLoggingOptions
 
     public bool Enabled { get; init; } = false;
 
-    [Range(1, 30)]
-    public int TtlDays { get; init; } = 7;
+    [Range(1, 90)]
+    public int TtlDays { get; init; } = 30;
 }

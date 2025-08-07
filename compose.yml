@@ -59,7 +59,6 @@ services:
       SQS_ENDPOINT: http://localstack:4566
       AWS_EMF_ENVIRONMENT: Local
       Mongo__DatabaseUri: mongodb://mongodb:27017/?directConnection=true
-      RawMessageLogging__Enabled: true
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
     image: trade-imports-processor:latest
     ports:

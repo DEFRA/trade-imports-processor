@@ -31,6 +31,28 @@ public class RawMessageLoggingInterceptor<TMessage>(
             if (resourceType == ResourceTypes.Unknown)
                 return await next();
 
+            await LogRawMessage(context, resourceType, jsonElement);
+
+            return await next();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+#pragma warning disable S2139
+        catch (Exception exception)
+#pragma warning restore S2139
+        {
+            logger.LogWarning(exception, "Failed to log raw message in {Method}", nameof(OnHandle));
+
+            throw;
+        }
+    }
+
+    private async Task LogRawMessage(IConsumerContext context, string resourceType, JsonElement jsonElement)
+    {
+        try
+        {
             var entity = new RawMessageEntity
             {
                 Id = ObjectId.GenerateNewId().ToString(),
@@ -46,16 +68,16 @@ public class RawMessageLoggingInterceptor<TMessage>(
             dbContext.RawMessages.Insert(entity);
             await dbContext.SaveChanges(context.CancellationToken);
             await dbContext.CommitTransaction(context.CancellationToken);
-
-            return await next();
         }
-#pragma warning disable S2139
-        catch (Exception exception)
-#pragma warning restore S2139
+        catch (OperationCanceledException)
         {
-            logger.LogWarning(exception, "Failed to log raw message");
-
             throw;
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Failed to log raw message in {Method}", nameof(LogRawMessage));
+
+            // Intentionally swallowed
         }
     }
 
