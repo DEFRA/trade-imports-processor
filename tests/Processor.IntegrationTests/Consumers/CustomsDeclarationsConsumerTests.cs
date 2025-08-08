@@ -94,11 +94,15 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         var errorEndpointWasNotCalled = await WithProcessingErrorEndpoint(mrn);
 
         var body = JsonSerializer.Serialize(clearanceRequest);
-        var messageId = await SendMessage(
-            mrn,
-            body,
-            WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
+        var headers = WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn);
+        headers.Add(
+            "GuidHeader",
+            // Even though this is adding a GUID as a string, Mongo tries to serialise it as a GUID and
+            // fails when it's stored as an object, therefore include here to ensure we save the raw
+            // message appropriately
+            new MessageAttributeValue { DataType = "String", StringValue = Guid.NewGuid().ToString() }
         );
+        var messageId = await SendMessage(mrn, body, headers);
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
