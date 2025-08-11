@@ -102,7 +102,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
             // message appropriately
             new MessageAttributeValue { DataType = "String", StringValue = Guid.NewGuid().ToString() }
         );
-        var messageId = await SendMessage(mrn, body, headers);
+        var messageId = await SendMessage(mrn, body, InboundCustomsDeclarationsQueueUrl, headers);
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
@@ -144,6 +144,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(clearanceRequest),
+            InboundCustomsDeclarationsQueueUrl,
             WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
@@ -187,6 +188,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             body,
+            InboundCustomsDeclarationsQueueUrl,
             WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
@@ -249,6 +251,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(finalisation),
+            InboundCustomsDeclarationsQueueUrl,
             WithInboundHmrcMessageType(InboundHmrcMessageType.Finalisation, resourceId: mrn)
         );
 
@@ -284,6 +287,7 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
         await SendMessage(
             mrn,
             JsonSerializer.Serialize(inboundError),
+            InboundCustomsDeclarationsQueueUrl,
             WithInboundHmrcMessageType(InboundHmrcMessageType.InboundError, resourceId: mrn)
         );
 
@@ -304,18 +308,21 @@ public class CustomsDeclarationsConsumerTests(ITestOutputHelper output, WireMock
     {
         var mrn = GenerateMrn();
 
-        await DrainAllMessages();
+        await DrainAllMessages(InboundCustomsDeclarationsQueueUrl);
 
         await SendMessage(
             mrn,
             """
             { "invalid": "json" }
             """,
+            InboundCustomsDeclarationsQueueUrl,
             WithInboundHmrcMessageType(InboundHmrcMessageType.ClearanceRequest, resourceId: mrn)
         );
 
         Assert.True(
-            await AsyncWaiter.WaitForAsync(async () => (await GetQueueAttributes()).ApproximateNumberOfMessages == 0)
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsQueueUrl)).ApproximateNumberOfMessages == 0
+            )
         );
     }
 }

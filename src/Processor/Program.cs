@@ -63,6 +63,7 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
     builder.Services.AddHttpProxyClient();
 
     builder.Services.AddConsumers(builder.Configuration);
+    builder.Services.AddPublishers(builder.Configuration);
     builder.Services.AddCustomMetrics();
 
     builder.Services.AddDbContext(builder.Configuration, integrationTest);

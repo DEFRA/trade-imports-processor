@@ -147,4 +147,10 @@ public static class DateTimeExtensions
             .Select(((monthYear, i) => $"PRODREDACTED-{monthYear.Year}{monthYear.Month:00}"))
             .ToList<string>();
     }
+
+    public static long ToUnixTimeMilliseconds(this DateTime dateTime)
+    {
+        var dateTimeOffset = new DateTimeOffset(dateTime.ToUniversalTime());
+        return dateTimeOffset.ToUnixTimeMilliseconds();
+    }
 }

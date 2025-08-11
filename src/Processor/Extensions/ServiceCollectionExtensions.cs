@@ -6,11 +6,14 @@ using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
+using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -18,6 +21,7 @@ using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
+using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
 
@@ -65,6 +69,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
+        services.AddOptions<BtmsOptions>().BindConfiguration(BtmsOptions.SectionName).ValidateDataAnnotations();
+        services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
 
         return services;
     }
@@ -119,6 +125,9 @@ public static class ServiceCollectionExtensions
     {
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(CustomsDeclarationsConsumerOptions.SectionName)
+            .Get();
+        var ipaffsDecisionsConsumerOptions = services
+            .AddValidateOptions<IpaffsDecisionsConsumerOptions>(IpaffsDecisionsConsumerOptions.SectionName)
             .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
@@ -213,11 +222,78 @@ public static class ServiceCollectionExtensions
                     }
                 );
             }
+
+            if (ipaffsDecisionsConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_IpaffsDecisions",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                cfg.SqsClientConfig,
+                                configuration
+                            );
+                        });
+
+                        mbb.RegisterSerializer<ToStringSerializer>(s =>
+                        {
+                            s.TryAddSingleton(_ => new ToStringSerializer());
+                            s.TryAddSingleton<IMessageSerializer<string>>(svp =>
+                                svp.GetRequiredService<ToStringSerializer>()
+                            );
+                        });
+
+                        mbb.WithSerializer<ToStringSerializer>();
+
+                        mbb.AutoStartConsumersEnabled(ipaffsDecisionsConsumerOptions.AutoStartConsumers)
+                            .Consume<string>(x =>
+                                x.WithConsumer<IpaffsDecisionsConsumer>()
+                                    .Queue(ipaffsDecisionsConsumerOptions.QueueName)
+                                    .Instances(ipaffsDecisionsConsumerOptions.ConsumersPerHost)
+                            );
+                    }
+                );
+            }
         });
 
         // Concrete consumers added for temporary replay endpoints
         services.AddTransient<NotificationConsumer>();
         services.AddTransient<CustomsDeclarationsConsumer>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddPublishers(this IServiceCollection services, IConfiguration configuration)
+    {
+        var serviceBusOptions = configuration.GetSection(ServiceBusOptions.SectionName).Get<ServiceBusOptions>();
+
+        services.AddSlimMessageBus(smb =>
+        {
+            smb.AddChildBus(
+                "ASB_IpaffsPublisher",
+                mbb =>
+                {
+                    mbb.WithProviderServiceBus(cfg =>
+                    {
+                        cfg.ConnectionString = serviceBusOptions!.Ipaffs.ConnectionString;
+                        cfg.TopologyProvisioning.Enabled = false;
+                    });
+                    mbb.AddJsonSerializer();
+                    mbb.Produce<IpaffsDecisionNotification>(x =>
+                        x.DefaultTopic(serviceBusOptions!.Ipaffs.Topic)
+                            .WithModifier(
+                                (message, sbMessage) =>
+                                {
+                                    sbMessage.ApplicationProperties.Remove("MessageType"); // SlimMessageBus is adding this property. Do we need to remove it?
+                                }
+                            )
+                    );
+                }
+            );
+        });
 
         return services;
     }
