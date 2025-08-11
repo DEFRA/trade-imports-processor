@@ -40,7 +40,7 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             {
                 // CDMS-270
                 RuleFor(p => p.ExistingFinalisation!)
-                    .Must(NotBeAlreadyCancelled)
+                    .Must(BeACancellationIfAlreadyCancelled)
                     .WithState(_ => "ALVSVAL403")
                     .WithMessage(p =>
                         $"The final state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} but the import declaration was cancelled. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
@@ -73,9 +73,16 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         return p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
     }
 
-    private static bool NotBeAlreadyCancelled(FinalisationValidatorInput p, Finalisation existingFinalisation)
+    private static bool BeACancellationIfAlreadyCancelled(
+        FinalisationValidatorInput p,
+        Finalisation existingFinalisation
+    )
     {
-        return existingFinalisation.FinalStateValue().IsNotCancelled();
+        return existingFinalisation.FinalStateValue().IsNotCancelled()
+            || (
+                existingFinalisation.FinalStateValue().IsCancelled()
+                && p.NewFinalisation.FinalStateValue().IsCancelled()
+            );
     }
 
     private static bool NotBeACancellationWhenAlreadyCancelled(
