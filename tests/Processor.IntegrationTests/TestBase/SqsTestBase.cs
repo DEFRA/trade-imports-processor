@@ -12,7 +12,7 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
     protected const string InboundCustomsDeclarationsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
     protected const string ResourceEventsQueueUrl =
-        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_processor_ipaffs";
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_processor";
 
     private readonly AmazonSQSClient _sqsClient = new(
         new BasicAWSCredentials("test", "test"),
