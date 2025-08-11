@@ -70,7 +70,6 @@ public static class ServiceCollectionExtensions
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
         services.AddOptions<BtmsOptions>().BindConfiguration(BtmsOptions.SectionName).ValidateDataAnnotations();
-        services.AddOptions<CdsOptions>().BindConfiguration(CdsOptions.SectionName).ValidateDataAnnotations();
 
         return services;
     }
@@ -282,12 +281,12 @@ public static class ServiceCollectionExtensions
                         cfg.TopologyProvisioning.Enabled = false;
                     });
                     mbb.AddJsonSerializer();
-                    mbb.Produce<IpaffsDecisionNotification>(x =>
+                    mbb.Produce<DecisionNotification>(x =>
                         x.DefaultTopic(serviceBusOptions!.Ipaffs.Topic)
                             .WithModifier(
                                 (message, sbMessage) =>
                                 {
-                                    sbMessage.ApplicationProperties.Remove("MessageType"); // SlimMessageBus is adding this property. Do we need to remove it?
+                                    sbMessage.ApplicationProperties.Remove("MessageType");
                                 }
                             )
                     );

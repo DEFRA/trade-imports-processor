@@ -39,7 +39,7 @@ public class IpaffsDecisionsConsumerTests(ITestOutputHelper output) : SqsTestBas
                                 CheckCode = "H219",
                                 DecisionCode = "X00",
                                 DecisionsValidUntil = new DateTime(2025, 01, 08, 12, 0, 0, DateTimeKind.Utc),
-                                DecisionReasons = new[] { "Test reason" },
+                                DecisionReasons = new[] { "Test reason 1", "Test reason 2" },
                             },
                         },
                     },
@@ -69,6 +69,7 @@ public class IpaffsDecisionsConsumerTests(ITestOutputHelper output) : SqsTestBas
         var messages = await ServiceBus.GetMessagesAsync();
 
         messages.Count.Should().Be(1);
+        messages[0].ApplicationProperties.Count.Should().Be(2);
         messages[0].ApplicationProperties["messageType"].Should().Be("ALVSDecisionNotification");
         messages[0].ApplicationProperties["subType"].Should().Be("ALVS");
 

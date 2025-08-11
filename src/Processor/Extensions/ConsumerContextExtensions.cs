@@ -66,7 +66,6 @@ public static class ConsumerContextExtensions
 
         if (consumerContext.Headers.TryGetValue(MessageBusHeaders.ResourceTypeHeader, out var resourceTypeValue))
         {
-            // All the Data API Resource Event Types?
             return resourceTypeValue.ToString()! switch
             {
                 ResourceTypes.CustomsDeclaration => ResourceTypes.CustomsDeclaration,

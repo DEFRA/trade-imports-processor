@@ -80,9 +80,9 @@ services:
       test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
       timeout: 5s
     image: mcr.microsoft.com/azure-sql-edge:latest
-    # On some platforms there are compatibility issues with running Azure SQL Edge e.g. M1 Macs with later Docker versions.
-    # If SQL Edge does not work for you, try swapping out with SQL Server image instead
-    # image: mcr.microsoft.com/mssql/server:2022-latest
+#    On some platforms there are compatibility issues with running Azure SQL Edge e.g. M1 Macs with later Docker versions.
+#    If SQL Edge does not work for you, try swapping out with SQL Server image instead
+#    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "s4usag3s!"
