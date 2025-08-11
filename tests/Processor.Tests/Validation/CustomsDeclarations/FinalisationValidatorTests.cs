@@ -69,7 +69,7 @@ public class FinalisationValidatorTests
     }
 
     [Fact]
-    public void Validate_Returns_ALVSVAL403_WhenANewFinalisationReceivedButTheExistingFinalisationIsAlreadyCancelled()
+    public void Validate_Returns_ALVSVAL403_WhenExistingFinalisationIsCancelledAndNewFinalisationIsNotCancelled()
     {
         var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
         var newFinalisation = DataApiFinalisationFixture()
@@ -98,6 +98,62 @@ public class FinalisationValidatorTests
             $"The final state was received for EntryReference {mrn} EntryVersionNumber 2 but the import declaration was cancelled.",
             error.ErrorMessage
         );
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL403_WhenExistingFinalisationIsNotCancelled()
+    {
+        var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
+        var newFinalisation = DataApiFinalisationFixture()
+            .With(f => f.ExternalVersion, 2)
+            .With(f => f.FinalState, FinalStateValues.Cleared.ToString)
+            .Create();
+        var existingFinalisation = DataApiFinalisationFixture()
+            .With(f => f.FinalState, FinalStateValues.Seized.ToString)
+            .Create();
+        var mrn = GenerateMrn();
+
+        var result = _validator.Validate(
+            new FinalisationValidatorInput
+            {
+                ExistingClearanceRequest = existingClearanceRequest,
+                ExistingFinalisation = existingFinalisation,
+                NewFinalisation = newFinalisation,
+                Mrn = mrn,
+            }
+        );
+
+        var error = FindWithErrorCode(result, "ALVSVAL403");
+
+        Assert.Null(error);
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL403_WhenBothExistingAndNewFinalisationsAreCancelled()
+    {
+        var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
+        var newFinalisation = DataApiFinalisationFixture()
+            .With(f => f.ExternalVersion, 2)
+            .With(f => f.FinalState, FinalStateValues.CancelledAfterArrival.ToString)
+            .Create();
+        var existingFinalisation = DataApiFinalisationFixture()
+            .With(f => f.FinalState, FinalStateValues.CancelledWhilePreLodged.ToString)
+            .Create();
+        var mrn = GenerateMrn();
+
+        var result = _validator.Validate(
+            new FinalisationValidatorInput
+            {
+                ExistingClearanceRequest = existingClearanceRequest,
+                ExistingFinalisation = existingFinalisation,
+                NewFinalisation = newFinalisation,
+                Mrn = mrn,
+            }
+        );
+
+        var error = FindWithErrorCode(result, "ALVSVAL403");
+
+        Assert.Null(error);
     }
 
     [Fact]
