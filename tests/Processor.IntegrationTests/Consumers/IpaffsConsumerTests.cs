@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
-public class IpaffsDecisionsConsumerTests(ITestOutputHelper output) : SqsTestBase(output)
+public class IpaffsConsumerTests(ITestOutputHelper output) : SqsTestBase(output)
 {
     private readonly ServiceBusHandler ServiceBus = new();
 

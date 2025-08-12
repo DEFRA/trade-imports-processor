@@ -7,6 +7,7 @@ using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Services;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
@@ -125,8 +126,8 @@ public static class ServiceCollectionExtensions
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(CustomsDeclarationsConsumerOptions.SectionName)
             .Get();
-        var ipaffsDecisionsConsumerOptions = services
-            .AddValidateOptions<IpaffsDecisionsConsumerOptions>(IpaffsDecisionsConsumerOptions.SectionName)
+        var ipaffsConsumerOptions = services
+            .AddValidateOptions<IpaffsConsumerOptions>(IpaffsConsumerOptions.SectionName)
             .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
@@ -222,10 +223,10 @@ public static class ServiceCollectionExtensions
                 );
             }
 
-            if (ipaffsDecisionsConsumerOptions.AutoStartConsumers)
+            if (ipaffsConsumerOptions.AutoStartConsumers)
             {
                 smb.AddChildBus(
-                    "SQS_IpaffsDecisions",
+                    "SQS_Ipaffs",
                     mbb =>
                     {
                         mbb.WithProviderAmazonSQS(cfg =>
@@ -247,11 +248,11 @@ public static class ServiceCollectionExtensions
 
                         mbb.WithSerializer<ToStringSerializer>();
 
-                        mbb.AutoStartConsumersEnabled(ipaffsDecisionsConsumerOptions.AutoStartConsumers)
+                        mbb.AutoStartConsumersEnabled(ipaffsConsumerOptions.AutoStartConsumers)
                             .Consume<string>(x =>
-                                x.WithConsumer<IpaffsDecisionsConsumer>()
-                                    .Queue(ipaffsDecisionsConsumerOptions.QueueName)
-                                    .Instances(ipaffsDecisionsConsumerOptions.ConsumersPerHost)
+                                x.WithConsumer<IpaffsConsumer>()
+                                    .Queue(ipaffsConsumerOptions.QueueName)
+                                    .Instances(ipaffsConsumerOptions.ConsumersPerHost)
                             );
                     }
                 );
@@ -267,6 +268,9 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddPublishers(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
+        services.AddScoped<IIpaffsStrategyFactory, IpaffsStrategyFactory>();
+
         var serviceBusOptions = configuration.GetSection(ServiceBusOptions.SectionName).Get<ServiceBusOptions>();
 
         services.AddSlimMessageBus(smb =>
