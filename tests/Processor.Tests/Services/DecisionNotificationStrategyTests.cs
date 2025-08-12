@@ -61,8 +61,8 @@ public class DecisionNotificationStrategyTests
         await azureServiceBus
             .Received()
             .Publish(
-                Arg.Any<DecisionNotification>(),
-                Arg.Any<string>(),
+                Arg.Is<DecisionNotification>(x => x.Header.EntryReference == Mrn),
+                Arg.Is<string>(x => x == null),
                 Arg.Is<Dictionary<string, object>>(e =>
                     e["messageType"].ToString() == "ALVSDecisionNotification" && e["subType"].ToString() == "ALVS"
                 ),

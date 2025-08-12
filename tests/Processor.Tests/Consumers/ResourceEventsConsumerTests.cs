@@ -86,9 +86,12 @@ public class ResourceEventsConsumerTests
         await _ipaffsStrategy
             .Received()
             .PublishToIpaffs(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Is("SQS123"),
+                Arg.Is(Mrn),
+                Arg.Is<CustomsDeclaration>(x =>
+                    x.ClearanceDecision != null
+                    && x.ClearanceDecision.CorrelationId == customsDeclaration.ClearanceDecision.CorrelationId
+                ),
                 Arg.Any<CancellationToken>()
             );
     }
