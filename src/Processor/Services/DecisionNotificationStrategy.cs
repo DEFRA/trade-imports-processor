@@ -14,22 +14,16 @@ public class DecisionNotificationStrategy(IMessageBus azureServiceBus, ILogger<D
 
     public string SupportedSubResourceType => ResourceEventSubResourceTypes.ClearanceDecision;
 
-    public async Task PublishToIpaffsAsync(
+    public async Task PublishToIpaffs(
         string messageId,
-        string? resourceId,
-        CustomsDeclaration? customsDeclaration,
+        string resourceId,
+        CustomsDeclaration customsDeclaration,
         CancellationToken cancellationToken
     )
     {
-        if (resourceId is null)
+        if (customsDeclaration.ClearanceDecision is null)
         {
-            logger.LogError("Invalid resource id for {MessageId}", messageId);
-            throw new ResourceEventException(messageId);
-        }
-
-        if (customsDeclaration?.ClearanceDecision is null)
-        {
-            logger.LogError("Invalid resource event message received for {MessageId}", messageId);
+            logger.LogError("{MRN} Invalid resource event message received for {MessageId}", resourceId, messageId);
             throw new ResourceEventException(messageId);
         }
 
@@ -44,5 +38,6 @@ public class DecisionNotificationStrategy(IMessageBus azureServiceBus, ILogger<D
             },
             cancellationToken: cancellationToken
         );
+        logger.LogInformation("{MRN} Message successfully published to IPAFFS for {MessageId}", resourceId, messageId);
     }
 }

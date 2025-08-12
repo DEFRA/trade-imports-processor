@@ -1,6 +1,4 @@
-using Defra.TradeImportsProcessor.Processor.Extensions;
-
-namespace Defra.TradeImportsProcessor.Processor.Utils.Logging;
+namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class ReadOnlyDictionaryExtensions
 {

@@ -56,12 +56,7 @@ public class DecisionNotificationStrategyTests
             },
         };
 
-        await decisionNotificationStrategy.PublishToIpaffsAsync(
-            "SQS123",
-            Mrn,
-            customsDeclaration,
-            CancellationToken.None
-        );
+        await decisionNotificationStrategy.PublishToIpaffs("SQS123", Mrn, customsDeclaration, CancellationToken.None);
 
         await azureServiceBus
             .Received()
@@ -76,34 +71,10 @@ public class DecisionNotificationStrategyTests
     }
 
     [Fact]
-    public async Task WhenResourceIdIsNull_ThenExceptionIsThrown()
-    {
-        await Assert.ThrowsAsync<ResourceEventException>(() =>
-            decisionNotificationStrategy.PublishToIpaffsAsync(
-                "SQS123",
-                null,
-                new CustomsDeclaration(),
-                CancellationToken.None
-            )
-        );
-
-        await azureServiceBus
-            .DidNotReceive()
-            .Publish(
-                Arg.Any<DecisionNotification>(),
-                Arg.Any<string>(),
-                Arg.Is<Dictionary<string, object>>(e =>
-                    e["messageType"].ToString() == "ALVSDecisionNotification" && e["subType"].ToString() == "ALVS"
-                ),
-                Arg.Any<CancellationToken>()
-            );
-    }
-
-    [Fact]
     public async Task WhenClearanceDecisionIsNull_ThenExceptionIsThrown()
     {
         await Assert.ThrowsAsync<ResourceEventException>(() =>
-            decisionNotificationStrategy.PublishToIpaffsAsync(
+            decisionNotificationStrategy.PublishToIpaffs(
                 "SQS123",
                 Mrn,
                 new CustomsDeclaration(),

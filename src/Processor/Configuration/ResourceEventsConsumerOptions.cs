@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Defra.TradeImportsProcessor.Processor.Configuration;
 
-public class IpaffsConsumerOptions
+public class ResourceEventsConsumerOptions
 {
-    public const string SectionName = "IpaffsConsumer";
+    public const string SectionName = "ResourceEventsConsumerOptions";
 
     [Required]
     public required bool AutoStartConsumers { get; init; }

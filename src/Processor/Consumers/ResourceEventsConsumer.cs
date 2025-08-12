@@ -2,19 +2,21 @@ using System.Text.Json;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Configuration;
+using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Services;
 using Defra.TradeImportsProcessor.Processor.Utils;
-using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.Extensions.Options;
 using SlimMessageBus;
 using SlimMessageBus.Host.AmazonSQS;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class IpaffsConsumer(IOptions<BtmsOptions> btmsOptions, IIpaffsStrategyFactory ipaffsStrategyFactory)
-    : IConsumer<string>,
-        IConsumerWithContext
+public class ResourceEventsConsumer(
+    IOptions<BtmsOptions> btmsOptions,
+    IEnumerable<IIpaffsStrategy> strategies,
+    ILogger<ResourceEventsConsumer> logger
+) : IConsumer<string>, IConsumerWithContext
 {
     private string MessageId => Context.GetTransportMessage().MessageId;
 
@@ -34,17 +36,32 @@ public class IpaffsConsumer(IOptions<BtmsOptions> btmsOptions, IIpaffsStrategyFa
                 );
                 var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclaration>>();
 
-                if (
-                    ipaffsStrategyFactory.TryGetIpaffsStrategy(
-                        customsDeclaration?.SubResourceType,
-                        out var ipaffsStrategy
-                    )
-                )
+                if (string.IsNullOrEmpty(customsDeclaration?.ResourceId))
                 {
-                    await ipaffsStrategy!.PublishToIpaffsAsync(
+                    logger.LogError("Invalid resource id for {MessageId}", MessageId);
+                    throw new ResourceEventException(MessageId);
+                }
+
+                if (customsDeclaration.Resource is null)
+                {
+                    logger.LogError(
+                        "{MRN} Invalid resource event message received for {MessageId}",
+                        customsDeclaration.ResourceId,
+                        MessageId
+                    );
+                    throw new ResourceEventException(MessageId);
+                }
+
+                var strategy = strategies.FirstOrDefault(strategy =>
+                    strategy.SupportedSubResourceType == customsDeclaration.SubResourceType
+                );
+
+                if (strategy is not null)
+                {
+                    await strategy.PublishToIpaffs(
                         MessageId,
-                        customsDeclaration?.ResourceId,
-                        customsDeclaration?.Resource,
+                        customsDeclaration.ResourceId,
+                        customsDeclaration.Resource,
                         cancellationToken
                     );
                 }

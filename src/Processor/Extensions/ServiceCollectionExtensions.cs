@@ -126,8 +126,8 @@ public static class ServiceCollectionExtensions
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(CustomsDeclarationsConsumerOptions.SectionName)
             .Get();
-        var ipaffsConsumerOptions = services
-            .AddValidateOptions<IpaffsConsumerOptions>(IpaffsConsumerOptions.SectionName)
+        var resourceEventsConsumerOptions = services
+            .AddValidateOptions<ResourceEventsConsumerOptions>(ResourceEventsConsumerOptions.SectionName)
             .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
@@ -223,10 +223,10 @@ public static class ServiceCollectionExtensions
                 );
             }
 
-            if (ipaffsConsumerOptions.AutoStartConsumers)
+            if (resourceEventsConsumerOptions.AutoStartConsumers)
             {
                 smb.AddChildBus(
-                    "SQS_Ipaffs",
+                    "SQS_ResourceEvents",
                     mbb =>
                     {
                         mbb.WithProviderAmazonSQS(cfg =>
@@ -248,11 +248,11 @@ public static class ServiceCollectionExtensions
 
                         mbb.WithSerializer<ToStringSerializer>();
 
-                        mbb.AutoStartConsumersEnabled(ipaffsConsumerOptions.AutoStartConsumers)
+                        mbb.AutoStartConsumersEnabled(resourceEventsConsumerOptions.AutoStartConsumers)
                             .Consume<string>(x =>
-                                x.WithConsumer<IpaffsConsumer>()
-                                    .Queue(ipaffsConsumerOptions.QueueName)
-                                    .Instances(ipaffsConsumerOptions.ConsumersPerHost)
+                                x.WithConsumer<ResourceEventsConsumer>()
+                                    .Queue(resourceEventsConsumerOptions.QueueName)
+                                    .Instances(resourceEventsConsumerOptions.ConsumersPerHost)
                             );
                     }
                 );
@@ -263,15 +263,17 @@ public static class ServiceCollectionExtensions
         services.AddTransient<NotificationConsumer>();
         services.AddTransient<CustomsDeclarationsConsumer>();
 
+        services.AddPublishers(serviceBusOptions);
+
         return services;
     }
 
-    public static IServiceCollection AddPublishers(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddPublishers(
+        this IServiceCollection services,
+        ServiceBusOptions serviceBusOptions
+    )
     {
         services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
-        services.AddScoped<IIpaffsStrategyFactory, IpaffsStrategyFactory>();
-
-        var serviceBusOptions = configuration.GetSection(ServiceBusOptions.SectionName).Get<ServiceBusOptions>();
 
         services.AddSlimMessageBus(smb =>
         {
@@ -281,12 +283,12 @@ public static class ServiceCollectionExtensions
                 {
                     mbb.WithProviderServiceBus(cfg =>
                     {
-                        cfg.ConnectionString = serviceBusOptions!.Ipaffs.ConnectionString;
+                        cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
                         cfg.TopologyProvisioning.Enabled = false;
                     });
                     mbb.AddJsonSerializer();
                     mbb.Produce<DecisionNotification>(x =>
-                        x.DefaultTopic(serviceBusOptions!.Ipaffs.Topic)
+                        x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
                             .WithModifier(
                                 (message, sbMessage) =>
                                 {

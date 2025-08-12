@@ -32,4 +32,9 @@
     <ProjectReference Include="..\TestFixtures\TestFixtures.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Consumers\ResourceEventsConsumerTests.WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic.verified.txt">
+      <DependentUpon>ResourceEventsConsumerTests.cs</DependentUpon>
+    </None>
+  </ItemGroup>
 </Project>

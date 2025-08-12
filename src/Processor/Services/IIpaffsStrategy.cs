@@ -5,10 +5,10 @@ namespace Defra.TradeImportsProcessor.Processor.Services;
 public interface IIpaffsStrategy
 {
     string SupportedSubResourceType { get; }
-    Task PublishToIpaffsAsync(
+    Task PublishToIpaffs(
         string messageId,
-        string? resourceId,
-        CustomsDeclaration? customsDeclaration,
+        string resourceId,
+        CustomsDeclaration customsDeclaration,
         CancellationToken cancellationToken
     );
 }
