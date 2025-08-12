@@ -70,7 +70,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
-        services.AddOptions<BtmsOptions>().BindConfiguration(BtmsOptions.SectionName).ValidateDataAnnotations();
 
         return services;
     }
@@ -273,32 +272,41 @@ public static class ServiceCollectionExtensions
         ServiceBusOptions serviceBusOptions
     )
     {
-        services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
+        var btmsOptions = services
+            .AddOptions<BtmsOptions>()
+            .BindConfiguration(BtmsOptions.SectionName)
+            .ValidateDataAnnotations()
+            .Get();
 
-        services.AddSlimMessageBus(smb =>
+        if (btmsOptions.OperatingMode == OperatingMode.Cutover)
         {
-            smb.AddChildBus(
-                "ASB_IpaffsPublisher",
-                mbb =>
-                {
-                    mbb.WithProviderServiceBus(cfg =>
+            services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
+
+            services.AddSlimMessageBus(smb =>
+            {
+                smb.AddChildBus(
+                    "ASB_IpaffsPublisher",
+                    mbb =>
                     {
-                        cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
-                        cfg.TopologyProvisioning.Enabled = false;
-                    });
-                    mbb.AddJsonSerializer();
-                    mbb.Produce<DecisionNotification>(x =>
-                        x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
-                            .WithModifier(
-                                (message, sbMessage) =>
-                                {
-                                    sbMessage.ApplicationProperties.Remove("MessageType");
-                                }
-                            )
-                    );
-                }
-            );
-        });
+                        mbb.WithProviderServiceBus(cfg =>
+                        {
+                            cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
+                            cfg.TopologyProvisioning.Enabled = false;
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.Produce<DecisionNotification>(x =>
+                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
+                                .WithModifier(
+                                    (message, sbMessage) =>
+                                    {
+                                        sbMessage.ApplicationProperties.Remove("MessageType");
+                                    }
+                                )
+                        );
+                    }
+                );
+            });
+        }
 
         return services;
     }
