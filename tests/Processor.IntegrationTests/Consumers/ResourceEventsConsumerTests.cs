@@ -74,7 +74,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
         messages[0].ApplicationProperties["messageType"].Should().Be("ALVSDecisionNotification");
         messages[0].ApplicationProperties["subType"].Should().Be("ALVS");
 
-        await VerifyJson(messages[0].Body.ToString());
+        await VerifyJson(messages[0].Body.ToString()).DontIgnoreEmptyCollections().UseStrictJson();
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
         messages[0].ApplicationProperties["messageType"].Should().Be("ALVSClearanceRequest");
         messages[0].ApplicationProperties["subType"].Should().Be("CDS");
 
-        await VerifyJson(messages[0].Body.ToString());
+        await VerifyJson(messages[0].Body.ToString()).DontIgnoreEmptyCollections().UseStrictJson();
     }
 
     private static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(

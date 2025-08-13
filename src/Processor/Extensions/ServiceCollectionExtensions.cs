@@ -298,12 +298,7 @@ public static class ServiceCollectionExtensions
                         mbb.AddJsonSerializer();
                         mbb.Produce<DecisionNotification>(x =>
                             x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
-                                .WithModifier(
-                                    (message, sbMessage) =>
-                                    {
-                                        sbMessage.ApplicationProperties.Remove("MessageType");
-                                    }
-                                )
+                                .WithModifier(Modifier<DecisionNotification>())
                         );
                     }
                 );
@@ -319,13 +314,7 @@ public static class ServiceCollectionExtensions
                         });
                         mbb.AddJsonSerializer();
                         mbb.Produce<ClearanceRequest>(x =>
-                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
-                                .WithModifier(
-                                    (message, sbMessage) =>
-                                    {
-                                        sbMessage.ApplicationProperties.Remove("MessageType");
-                                    }
-                                )
+                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic).WithModifier(Modifier<ClearanceRequest>())
                         );
                     }
                 );
@@ -333,6 +322,14 @@ public static class ServiceCollectionExtensions
         }
 
         return services;
+    }
+
+    private static AsbMessageModifier<T> Modifier<T>()
+    {
+        return (message, sbMessage) =>
+        {
+            sbMessage.ApplicationProperties.Remove("MessageType");
+        };
     }
 
     public static IServiceCollection AddValidators(this IServiceCollection services)

@@ -12,7 +12,7 @@ public class ClearanceRequest(string mrn, CustomsDeclarationClearanceRequest cle
         {
             SourceSystem = "CDS",
             DestinationSystem = "ALVS",
-            CorrelationId = clearanceRequest.ExternalCorrelationId!,
+            CorrelationId = clearanceRequest.ExternalCorrelationId ?? string.Empty,
             ServiceCallTimestamp = clearanceRequest.MessageSentAt,
         };
 
