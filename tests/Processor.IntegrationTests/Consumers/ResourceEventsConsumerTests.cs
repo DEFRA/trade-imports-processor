@@ -12,6 +12,8 @@ namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
 public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase(output)
 {
+    private readonly string MRN = "25GB001ABCDEF1ABC5";
+
     private readonly ServiceBusHandler ServiceBus = new();
 
     [Fact]
@@ -19,8 +21,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
     {
         await ServiceBus.InitializeAsync();
 
-        var mrn = "25GB001ABCDEF1ABC5";
-        var customsDeclaration = new CustomsDeclaration()
+        var customsDeclaration = new CustomsDeclaration
         {
             ClearanceDecision = new ClearanceDecision
             {
@@ -50,7 +51,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
 
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
         {
-            ResourceId = mrn,
+            ResourceId = MRN,
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
@@ -59,10 +60,10 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
         };
 
         await SendMessage(
-            mrn,
+            MRN,
             JsonSerializer.Serialize(resourceEvent),
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", MRN),
             false
         );
 
@@ -72,6 +73,91 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
         messages[0].ApplicationProperties.Count.Should().Be(2);
         messages[0].ApplicationProperties["messageType"].Should().Be("ALVSDecisionNotification");
         messages[0].ApplicationProperties["subType"].Should().Be("ALVS");
+
+        await VerifyJson(messages[0].Body.ToString());
+    }
+
+    [Fact]
+    public async Task WhenClearanceRequestSent_ThenClearanceRequestIsSentToAlvsServiceBusTopic()
+    {
+        await ServiceBus.InitializeAsync();
+
+        var customsDeclaration = new CustomsDeclaration
+        {
+            ClearanceRequest = new ClearanceRequest
+            {
+                ExternalCorrelationId = "ABC123",
+                MessageSentAt = new DateTime(2025, 01, 01, 12, 0, 0, DateTimeKind.Utc),
+                ExternalVersion = 2,
+                PreviousExternalVersion = 1,
+                DeclarationUcr = "TestUcr",
+                DeclarationPartNumber = "TestPartNumber",
+                DeclarationType = "TestType",
+                ArrivesAt = new DateTime(2025, 01, 02, 12, 0, 0, DateTimeKind.Utc),
+                SubmitterTurn = "TestSubmitterTurn",
+                DeclarantId = "TestDeclarantId",
+                DeclarantName = "TestDeclarantName",
+                DispatchCountryCode = "TestDispatchCountryCode",
+                GoodsLocationCode = "TestGoodsLocationCode",
+                MasterUcr = "TestMasterUcr",
+                Commodities = new[]
+                {
+                    new Commodity
+                    {
+                        ItemNumber = 1,
+                        CustomsProcedureCode = "TestProcedureCode",
+                        TaricCommodityCode = "TestTaricCommodityCode",
+                        GoodsDescription = "TestGoodsDescription",
+                        ConsigneeId = "TestConsigneeId",
+                        ConsigneeName = "TestConsigneeName",
+                        NetMass = 10,
+                        SupplementaryUnits = 2,
+                        ThirdQuantity = 3,
+                        OriginCountryCode = "TestOriginCountryCode",
+                        Documents =
+                        [
+                            new ImportDocument
+                            {
+                                DocumentCode = "TestDocumentCode",
+                                DocumentReference = new ImportDocumentReference("TestDocumentReference"),
+                                DocumentStatus = "TestDocumentStatus",
+                                DocumentControl = "TestDocumentControl",
+                                DocumentQuantity = 1,
+                            },
+                        ],
+                        Checks =
+                        [
+                            new CommodityCheck { CheckCode = "TestCheckCode", DepartmentCode = "TestDepartmentCode" },
+                        ],
+                    },
+                },
+            },
+        };
+
+        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        {
+            ResourceId = MRN,
+            ResourceType = "CustomsDeclaration",
+            SubResourceType = "ClearanceRequest",
+            Operation = "Created",
+            ETag = "123",
+            Resource = customsDeclaration,
+        };
+
+        await SendMessage(
+            MRN,
+            JsonSerializer.Serialize(resourceEvent),
+            ResourceEventsQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceRequest", MRN),
+            false
+        );
+
+        var messages = await ServiceBus.GetMessagesAsync();
+
+        messages.Count.Should().Be(1);
+        messages[0].ApplicationProperties.Count.Should().Be(2);
+        messages[0].ApplicationProperties["messageType"].Should().Be("ALVSClearanceRequest");
+        messages[0].ApplicationProperties["subType"].Should().Be("CDS");
 
         await VerifyJson(messages[0].Body.ToString());
     }

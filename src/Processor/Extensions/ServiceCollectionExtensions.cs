@@ -24,6 +24,7 @@ using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
+using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.ClearanceRequest;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -281,11 +282,12 @@ public static class ServiceCollectionExtensions
         if (btmsOptions.OperatingMode == OperatingMode.Cutover)
         {
             services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
+            services.AddScoped<IIpaffsStrategy, ClearanceRequestStrategy>();
 
             services.AddSlimMessageBus(smb =>
             {
                 smb.AddChildBus(
-                    "ASB_IpaffsPublisher",
+                    "ASB_IpaffsDecisionNotificationPublisher",
                     mbb =>
                     {
                         mbb.WithProviderServiceBus(cfg =>
@@ -295,6 +297,28 @@ public static class ServiceCollectionExtensions
                         });
                         mbb.AddJsonSerializer();
                         mbb.Produce<DecisionNotification>(x =>
+                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
+                                .WithModifier(
+                                    (message, sbMessage) =>
+                                    {
+                                        sbMessage.ApplicationProperties.Remove("MessageType");
+                                    }
+                                )
+                        );
+                    }
+                );
+
+                smb.AddChildBus(
+                    "ASB_IpaffsClearanceRequestPublisher",
+                    mbb =>
+                    {
+                        mbb.WithProviderServiceBus(cfg =>
+                        {
+                            cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
+                            cfg.TopologyProvisioning.Enabled = false;
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.Produce<ClearanceRequest>(x =>
                             x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
                                 .WithModifier(
                                     (message, sbMessage) =>
