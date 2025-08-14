@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
-using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus.Consumer;
 
 namespace Defra.TradeImportsProcessor.Processor.Utils.Logging;
@@ -75,12 +74,6 @@ public static class WebApplicationBuilderExtensions
             // so we can skip the filters below and show all errors
             if (serviceVersion != "local")
                 config
-                    .Filter.ByExcluding(x =>
-                        x.Level == LogEventLevel.Error
-                        && x.Properties.TryGetValue("SourceContext", out var sourceContext)
-                        && sourceContext.ToString().Contains(typeof(SqsQueueConsumer).FullName!)
-                        && x.MessageTemplate.Text.StartsWith("Message processing error")
-                    )
                     .Filter.ByExcluding(x =>
                         x.Level == LogEventLevel.Error
                         && x.Properties.TryGetValue("SourceContext", out var sourceContext)
