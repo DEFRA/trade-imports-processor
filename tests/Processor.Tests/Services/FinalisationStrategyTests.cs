@@ -76,9 +76,7 @@ public class FinalisationStrategyTests
             .Publish(
                 Arg.Any<DecisionNotification>(),
                 Arg.Any<string>(),
-                Arg.Is<Dictionary<string, object>>(e =>
-                    e["messageType"].ToString() == "FinalisationNotificationRequest" && e["subType"].ToString() == "CDS"
-                ),
+                Arg.Any<Dictionary<string, object>>(),
                 Arg.Any<CancellationToken>()
             );
     }

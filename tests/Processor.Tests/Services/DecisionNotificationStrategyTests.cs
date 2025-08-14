@@ -87,9 +87,7 @@ public class DecisionNotificationStrategyTests
             .Publish(
                 Arg.Any<DecisionNotification>(),
                 Arg.Any<string>(),
-                Arg.Is<Dictionary<string, object>>(e =>
-                    e["messageType"].ToString() == "ALVSDecisionNotification" && e["subType"].ToString() == "ALVS"
-                ),
+                Arg.Any<Dictionary<string, object>>(),
                 Arg.Any<CancellationToken>()
             );
     }

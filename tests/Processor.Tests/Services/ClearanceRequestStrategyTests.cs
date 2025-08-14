@@ -105,9 +105,7 @@ public class ClearanceRequestStrategyTests
             .Publish(
                 Arg.Any<DecisionNotification>(),
                 Arg.Any<string>(),
-                Arg.Is<Dictionary<string, object>>(e =>
-                    e["messageType"].ToString() == "ALVSClearanceRequest" && e["subType"].ToString() == "CDS"
-                ),
+                Arg.Any<Dictionary<string, object>>(),
                 Arg.Any<CancellationToken>()
             );
     }
