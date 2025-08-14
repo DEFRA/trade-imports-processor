@@ -17,6 +17,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         { ImportNotificationStatus.Deleted, 0 },
         { ImportNotificationStatus.Amend, 0 },
         { ImportNotificationStatus.Submitted, 0 },
+        { ImportNotificationStatus.Modify, 0 },
         { ImportNotificationStatus.InProgress, 1 },
         { ImportNotificationStatus.Cancelled, 2 },
         { ImportNotificationStatus.PartiallyRejected, 2 },
@@ -38,7 +39,11 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         if (IsInvalidStatus(newNotification))
         {
-            logger.LogInformation("Skipping {ReferenceNumber} due to status", newNotification.ReferenceNumber);
+            logger.LogInformation(
+                "Skipping {ReferenceNumber} due to status {Status}",
+                newNotification.ReferenceNumber,
+                newNotification.Status
+            );
 
             return;
         }
@@ -166,6 +171,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     private static bool IsInvalidStatus(ImportNotification notification)
     {
         return notification.Status == ImportNotificationStatus.Amend
+            || notification.Status == ImportNotificationStatus.Modify
             || notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
