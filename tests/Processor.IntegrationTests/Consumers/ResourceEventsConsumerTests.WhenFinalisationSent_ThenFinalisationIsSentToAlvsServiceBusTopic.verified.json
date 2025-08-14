@@ -1,0 +1,15 @@
+﻿{
+  "serviceHeader": {
+    "sourceSystem": "CDS",
+    "destinationSystem": "ALVS",
+    "correlationId": "ABC123",
+    "serviceCallTimestamp": 1735732800000
+  },
+  "header": {
+    "entryReference": "25GB001ABCDEF1ABC5",
+    "entryVersionNumber": 1,
+    "decisionNumber": 1,
+    "finalState": "0",
+    "manualAction": "Y"
+  }
+}

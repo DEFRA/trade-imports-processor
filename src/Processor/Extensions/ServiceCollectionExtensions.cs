@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Configuration;
@@ -25,6 +26,7 @@ using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
 using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.ClearanceRequest;
+using Finalisation = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.Finalisation;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
 
 namespace Defra.TradeImportsProcessor.Processor.Extensions;
@@ -283,6 +285,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
             services.AddScoped<IIpaffsStrategy, ClearanceRequestStrategy>();
+            services.AddScoped<IIpaffsStrategy, FinalisationStrategy>();
 
             services.AddSlimMessageBus(smb =>
             {
@@ -315,6 +318,22 @@ public static class ServiceCollectionExtensions
                         mbb.AddJsonSerializer();
                         mbb.Produce<ClearanceRequest>(x =>
                             x.DefaultTopic(serviceBusOptions.Ipaffs.Topic).WithModifier(Modifier<ClearanceRequest>())
+                        );
+                    }
+                );
+
+                smb.AddChildBus(
+                    "ASB_IpaffsFinalisationPublisher",
+                    mbb =>
+                    {
+                        mbb.WithProviderServiceBus(cfg =>
+                        {
+                            cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
+                            cfg.TopologyProvisioning.Enabled = false;
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.Produce<Finalisation>(x =>
+                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic).WithModifier(Modifier<Finalisation>())
                         );
                     }
                 );

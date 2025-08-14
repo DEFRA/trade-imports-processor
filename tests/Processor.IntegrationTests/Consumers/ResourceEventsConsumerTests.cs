@@ -5,8 +5,11 @@ using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
+using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using FluentAssertions;
 using Xunit.Abstractions;
+using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
+using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalisation;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
@@ -157,6 +160,52 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
         messages[0].ApplicationProperties["messageType"].Should().Be("ALVSClearanceRequest");
+        messages[0].ApplicationProperties["subType"].Should().Be("CDS");
+
+        await VerifyJson(messages[0].Body.ToString()).DontIgnoreEmptyCollections().UseStrictJson();
+    }
+
+    [Fact]
+    public async Task WhenFinalisationSent_ThenFinalisationIsSentToAlvsServiceBusTopic()
+    {
+        await ServiceBus.InitializeAsync();
+
+        var customsDeclaration = new CustomsDeclaration
+        {
+            Finalisation = new Finalisation
+            {
+                ExternalCorrelationId = "ABC123",
+                MessageSentAt = new DateTime(2025, 01, 01, 12, 0, 0, DateTimeKind.Utc),
+                ExternalVersion = 1,
+                DecisionNumber = 1,
+                FinalState = "0",
+                IsManualRelease = true,
+            },
+        };
+
+        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        {
+            ResourceId = MRN,
+            ResourceType = "CustomsDeclaration",
+            SubResourceType = "Finalisation",
+            Operation = "Created",
+            ETag = "123",
+            Resource = customsDeclaration,
+        };
+
+        await SendMessage(
+            MRN,
+            JsonSerializer.Serialize(resourceEvent),
+            ResourceEventsQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "Finalisation", MRN),
+            false
+        );
+
+        var messages = await ServiceBus.GetMessagesAsync();
+
+        messages.Count.Should().Be(1);
+        messages[0].ApplicationProperties.Count.Should().Be(2);
+        messages[0].ApplicationProperties["messageType"].Should().Be("FinalisationNotificationRequest");
         messages[0].ApplicationProperties["subType"].Should().Be("CDS");
 
         await VerifyJson(messages[0].Body.ToString()).DontIgnoreEmptyCollections().UseStrictJson();
