@@ -11,7 +11,7 @@ public class DecisionNotification(string mrn, ClearanceDecision clearanceDecisio
         {
             SourceSystem = "ALVS",
             DestinationSystem = "CDS",
-            CorrelationId = clearanceDecision.CorrelationId!,
+            CorrelationId = clearanceDecision.CorrelationId ?? string.Empty,
             ServiceCallTimestamp = clearanceDecision.Created,
         };
 

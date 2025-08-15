@@ -1,0 +1,52 @@
+﻿{
+  "serviceHeader": {
+    "sourceSystem": "CDS",
+    "destinationSystem": "ALVS",
+    "correlationId": "ABC123",
+    "serviceCallTimestamp": 1735732800000
+  },
+  "header": {
+    "entryReference": "25GB001ABCDEF1ABC5",
+    "entryVersionNumber": 2,
+    "previousVersionNumber": 1,
+    "declarationUCR": "TestUcr",
+    "declarationPartNumber": "TestPartNumber",
+    "declarationType": "TestType",
+    "arrivalDateTime": "202501021200",
+    "submitterTURN": "TestSubmitterTurn",
+    "declarantId": "TestDeclarantId",
+    "declarantName": "TestDeclarantName",
+    "dispatchCountryCode": "TestDispatchCountryCode",
+    "goodsLocationCode": "TestGoodsLocationCode",
+    "masterUCR": "TestMasterUcr"
+  },
+  "items": [
+    {
+      "itemNumber": 1,
+      "customsProcedureCode": "TestProcedureCode",
+      "taricCommodityCode": "TestTaricCommodityCode",
+      "goodsDescription": "TestGoodsDescription",
+      "consigneeId": "TestConsigneeId",
+      "consigneeName": "TestConsigneeName",
+      "itemNetMass": 10,
+      "itemSupplementaryUnits": 2,
+      "itemThirdQuantity": 3,
+      "itemOriginCountryCode": "TestOriginCountryCode",
+      "documents": [
+        {
+          "documentCode": "TestDocumentCode",
+          "documentReference": "TestDocumentReference",
+          "documentStatus": "TestDocumentStatus",
+          "documentControl": "TestDocumentControl",
+          "documentQuantity": 1
+        }
+      ],
+      "checks": [
+        {
+          "checkCode": "TestCheckCode",
+          "departmentCode": "TestDepartmentCode"
+        }
+      ]
+    }
+  ]
+}
