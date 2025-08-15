@@ -1,3 +1,4 @@
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;

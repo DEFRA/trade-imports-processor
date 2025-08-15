@@ -11,6 +11,18 @@ public class ServiceBusOptions
 
     [Required]
     public required ServiceBusSubscriptionOptions Notifications { get; init; }
+
+    [Required]
+    public required ServiceBusPublisherOptions Ipaffs { get; init; }
+}
+
+public class ServiceBusPublisherOptions
+{
+    [Required]
+    public required string Topic { get; init; }
+
+    [Required]
+    public required string ConnectionString { get; init; }
 }
 
 public class ServiceBusSubscriptionOptions
