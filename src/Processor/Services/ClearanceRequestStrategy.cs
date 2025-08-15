@@ -35,6 +35,7 @@ public class ClearanceRequestStrategy(IMessageBus azureServiceBus, ILogger<Clear
             {
                 ["messageType"] = ClearanceRequestMessageType,
                 ["subType"] = ClearanceRequestSubType,
+                ["PublisherType"] = "IPAFFS",
             },
             cancellationToken: cancellationToken
         );

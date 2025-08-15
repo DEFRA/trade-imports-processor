@@ -35,6 +35,7 @@ public class DecisionNotificationStrategy(IMessageBus azureServiceBus, ILogger<D
             {
                 ["messageType"] = DecisionNotificationMessageType,
                 ["subType"] = DecisionNotificationSubType,
+                ["PublisherType"] = "IPAFFS",
             },
             cancellationToken: cancellationToken
         );

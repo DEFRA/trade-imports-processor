@@ -12,7 +12,7 @@ public class ConsumerMetrics : IConsumerMetrics
     private readonly Counter<long> _consumeTotal;
     private readonly Counter<long> _consumeFaultTotal;
     private readonly Counter<long> _consumeWarnTotal;
-    private readonly Counter<long> _consumerInProgress;
+    private readonly Counter<long> _consumeInProgress;
 
     public ConsumerMetrics(IMeterFactory meterFactory)
     {
@@ -38,19 +38,19 @@ public class ConsumerMetrics : IConsumerMetrics
             nameof(Unit.COUNT),
             description: "Number of message consume warnings"
         );
-        _consumerInProgress = meter.CreateCounter<long>(
+        _consumeInProgress = meter.CreateCounter<long>(
             "MessagingConsumeActive",
             nameof(Unit.COUNT),
-            description: "Number of consumers in progress"
+            description: "Number of consumptions in progress"
         );
     }
 
-    public void Start(string path, string consumerName, string resourceType)
+    public void Start(string queueName, string consumerName, string resourceType)
     {
-        var tagList = BuildTags(path, consumerName, resourceType);
+        var tagList = BuildTags(queueName, consumerName, resourceType);
 
         _consumeTotal.Add(1, tagList);
-        _consumerInProgress.Add(1, tagList);
+        _consumeInProgress.Add(1, tagList);
     }
 
     public void Faulted(string queueName, string consumerName, string resourceType, Exception exception)
@@ -75,16 +75,16 @@ public class ConsumerMetrics : IConsumerMetrics
     {
         var tagList = BuildTags(queueName, consumerName, resourceType);
 
-        _consumerInProgress.Add(-1, tagList);
+        _consumeInProgress.Add(-1, tagList);
         _consumeDuration.Record(milliseconds, tagList);
     }
 
-    private static TagList BuildTags(string path, string consumerName, string resourceType)
+    private static TagList BuildTags(string queueName, string consumerName, string resourceType)
     {
         return new TagList
         {
             { Constants.Tags.Service, Process.GetCurrentProcess().ProcessName },
-            { Constants.Tags.QueueName, path },
+            { Constants.Tags.QueueName, queueName },
             { Constants.Tags.ConsumerType, consumerName },
             { Constants.Tags.ResourceType, resourceType },
         };

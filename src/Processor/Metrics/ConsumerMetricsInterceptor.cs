@@ -7,9 +7,9 @@ using SlimMessageBus.Host.Interceptor;
 namespace Defra.TradeImportsProcessor.Processor.Metrics;
 
 [ExcludeFromCodeCoverage]
-public class MetricsInterceptor<TMessage>(
+public class ConsumerMetricsInterceptor<TMessage>(
     IConsumerMetrics consumerMetrics,
-    ILogger<MetricsInterceptor<TMessage>> logger
+    ILogger<ConsumerMetricsInterceptor<TMessage>> logger
 ) : IConsumerInterceptor<TMessage>
     where TMessage : notnull
 {
