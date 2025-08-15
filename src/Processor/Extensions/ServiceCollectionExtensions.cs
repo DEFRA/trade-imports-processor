@@ -81,6 +81,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<MetricsMiddleware>();
 
         services.AddSingleton<IConsumerMetrics, ConsumerMetrics>();
+        services.AddSingleton<IPublisherMetrics, PublisherMetrics>();
         services.AddSingleton<RequestMetrics>();
         services.AddSingleton<AzureMetrics>();
 
@@ -135,7 +136,9 @@ public static class ServiceCollectionExtensions
             .AddValidateOptions<RawMessageLoggingOptions>(RawMessageLoggingOptions.SectionName)
             .Get();
 
-        // Order of interceptors is important here
+        // The order of interceptors is important here!
+
+        // Consumers
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(ConsumerMetricsInterceptor<>));
@@ -144,6 +147,9 @@ public static class ServiceCollectionExtensions
             services.AddScoped(typeof(IConsumerInterceptor<>), typeof(RawMessageLoggingInterceptor<>));
 
         services.AddTransient(typeof(IServiceBusConsumerErrorHandler<>), typeof(AzureConsumerErrorHandler<>));
+
+        // Publishers
+        services.AddSingleton(typeof(IPublishInterceptor<>), typeof(PublisherMetricsInterceptor<>));
 
         services.AddSlimMessageBus(smb =>
         {
@@ -344,9 +350,10 @@ public static class ServiceCollectionExtensions
 
     private static AsbMessageModifier<T> Modifier<T>()
     {
-        return (message, sbMessage) =>
+        return (_, sbMessage) =>
         {
             sbMessage.ApplicationProperties.Remove("MessageType");
+            sbMessage.ApplicationProperties.Remove("PublisherType");
         };
     }
 
