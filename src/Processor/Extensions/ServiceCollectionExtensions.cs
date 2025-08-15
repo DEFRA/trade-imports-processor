@@ -138,7 +138,7 @@ public static class ServiceCollectionExtensions
         // Order of interceptors is important here
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(TraceContextInterceptor<>));
         services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(LoggingInterceptor<>));
-        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(MetricsInterceptor<>));
+        services.AddSingleton(typeof(IConsumerInterceptor<>), typeof(ConsumerMetricsInterceptor<>));
 
         if (rawMessageLoggingOptions.Enabled)
             services.AddScoped(typeof(IConsumerInterceptor<>), typeof(RawMessageLoggingInterceptor<>));
