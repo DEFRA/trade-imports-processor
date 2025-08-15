@@ -9,8 +9,10 @@ namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
 public class SqsTestBase(ITestOutputHelper output) : TestBase
 {
-    private const string QueueUrl =
+    protected const string InboundCustomsDeclarationsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
+    protected const string ResourceEventsQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_processor";
 
     private readonly AmazonSQSClient _sqsClient = new(
         new BasicAWSCredentials("test", "test"),
@@ -23,12 +25,12 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
         }
     );
 
-    private Task<ReceiveMessageResponse> ReceiveMessage()
+    private Task<ReceiveMessageResponse> ReceiveMessage(string queueUrl)
     {
         return _sqsClient.ReceiveMessageAsync(
             new ReceiveMessageRequest
             {
-                QueueUrl = QueueUrl,
+                QueueUrl = queueUrl,
                 MaxNumberOfMessages = 10,
                 WaitTimeSeconds = 0,
             },
@@ -36,32 +38,32 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
         );
     }
 
-    protected Task<GetQueueAttributesResponse> GetQueueAttributes()
+    protected Task<GetQueueAttributesResponse> GetQueueAttributes(string queueUrl)
     {
         return _sqsClient.GetQueueAttributesAsync(
-            new GetQueueAttributesRequest { AttributeNames = ["ApproximateNumberOfMessages"], QueueUrl = QueueUrl },
+            new GetQueueAttributesRequest { AttributeNames = ["ApproximateNumberOfMessages"], QueueUrl = queueUrl },
             CancellationToken.None
         );
     }
 
-    protected async Task DrainAllMessages()
+    protected async Task DrainAllMessages(string queueUrl)
     {
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
             {
-                var response = await ReceiveMessage();
+                var response = await ReceiveMessage(queueUrl);
 
                 foreach (var message in response.Messages)
                 {
                     output?.WriteLine("Drain message: {0} {1}", message.MessageId, message.Body);
 
                     await _sqsClient.DeleteMessageAsync(
-                        new DeleteMessageRequest { QueueUrl = QueueUrl, ReceiptHandle = message.ReceiptHandle },
+                        new DeleteMessageRequest { QueueUrl = queueUrl, ReceiptHandle = message.ReceiptHandle },
                         CancellationToken.None
                     );
                 }
 
-                var approximateNumberOfMessages = (await GetQueueAttributes()).ApproximateNumberOfMessages;
+                var approximateNumberOfMessages = (await GetQueueAttributes(queueUrl)).ApproximateNumberOfMessages;
 
                 output?.WriteLine("ApproximateNumberOfMessages: {0}", approximateNumberOfMessages);
 
@@ -73,21 +75,23 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
     protected async Task<string> SendMessage(
         string messageGroupId,
         string body,
-        Dictionary<string, MessageAttributeValue>? messageAttributes = null
+        string queueUrl,
+        Dictionary<string, MessageAttributeValue>? messageAttributes = null,
+        bool usesFifo = true
     )
     {
         var request = new SendMessageRequest
         {
             MessageAttributes = messageAttributes,
             MessageBody = body,
-            MessageDeduplicationId = RandomNumberGenerator.GetString("abcdefg", 20),
-            MessageGroupId = messageGroupId,
-            QueueUrl = QueueUrl,
+            MessageDeduplicationId = usesFifo ? RandomNumberGenerator.GetString("abcdefg", 20) : null,
+            MessageGroupId = usesFifo ? messageGroupId : null,
+            QueueUrl = queueUrl,
         };
 
         var result = await _sqsClient.SendMessageAsync(request, CancellationToken.None);
 
-        output.WriteLine("Sent {0} to {1}", result.MessageId, QueueUrl);
+        output.WriteLine("Sent {0} to {1}", result.MessageId, queueUrl);
 
         return result.MessageId;
     }

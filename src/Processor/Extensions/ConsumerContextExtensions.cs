@@ -11,10 +11,13 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 public static class MessageBusHeaders
 {
     public const string InboundHmrcMessageTypeHeader = "InboundHmrcMessageType";
+    public const string ResourceTypeHeader = "ResourceType";
+    public const string SubResourceTypeHeader = "SubResourceType";
     public const string SqsBusMessage = "Sqs_Message";
     public const string ServiceBusMessage = "ServiceBus_Message";
     public const string ResourceId = "ResourceId";
     public const string TraceId = "x-cdp-request-id";
+    public const string ContentEncoding = "Content-Encoding";
 }
 
 [ExcludeFromCodeCoverage]
@@ -26,6 +29,8 @@ public static class ResourceTypes
     public const string ClearanceRequest = InboundHmrcMessageType.ClearanceRequest;
     public const string InboundError = InboundHmrcMessageType.InboundError;
     public const string Finalisation = InboundHmrcMessageType.Finalisation;
+    public const string CustomsDeclaration = nameof(TradeImportsDataApi.Domain.CustomsDeclaration);
+    public const string ProcessingError = nameof(TradeImportsDataApi.Domain.Errors.ProcessingError);
 }
 
 [ExcludeFromCodeCoverage]
@@ -55,6 +60,17 @@ public static class ConsumerContextExtensions
                 ResourceTypes.ClearanceRequest => ResourceTypes.ClearanceRequest,
                 ResourceTypes.Finalisation => ResourceTypes.Finalisation,
                 ResourceTypes.InboundError => ResourceTypes.InboundError,
+                _ => ResourceTypes.Unknown,
+            };
+        }
+
+        if (consumerContext.Headers.TryGetValue(MessageBusHeaders.ResourceTypeHeader, out var resourceTypeValue))
+        {
+            return resourceTypeValue.ToString()! switch
+            {
+                ResourceTypes.CustomsDeclaration => ResourceTypes.CustomsDeclaration,
+                ResourceTypes.ImportPreNotification => ResourceTypes.ImportPreNotification,
+                ResourceTypes.ProcessingError => ResourceTypes.ProcessingError,
                 _ => ResourceTypes.Unknown,
             };
         }

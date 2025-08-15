@@ -6,11 +6,15 @@ using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
+using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Services;
+using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -18,6 +22,7 @@ using SlimMessageBus.Host;
 using SlimMessageBus.Host.AmazonSQS;
 using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
+using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
 
@@ -120,6 +125,9 @@ public static class ServiceCollectionExtensions
         var customsDeclarationsConsumerOptions = services
             .AddValidateOptions<CustomsDeclarationsConsumerOptions>(CustomsDeclarationsConsumerOptions.SectionName)
             .Get();
+        var resourceEventsConsumerOptions = services
+            .AddValidateOptions<ResourceEventsConsumerOptions>(ResourceEventsConsumerOptions.SectionName)
+            .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
             .AddValidateOptions<RawMessageLoggingOptions>(RawMessageLoggingOptions.SectionName)
@@ -213,11 +221,92 @@ public static class ServiceCollectionExtensions
                     }
                 );
             }
+
+            if (resourceEventsConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_ResourceEvents",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                cfg.SqsClientConfig,
+                                configuration
+                            );
+                        });
+
+                        mbb.RegisterSerializer<ToStringSerializer>(s =>
+                        {
+                            s.TryAddSingleton(_ => new ToStringSerializer());
+                            s.TryAddSingleton<IMessageSerializer<string>>(svp =>
+                                svp.GetRequiredService<ToStringSerializer>()
+                            );
+                        });
+
+                        mbb.WithSerializer<ToStringSerializer>();
+
+                        mbb.AutoStartConsumersEnabled(resourceEventsConsumerOptions.AutoStartConsumers)
+                            .Consume<string>(x =>
+                                x.WithConsumer<ResourceEventsConsumer>()
+                                    .Queue(resourceEventsConsumerOptions.QueueName)
+                                    .Instances(resourceEventsConsumerOptions.ConsumersPerHost)
+                            );
+                    }
+                );
+            }
         });
 
         // Concrete consumers added for temporary replay endpoints
         services.AddTransient<NotificationConsumer>();
         services.AddTransient<CustomsDeclarationsConsumer>();
+
+        services.AddPublishers(serviceBusOptions);
+
+        return services;
+    }
+
+    private static IServiceCollection AddPublishers(
+        this IServiceCollection services,
+        ServiceBusOptions serviceBusOptions
+    )
+    {
+        var btmsOptions = services
+            .AddOptions<BtmsOptions>()
+            .BindConfiguration(BtmsOptions.SectionName)
+            .ValidateDataAnnotations()
+            .Get();
+
+        if (btmsOptions.OperatingMode == OperatingMode.Cutover)
+        {
+            services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
+
+            services.AddSlimMessageBus(smb =>
+            {
+                smb.AddChildBus(
+                    "ASB_IpaffsPublisher",
+                    mbb =>
+                    {
+                        mbb.WithProviderServiceBus(cfg =>
+                        {
+                            cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
+                            cfg.TopologyProvisioning.Enabled = false;
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.Produce<DecisionNotification>(x =>
+                            x.DefaultTopic(serviceBusOptions.Ipaffs.Topic)
+                                .WithModifier(
+                                    (message, sbMessage) =>
+                                    {
+                                        sbMessage.ApplicationProperties.Remove("MessageType");
+                                    }
+                                )
+                        );
+                    }
+                );
+            });
+        }
 
         return services;
     }
