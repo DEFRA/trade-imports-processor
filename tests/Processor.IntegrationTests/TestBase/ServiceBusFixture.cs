@@ -45,7 +45,7 @@ public class ServiceBusFixture : IAsyncLifetime
         await Dispose(_serviceBusClient);
     }
 
-    private static async Task Dispose(IAsyncDisposable? disposable)
+    private static async Task Dispose(ServiceBusClient? disposable)
     {
         if (disposable != null)
             await disposable.DisposeAsync();
