@@ -13,14 +13,14 @@ using static Defra.TradeImportsProcessor.TestFixtures.GmrFixtures;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
-[Collection("UsesWireMockClient")]
-public class GmrConsumerTests(WireMockClient wireMockClient)
-    : ServiceBusTestBase(
-        "defra.trade.dmp.outputgmrs.dev.1001.topic",
-        "defra.trade.dmp.btms-ingest.dev.1001.subscription"
-    )
+[Collection("UsesWireMockClientAndServiceBus")]
+public class GmrConsumerTests(WireMockClient wireMockClient, ServiceBusFixture serviceBusFixture) : TestBase.TestBase
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
+    private readonly ServiceBusFixtureClient _serviceBusFixtureClient = serviceBusFixture.GetClient(
+        "defra.trade.dmp.outputgmrs.dev.1001.topic",
+        "defra.trade.dmp.btms-ingest.dev.1001.subscription"
+    );
 
     [Fact]
     public async Task WhenGmrSent_ThenGmrProcessed_AndSentToTheDataApi()
@@ -38,7 +38,7 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
 
         var body = new BinaryData(gmr);
         var message = new ServiceBusMessage { Body = body, MessageId = Guid.NewGuid().ToString("N") };
-        await Sender.SendMessageAsync(message);
+        await _serviceBusFixtureClient.Sender.SendMessageAsync(message);
 
         var assertionRequestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
 
@@ -63,14 +63,17 @@ public class GmrConsumerTests(WireMockClient wireMockClient)
         var traceId = Guid.NewGuid().ToString("N");
         message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
         message.ApplicationProperties.Add(MessageBusHeaders.ResourceId, "123");
-        await Sender.SendMessageAsync(message);
+        await _serviceBusFixtureClient.Sender.SendMessageAsync(message);
 
         Assert.True(
             await AsyncWaiter.WaitForAsync(async () =>
             {
                 try
                 {
-                    var messages = await DeadLetterReceiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
+                    var messages = await _serviceBusFixtureClient.DeadLetterReceiver.ReceiveMessagesAsync(
+                        10,
+                        TimeSpan.FromSeconds(5)
+                    );
 
                     return messages.FirstOrDefault(x =>
                             x.ApplicationProperties.TryGetValue(MessageBusHeaders.TraceId, out var traceIdValue)

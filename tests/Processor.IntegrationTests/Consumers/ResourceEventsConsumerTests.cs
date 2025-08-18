@@ -1,11 +1,10 @@
 using System.Text.Json;
 using Amazon.SQS.Model;
-using Azure.Messaging.ServiceBus;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Extensions;
+using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
-using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using FluentAssertions;
 using Xunit.Abstractions;
 using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
@@ -13,17 +12,19 @@ using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalis
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
-public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase(output)
+[Collection("UsesServiceBus")]
+public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
+    : SqsTestBase(output)
 {
     private readonly string MRN = "25GB001ABCDEF1ABC5";
-
-    private readonly ServiceBusHandler ServiceBus = new();
+    private readonly ServiceBusFixtureClient _serviceBusFixtureClient = serviceBusFixture.GetClient(
+        "alvs_topic",
+        "trade-imports-processor.tests.subscription"
+    );
 
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
     {
-        await ServiceBus.InitializeAsync();
-
         var customsDeclaration = new CustomsDeclaration
         {
             ClearanceDecision = new ClearanceDecision
@@ -70,7 +71,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
             false
         );
 
-        var messages = await ServiceBus.GetMessagesAsync();
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
@@ -83,8 +84,6 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
     [Fact]
     public async Task WhenClearanceRequestSent_ThenClearanceRequestIsSentToAlvsServiceBusTopic()
     {
-        await ServiceBus.InitializeAsync();
-
         var customsDeclaration = new CustomsDeclaration
         {
             ClearanceRequest = new ClearanceRequest
@@ -155,7 +154,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
             false
         );
 
-        var messages = await ServiceBus.GetMessagesAsync();
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
@@ -168,8 +167,6 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
     [Fact]
     public async Task WhenFinalisationSent_ThenFinalisationIsSentToAlvsServiceBusTopic()
     {
-        await ServiceBus.InitializeAsync();
-
         var customsDeclaration = new CustomsDeclaration
         {
             Finalisation = new Finalisation
@@ -201,7 +198,7 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
             false
         );
 
-        var messages = await ServiceBus.GetMessagesAsync();
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
@@ -232,13 +229,5 @@ public class ResourceEventsConsumerTests(ITestOutputHelper output) : SqsTestBase
                 new MessageAttributeValue { DataType = "String", StringValue = resourceId }
             },
         };
-    }
-
-    private class ServiceBusHandler() : ServiceBusTestBase("alvs_topic", "trade-imports-processor.tests.subscription")
-    {
-        public async Task<IReadOnlyList<ServiceBusReceivedMessage>> GetMessagesAsync()
-        {
-            return await Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
-        }
     }
 }

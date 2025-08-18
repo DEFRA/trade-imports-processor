@@ -1,28 +1,28 @@
 using Azure.Messaging.ServiceBus;
 
-namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
+namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 
-public class ServiceBusTestBase(string topicName, string subscriptionName) : TestBase, IAsyncLifetime
+public class ServiceBusFixtureClient : IAsyncDisposable
 {
     private const string ConnectionString =
         "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";
 
-    private ServiceBusClient? _serviceBusClient;
-    private ServiceBusReceiver? _serviceBusReceiver;
-    private ServiceBusReceiver? _serviceBusDeadLetterReceiver;
-    private ServiceBusSender? _serviceBusSender;
+    private readonly ServiceBusClient _serviceBusClient;
+    private readonly ServiceBusReceiver? _serviceBusReceiver;
+    private readonly ServiceBusReceiver? _serviceBusDeadLetterReceiver;
+    private readonly ServiceBusSender? _serviceBusSender;
 
-    protected ServiceBusReceiver Receiver =>
+    public ServiceBusReceiver Receiver =>
         _serviceBusReceiver ?? throw new InvalidOperationException("Service Bus Receiver not initialized");
 
-    protected ServiceBusReceiver DeadLetterReceiver =>
+    public ServiceBusReceiver DeadLetterReceiver =>
         _serviceBusDeadLetterReceiver
         ?? throw new InvalidOperationException("Service Bus Dead Letter Receiver not initialized");
 
-    protected ServiceBusSender Sender =>
+    public ServiceBusSender Sender =>
         _serviceBusSender ?? throw new InvalidOperationException("Service Bus Sender not initialized");
 
-    public Task InitializeAsync()
+    public ServiceBusFixtureClient(string topicName, string subscriptionName)
     {
         _serviceBusClient = new ServiceBusClient(ConnectionString);
         _serviceBusReceiver = _serviceBusClient.CreateReceiver(topicName, subscriptionName);
@@ -36,17 +36,15 @@ public class ServiceBusTestBase(string topicName, string subscriptionName) : Tes
             }
         );
         _serviceBusSender = _serviceBusClient.CreateSender(topicName);
-
-        return Task.CompletedTask;
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        // Need to clear out the topic
         await Dispose(_serviceBusReceiver);
         await Dispose(_serviceBusDeadLetterReceiver);
         await Dispose(_serviceBusSender);
         await Dispose(_serviceBusClient);
+        GC.SuppressFinalize(this);
     }
 
     private static async Task Dispose(IAsyncDisposable? disposable)
