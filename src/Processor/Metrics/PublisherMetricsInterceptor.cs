@@ -24,14 +24,11 @@ public class PublisherMetricsInterceptor<TMessage>(
             ? Type.GetType(messageType)?.Name ?? "Unknown"
             : "Unknown";
 
-        logger.LogInformation("{Path}", context.Path);
-        logger.LogInformation("{BusType}", context.Bus.GetType().FullName);
         logger.LogInformation(
-            "{Headers}",
-            string.Join(", ", context.Headers.Select(kvp => $"{kvp.Key}: {kvp.Value} {kvp.Value.GetType().FullName}"))
-        );
-        logger.LogInformation(
-            "{Properties}",
+            "Publishing Metrics with Path: {Path}, BusType: {BusType}, Headers: {Headers}, Properties: {Properties}",
+            context.Path,
+            context.Bus.GetType().FullName,
+            string.Join(", ", context.Headers.Select(kvp => $"{kvp.Key}: {kvp.Value} {kvp.Value.GetType().FullName}")),
             string.Join(
                 ", ",
                 context.Properties.Select(kvp => $"{kvp.Key}: {kvp.Value} {kvp.Value.GetType().FullName}")
