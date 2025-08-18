@@ -3,6 +3,7 @@ using Amazon.SQS.Model;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Extensions;
+using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using FluentAssertions;
 using Xunit.Abstractions;
@@ -12,17 +13,14 @@ using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalis
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
 [Collection("UsesServiceBus")]
-public class ResourceEventsConsumerTests : SqsTestBase
+public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
+    : SqsTestBase(output)
 {
     private readonly string MRN = "25GB001ABCDEF1ABC5";
-    private readonly ServiceBusFixture _serviceBusFixture;
-
-    public ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
-        : base(output)
-    {
-        _serviceBusFixture = serviceBusFixture;
-        _serviceBusFixture.Using("alvs_topic", "trade-imports-processor.tests.subscription");
-    }
+    private readonly ServiceBusFixtureClient _serviceBusFixtureClient = serviceBusFixture.GetClient(
+        "alvs_topic",
+        "trade-imports-processor.tests.subscription"
+    );
 
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
@@ -73,7 +71,7 @@ public class ResourceEventsConsumerTests : SqsTestBase
             false
         );
 
-        var messages = await _serviceBusFixture.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
@@ -156,7 +154,7 @@ public class ResourceEventsConsumerTests : SqsTestBase
             false
         );
 
-        var messages = await _serviceBusFixture.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
@@ -200,7 +198,7 @@ public class ResourceEventsConsumerTests : SqsTestBase
             false
         );
 
-        var messages = await _serviceBusFixture.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
+        var messages = await _serviceBusFixtureClient.Receiver.ReceiveMessagesAsync(10, TimeSpan.FromSeconds(5));
 
         messages.Count.Should().Be(1);
         messages[0].ApplicationProperties.Count.Should().Be(2);
