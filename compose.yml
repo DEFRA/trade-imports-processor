@@ -56,6 +56,7 @@ services:
       DataApi__Password: "secret"
       ServiceBus__Gmrs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+      ServiceBus__Ipaffs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       SQS_ENDPOINT: http://localstack:4566
       AWS_EMF_ENVIRONMENT: Local
       Mongo__DatabaseUri: mongodb://mongodb:27017/?directConnection=true
@@ -79,6 +80,9 @@ services:
       test: timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'
       timeout: 5s
     image: mcr.microsoft.com/azure-sql-edge:latest
+#    On some platforms there are compatibility issues with running Azure SQL Edge e.g. M1 Macs with later Docker versions.
+#    If SQL Edge does not work for you, try swapping out with SQL Server image instead
+#    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "s4usag3s!"
