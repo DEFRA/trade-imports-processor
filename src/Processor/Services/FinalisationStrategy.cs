@@ -34,9 +34,15 @@ public class FinalisationStrategy(IMessageBus azureServiceBus, ILogger<Finalisat
             {
                 ["messageType"] = FinalisationMessageType,
                 ["subType"] = FinalisationSubType,
+                ["PublisherType"] = "IPAFFS",
             },
             cancellationToken: cancellationToken
         );
-        logger.LogInformation("{MRN} Message successfully published to IPAFFS for {MessageId}", resourceId, messageId);
+        logger.LogInformation(
+            "{MRN} {MessageType} Message successfully published to IPAFFS for {MessageId}",
+            resourceId,
+            FinalisationMessageType,
+            messageId
+        );
     }
 }

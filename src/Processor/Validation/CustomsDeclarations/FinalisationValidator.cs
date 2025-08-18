@@ -40,7 +40,7 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
             {
                 // CDMS-270
                 RuleFor(p => p.ExistingFinalisation!)
-                    .Must(NotBeAlreadyCancelled)
+                    .Must(BeACancellationIfAlreadyCancelled)
                     .WithState(_ => "ALVSVAL403")
                     .WithMessage(p =>
                         $"The final state was received for EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} but the import declaration was cancelled. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
@@ -56,10 +56,11 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
 
                 // CDMS-272
                 RuleFor(p => p.NewFinalisation.FinalStateValue())
-                    .Must(BeAValidCancellationRequest)
+                    .Must(HaveMatchingExternalVersions)
+                    .When(c => c.NewFinalisation.FinalStateValue().IsCancelled())
                     .WithState(_ => "ALVSVAL506")
                     .WithMessage(p =>
-                        $"The import declaration was received as a cancellation. The EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} have already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
+                        $"The import declaration was received as a cancellation. The EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} has already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
                     );
             }
         );
@@ -73,9 +74,16 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         return p.NewFinalisation.ExternalVersion == p.ExistingClearanceRequest.ExternalVersion;
     }
 
-    private static bool NotBeAlreadyCancelled(FinalisationValidatorInput p, Finalisation existingFinalisation)
+    private static bool BeACancellationIfAlreadyCancelled(
+        FinalisationValidatorInput p,
+        Finalisation existingFinalisation
+    )
     {
-        return existingFinalisation.FinalStateValue().IsNotCancelled();
+        return existingFinalisation.FinalStateValue().IsNotCancelled()
+            || (
+                existingFinalisation.FinalStateValue().IsCancelled()
+                && p.NewFinalisation.FinalStateValue().IsCancelled()
+            );
     }
 
     private static bool NotBeACancellationWhenAlreadyCancelled(
@@ -89,9 +97,8 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         return !(newFinalState.IsCancelled() && p.ExistingFinalisation.FinalStateValue().IsCancelled());
     }
 
-    private static bool BeAValidCancellationRequest(FinalisationValidatorInput p, FinalStateValues newFinalState)
+    private static bool HaveMatchingExternalVersions(FinalisationValidatorInput p, FinalStateValues newFinalState)
     {
-        return newFinalState.IsCancelled()
-            && p.ExistingClearanceRequest.ExternalVersion == p.NewFinalisation.ExternalVersion;
+        return p.ExistingClearanceRequest.ExternalVersion == p.NewFinalisation.ExternalVersion;
     }
 }
