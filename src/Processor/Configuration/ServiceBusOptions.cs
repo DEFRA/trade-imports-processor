@@ -13,31 +13,25 @@ public class ServiceBusOptions
     public required ServiceBusSubscriptionOptions Notifications { get; init; }
 
     [Required]
-    public required ServiceBusPublisherOptions Ipaffs { get; init; }
+    public required ServiceBusOptionsBase Ipaffs { get; init; }
 }
 
-public class ServiceBusPublisherOptions
+public class ServiceBusOptionsBase
 {
     [Required]
     public required string Topic { get; init; }
 
     [Required]
     public required string ConnectionString { get; init; }
-}
-
-public class ServiceBusSubscriptionOptions
-{
-    [Required]
-    public required bool AutoStartConsumers { get; init; }
-
-    [Required]
-    public required string ConnectionString { get; init; }
-
-    [Required]
-    public required string Topic { get; init; }
 
     [Required]
     public required string Subscription { get; init; }
+}
+
+public class ServiceBusSubscriptionOptions : ServiceBusOptionsBase
+{
+    [Required]
+    public required bool AutoStartConsumers { get; init; }
 
     public int ConsumersPerHost { get; init; } = 20;
 }

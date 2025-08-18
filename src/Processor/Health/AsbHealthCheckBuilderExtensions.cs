@@ -15,7 +15,7 @@ public static class AsbHealthCheckBuilderExtensions
     public static IHealthChecksBuilder AddAsbTopic(
         this IHealthChecksBuilder builder,
         string name,
-        Func<IServiceProvider, ServiceBusSubscriptionOptions> subscriptionFunc,
+        Func<IServiceProvider, ServiceBusOptionsBase> subscriptionFunc,
         IEnumerable<string>? tags = null,
         TimeSpan? timeout = null
     )
@@ -35,7 +35,7 @@ public static class AsbHealthCheckBuilderExtensions
 
     private static AzureServiceBusSubscriptionHealthCheck CreateHealthCheck(
         IServiceProvider serviceProvider,
-        ServiceBusSubscriptionOptions subscription
+        ServiceBusOptionsBase subscription
     )
     {
         var options = new AzureServiceBusSubscriptionHealthCheckHealthCheckOptions(
