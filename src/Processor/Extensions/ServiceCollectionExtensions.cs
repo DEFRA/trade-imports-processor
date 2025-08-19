@@ -300,6 +300,7 @@ public static class ServiceCollectionExtensions
                     {
                         mbb.WithProviderServiceBus(cfg =>
                         {
+                            cfg.ClientFactory = CdpServiceBusClientFactory.ConfigureServiceBusClient;
                             cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
                             cfg.TopologyProvisioning.Enabled = false;
                         });
@@ -317,6 +318,7 @@ public static class ServiceCollectionExtensions
                     {
                         mbb.WithProviderServiceBus(cfg =>
                         {
+                            cfg.ClientFactory = CdpServiceBusClientFactory.ConfigureServiceBusClient;
                             cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
                             cfg.TopologyProvisioning.Enabled = false;
                         });
@@ -333,6 +335,7 @@ public static class ServiceCollectionExtensions
                     {
                         mbb.WithProviderServiceBus(cfg =>
                         {
+                            cfg.ClientFactory = CdpServiceBusClientFactory.ConfigureServiceBusClient;
                             cfg.ConnectionString = serviceBusOptions.Ipaffs.ConnectionString;
                             cfg.TopologyProvisioning.Enabled = false;
                         });

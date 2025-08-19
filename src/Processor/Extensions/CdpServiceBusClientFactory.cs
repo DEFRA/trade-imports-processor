@@ -8,7 +8,7 @@ namespace Defra.TradeImportsProcessor.Processor.Extensions;
 
 public static class CdpServiceBusClientFactory
 {
-    private static ServiceBusClient ConfigureServiceBusClient(
+    public static ServiceBusClient ConfigureServiceBusClient(
         IServiceProvider serviceProvider,
         ServiceBusMessageBusSettings busSettings
     )
