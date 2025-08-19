@@ -34,6 +34,7 @@ public class FinalisationStrategy(IMessageBus azureServiceBus, ILogger<Finalisat
             {
                 ["messageType"] = FinalisationMessageType,
                 ["subType"] = FinalisationSubType,
+                ["PublisherType"] = "IPAFFS",
             },
             cancellationToken: cancellationToken
         );
