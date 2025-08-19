@@ -56,10 +56,11 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
 
                 // CDMS-272
                 RuleFor(p => p.NewFinalisation.FinalStateValue())
-                    .Must(BeAValidCancellationRequest)
+                    .Must(HaveMatchingExternalVersions)
+                    .When(c => c.NewFinalisation.FinalStateValue().IsCancelled())
                     .WithState(_ => "ALVSVAL506")
                     .WithMessage(p =>
-                        $"The import declaration was received as a cancellation. The EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} have already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
+                        $"The import declaration was received as a cancellation. The EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} has already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
                     );
             }
         );
@@ -96,9 +97,8 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
         return !(newFinalState.IsCancelled() && p.ExistingFinalisation.FinalStateValue().IsCancelled());
     }
 
-    private static bool BeAValidCancellationRequest(FinalisationValidatorInput p, FinalStateValues newFinalState)
+    private static bool HaveMatchingExternalVersions(FinalisationValidatorInput p, FinalStateValues newFinalState)
     {
-        return newFinalState.IsCancelled()
-            && p.ExistingClearanceRequest.ExternalVersion == p.NewFinalisation.ExternalVersion;
+        return p.ExistingClearanceRequest.ExternalVersion == p.NewFinalisation.ExternalVersion;
     }
 }

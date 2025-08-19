@@ -214,8 +214,36 @@ public class FinalisationValidatorTests
 
         Assert.NotNull(error);
         Assert.Contains(
-            $"The import declaration was received as a cancellation. The EntryReference {mrn} EntryVersionNumber 2 have already been replaced by a later version.",
+            $"The import declaration was received as a cancellation. The EntryReference {mrn} EntryVersionNumber 2 has already been replaced by a later version.",
             error.ErrorMessage
         );
+    }
+
+    [Fact]
+    public void Validate_DoesNotReturn_ALVSVAL506_WhenTheNewFinalisationIsNotACancellation()
+    {
+        var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
+        var newFinalisation = DataApiFinalisationFixture()
+            .With(f => f.ExternalVersion, 2)
+            .With(f => f.FinalState, FinalStateValues.Cleared.ToString)
+            .Create();
+        var existingFinalisation = DataApiFinalisationFixture()
+            .With(f => f.FinalState, FinalStateValues.CancelledAfterArrival.ToString)
+            .Create();
+        var mrn = GenerateMrn();
+
+        var result = _validator.Validate(
+            new FinalisationValidatorInput
+            {
+                ExistingClearanceRequest = existingClearanceRequest,
+                ExistingFinalisation = existingFinalisation,
+                NewFinalisation = newFinalisation,
+                Mrn = mrn,
+            }
+        );
+
+        var error = FindWithErrorCode(result, "ALVSVAL506");
+
+        Assert.Null(error);
     }
 }
