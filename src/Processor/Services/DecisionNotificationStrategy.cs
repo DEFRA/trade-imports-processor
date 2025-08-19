@@ -38,6 +38,11 @@ public class DecisionNotificationStrategy(IMessageBus azureServiceBus, ILogger<D
             },
             cancellationToken: cancellationToken
         );
-        logger.LogInformation("{MRN} Message successfully published to IPAFFS for {MessageId}", resourceId, messageId);
+        logger.LogInformation(
+            "{MRN} {MessageType} Message successfully published to IPAFFS for {MessageId}",
+            resourceId,
+            DecisionNotificationMessageType,
+            messageId
+        );
     }
 }

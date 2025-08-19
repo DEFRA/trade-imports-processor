@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
-            .AddAsbTopic(
+            .AddAsbPublishTopic(
                 "ALVS IPAFFS",
                 sp => sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value.Ipaffs,
                 tags: [WebApplicationExtensions.Extended],

@@ -15,7 +15,7 @@ public static class AsbHealthCheckBuilderExtensions
     public static IHealthChecksBuilder AddAsbTopic(
         this IHealthChecksBuilder builder,
         string name,
-        Func<IServiceProvider, ServiceBusOptionsBase> subscriptionFunc,
+        Func<IServiceProvider, ServiceBusSubscriptionOptions> subscriptionFunc,
         IEnumerable<string>? tags = null,
         TimeSpan? timeout = null
     )
@@ -33,9 +33,30 @@ public static class AsbHealthCheckBuilderExtensions
         return builder;
     }
 
+    public static IHealthChecksBuilder AddAsbPublishTopic(
+        this IHealthChecksBuilder builder,
+        string name,
+        Func<IServiceProvider, ServiceBusPublisherOptions> serviceBusOptionsFunc,
+        IEnumerable<string>? tags = null,
+        TimeSpan? timeout = null
+    )
+    {
+        builder.Add(
+            new HealthCheckRegistration(
+                name,
+                sp => CreatePublishHealthCheck(sp, serviceBusOptionsFunc(sp)),
+                HealthStatus.Unhealthy,
+                tags,
+                timeout
+            )
+        );
+
+        return builder;
+    }
+
     private static AzureServiceBusSubscriptionHealthCheck CreateHealthCheck(
         IServiceProvider serviceProvider,
-        ServiceBusOptionsBase subscription
+        ServiceBusSubscriptionOptions subscription
     )
     {
         var options = new AzureServiceBusSubscriptionHealthCheckHealthCheckOptions(
@@ -48,6 +69,19 @@ public static class AsbHealthCheckBuilderExtensions
         };
 
         return new AzureServiceBusSubscriptionHealthCheck(options, new ServiceBusClientProvider(serviceProvider));
+    }
+
+    private static AzureServiceBusTopicHealthCheck CreatePublishHealthCheck(
+        IServiceProvider serviceProvider,
+        ServiceBusPublisherOptions serviceBusPublisherOptions
+    )
+    {
+        var options = new AzureServiceBusTopicHealthCheckOptions(serviceBusPublisherOptions.Topic)
+        {
+            ConnectionString = serviceBusPublisherOptions.ConnectionString,
+        };
+
+        return new AzureServiceBusTopicHealthCheck(options, new ServiceBusClientProvider(serviceProvider));
     }
 
     private sealed class ServiceBusClientProvider(IServiceProvider serviceProvider)
