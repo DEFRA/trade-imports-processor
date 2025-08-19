@@ -44,7 +44,7 @@ public static class AsbHealthCheckBuilderExtensions
         builder.Add(
             new HealthCheckRegistration(
                 name,
-                sp => CreatePublishHealthCheck(sp, serviceBusOptionsFunc(sp)),
+                sp => CreatePublishTopicHealthCheck(sp, serviceBusOptionsFunc(sp)),
                 HealthStatus.Unhealthy,
                 tags,
                 timeout
@@ -71,7 +71,7 @@ public static class AsbHealthCheckBuilderExtensions
         return new AzureServiceBusSubscriptionHealthCheck(options, new ServiceBusClientProvider(serviceProvider));
     }
 
-    private static AzureServiceBusTopicHealthCheck CreatePublishHealthCheck(
+    private static AzureServiceBusTopicHealthCheck CreatePublishTopicHealthCheck(
         IServiceProvider serviceProvider,
         ServiceBusPublisherOptions serviceBusPublisherOptions
     )
