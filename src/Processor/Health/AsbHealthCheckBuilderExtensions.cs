@@ -33,6 +33,31 @@ public static class AsbHealthCheckBuilderExtensions
         return builder;
     }
 
+    public static IHealthChecksBuilder AddAsbPublishTopic(
+        this IHealthChecksBuilder builder,
+        string name,
+        Func<IServiceProvider, ServiceBusPublisherOptions> serviceBusOptionsFunc,
+        OperatingMode operatingMode,
+        IEnumerable<string>? tags = null,
+        TimeSpan? timeout = null
+    )
+    {
+        if (operatingMode == OperatingMode.Cutover)
+        {
+            builder.Add(
+                new HealthCheckRegistration(
+                    name,
+                    sp => CreatePublishTopicHealthCheck(sp, serviceBusOptionsFunc(sp)),
+                    HealthStatus.Unhealthy,
+                    tags,
+                    timeout
+                )
+            );
+        }
+
+        return builder;
+    }
+
     private static AzureServiceBusSubscriptionHealthCheck CreateHealthCheck(
         IServiceProvider serviceProvider,
         ServiceBusSubscriptionOptions subscription
@@ -48,6 +73,25 @@ public static class AsbHealthCheckBuilderExtensions
         };
 
         return new AzureServiceBusSubscriptionHealthCheck(options, new ServiceBusClientProvider(serviceProvider));
+    }
+
+    private static IHealthCheck CreatePublishTopicHealthCheck(
+        IServiceProvider serviceProvider,
+        ServiceBusPublisherOptions serviceBusPublisherOptions
+    )
+    {
+        // AzureServiceBusTopicHealthCheck isn't currently compatible with Azure Service Bus Emulator
+        if (serviceBusPublisherOptions.ConnectionString.Contains("UseDevelopmentEmulator=true"))
+        {
+            return new ServiceBusHealthCheck(serviceBusPublisherOptions.ConnectionString);
+        }
+
+        var options = new AzureServiceBusTopicHealthCheckOptions(serviceBusPublisherOptions.Topic)
+        {
+            ConnectionString = serviceBusPublisherOptions.ConnectionString,
+        };
+
+        return new AzureServiceBusTopicHealthCheck(options, new ServiceBusClientProvider(serviceProvider));
     }
 
     private sealed class ServiceBusClientProvider(IServiceProvider serviceProvider)

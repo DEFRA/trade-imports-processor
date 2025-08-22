@@ -23,6 +23,13 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
+            .AddAsbPublishTopic(
+                "ALVS IPAFFS",
+                sp => sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value.Ipaffs,
+                configuration.GetSection("Btms").GetValue<OperatingMode>("OperatingMode"),
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
+            )
             .AddSqs(
                 configuration,
                 "Gateway customs declarations",
