@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Defra.TradeImportsProcessor.Processor.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
 namespace Defra.TradeImportsProcessor.Processor.Health;
@@ -20,6 +21,15 @@ public static class ServiceCollectionExtensions
             .AddAsbTopic(
                 "DMP GMRs",
                 sp => sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value.Gmrs,
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
+            )
+            // Azure service bus emulator does not support the management client, which
+            // this health check uses. Therefore, it will only work against real Azure
+            .AddAsbTopic(
+                "IPAFFS topic (outgoing)",
+                sp => sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value.Ipaffs,
+                failureStatus: HealthStatus.Degraded,
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )

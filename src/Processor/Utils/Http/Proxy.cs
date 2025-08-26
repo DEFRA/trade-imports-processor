@@ -7,7 +7,7 @@ namespace Defra.TradeImportsProcessor.Processor.Utils.Http;
 
 public static class Proxy
 {
-    private const string ProxyClient = "proxy";
+    public const string ProxyClient = "proxy";
 
     [ExcludeFromCodeCoverage]
     public static void AddHttpProxyClient(this IServiceCollection services)
