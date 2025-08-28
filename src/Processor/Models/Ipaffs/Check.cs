@@ -13,6 +13,6 @@ public class Check
     [JsonPropertyName("decisionValidUntil")]
     public string? DecisionValidUntil { get; set; }
 
-    [JsonPropertyName("decisionReason")]
-    public string[]? DecisionReason { get; set; }
+    [JsonPropertyName("decisionReasons")]
+    public string[]? DecisionReasons { get; set; }
 }

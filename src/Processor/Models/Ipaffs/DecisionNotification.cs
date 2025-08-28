@@ -42,7 +42,7 @@ public class DecisionNotification(string mrn, ClearanceDecision clearanceDecisio
                         CheckCode = check.CheckCode,
                         DecisionCode = check.DecisionCode,
                         DecisionValidUntil = check.DecisionsValidUntil?.ToString("yyyyMMddHHmm"),
-                        DecisionReason = check.DecisionReasons,
+                        DecisionReasons = check.DecisionReasons,
                     })
                     .ToArray(),
             })
