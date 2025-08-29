@@ -158,8 +158,8 @@ public class CustomsDeclarationsConsumerTests
         };
         var validationError = new ValidationFailure("DeclarationUcr", "Too long", "....")
         {
-            ErrorCode = "DeclarationUcr",
-            ErrorMessage = "Too long",
+            ErrorCode = "PreviousExternalVersion",
+            CustomState = "ERR005",
         };
 
         var existingProcessingErrors = new Fixture()
@@ -194,76 +194,26 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
+
+        var HasCorrectProcessingErrorBody = (ProcessingError[] e) =>
+            e.Length == 2
+            && e[0].Errors[0].Code == "PREVIOUSCODE"
+            && e[1].Created != null
+            && e[1].ExternalVersion == version
+            && e[1].SourceExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
+            && e[1].Errors[0].Code == (string)cdsError.CustomState
+            && e[1].Errors[0].Message == cdsError.ErrorMessage
+            && e[1].Message == messageBody.GetRawText()
+            && e[1].Errors[1].Code == (string)validationError.CustomState
+            && e[1].Errors[1].Message == validationError.ErrorMessage;
+
         await _mockApi
             .Received()
             .PutProcessingError(
                 mrn,
-                Arg.Is<ProcessingError[]>(e =>
-                    e.Length == 2
-                    && e[0].Errors[0].Code == "PREVIOUSCODE"
-                    && e[1].Created != null
-                    && e[1].ExternalVersion == version
-                    && e[1].SourceExternalCorrelationId == clearanceRequest.ServiceHeader.CorrelationId
-                    && e[1].Errors[0].Code == (string)cdsError.CustomState
-                    && e[1].Errors[0].Message == cdsError.ErrorMessage
-                    && e[1].Message == messageBody.GetRawText()
-                ),
+                Arg.Is<ProcessingError[]>(e => HasCorrectProcessingErrorBody(e)),
                 Arg.Any<string>(),
                 _cancellationToken
-            );
-    }
-
-    [Fact]
-    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButFailsNonALVSVALValidation_ItDoesNotReportItToTheDataApi()
-    {
-        var consumer = new CustomsDeclarationsConsumer(
-            _mockLogger,
-            _mockApi,
-            _clearanceRequestValidator,
-            _customsDeclarationsMessageValidation,
-            _errorNotificationValidator,
-            _finalisationValidator,
-            new TestCorrelationIdGenerator("correlationId")
-        )
-        {
-            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
-        };
-
-        var mrn = GenerateMrn();
-        var clearanceRequest = ClearanceRequestFixture(mrn).Create();
-
-        var validationError = new ValidationFailure("DeclarationUcr", "Too long", "....")
-        {
-            ErrorCode = "DeclarationUcr",
-            ErrorMessage = "Too long",
-        };
-
-        _customsDeclarationsMessageValidation
-            .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
-            .Returns(new ValidationResult { Errors = [validationError] });
-
-        _mockApi.GetProcessingError(mrn, _cancellationToken).Returns(null as ProcessingErrorResponse);
-
-        var messageBody = JsonSerializer.SerializeToElement(clearanceRequest);
-
-        await consumer.OnHandle(messageBody, _cancellationToken);
-
-        await _mockApi.DidNotReceive().GetCustomsDeclaration(Arg.Any<string>(), Arg.Any<CancellationToken>());
-        await _mockApi
-            .DidNotReceive()
-            .PutCustomsDeclaration(
-                Arg.Any<string>(),
-                Arg.Any<DataApiCustomsDeclaration.CustomsDeclaration>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            );
-        await _mockApi
-            .DidNotReceive()
-            .PutProcessingError(
-                Arg.Any<string>(),
-                Arg.Any<ProcessingError[]>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
             );
     }
 

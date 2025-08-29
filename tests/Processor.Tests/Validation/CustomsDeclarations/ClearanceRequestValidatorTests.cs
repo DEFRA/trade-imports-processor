@@ -8,7 +8,6 @@ using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
-using CommodityCheck = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.CommodityCheck;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Validation.CustomsDeclarations;
 
@@ -181,6 +180,205 @@ public class ClearanceRequestValidatorTests
         Assert.Null(FindWithErrorCode(result, "ALVSVAL326"));
     }
 
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(1, false)]
+    [InlineData(99, false)]
+    [InlineData(0, true)]
+    [InlineData(100, true)]
+    private void Validate_PreviousExternalVersion_ERR005(int? previousExternalVersion, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.PreviousExternalVersion, previousExternalVersion)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR005") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("12345678901234567890123456789012345", false)]
+    [InlineData("123456789012345678901234567890123456", true)]
+    [InlineData("1234567890123456789012345678901234567890", true)]
+    private void Validate_DeclarationUcr_ERR006(string? declarationUcr, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.DeclarationUcr, declarationUcr).Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR006") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("1", false)]
+    [InlineData("12", false)]
+    [InlineData("123", false)]
+    [InlineData("1234", true)]
+    [InlineData("12345", true)]
+    private void Validate_DeclarationPartNumber_ERR007(string? declarationPartNumber, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.DeclarationPartNumber, declarationPartNumber)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR007") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData("S", false)]
+    [InlineData("F", false)]
+    [InlineData("T", true)]
+    [InlineData("X", true)]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    private void Validate_DeclarationType_ERR008(string? declarationType, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.DeclarationType, declarationType)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR008") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("123456789012345678", false)]
+    [InlineData("1234567890123456789", true)]
+    [InlineData("12345678901234567890", true)]
+    private void Validate_SubmitterTurn_ERR010(string? submitterTurn, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.SubmitterTurn, submitterTurn).Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR010") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("123456789012345678", false)]
+    [InlineData("1234567890123456789", true)]
+    [InlineData("12345678901234567890", true)]
+    private void Validate_DeclarantId_ERR011(string? declarantId, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.DeclarantId, declarantId).Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR011") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("Valid Company Name Maximum Length", false)]
+    [InlineData("This Company Name Is Too Long For Field", true)]
+    [InlineData("This Company Name Is Far Too Long For The Field", true)]
+    private void Validate_DeclarantName_ERR012(string? declarantName, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.DeclarantName, declarantName).Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR012") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("GB", false)]
+    [InlineData("FR", false)]
+    [InlineData("US", false)]
+    [InlineData("G", true)]
+    [InlineData("GBR", true)]
+    [InlineData("USA", true)]
+    private void Validate_DispatchCountryCode_ERR013(string? dispatchCountryCode, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.DispatchCountryCode, dispatchCountryCode)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR013") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("MNCMANMNC", false)]
+    [InlineData("GBLHRAIRPORT001", false)]
+    [InlineData("12345678901234567", false)]
+    [InlineData("123456789012345678", true)]
+    [InlineData("GBLHRAIRPORTLOCATION", true)]
+    private void Validate_GoodsLocationCode_ERR014(string? goodsLocationCode, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture()
+            .With(c => c.GoodsLocationCode, goodsLocationCode)
+            .Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR014") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("GB123456789012345678901234567890123", false)]
+    [InlineData("12345678901234567890123456789012345", false)]
+    [InlineData("GB1234567890123456789012345678901234", true)]
+    [InlineData("123456789012345678901234567890123456", true)]
+    private void Validate_MasterUcr_ERR015(string? masterUcr, bool shouldError)
+    {
+        var newClearanceRequest = DataApiClearanceRequestFixture().With(c => c.MasterUcr, masterUcr).Create();
+
+        var result = _validator.Validate(
+            new ClearanceRequestValidatorInput { Mrn = GenerateMrn(), NewClearanceRequest = newClearanceRequest }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR015") != null;
+        Assert.True(hasError == shouldError);
+    }
+
 #pragma warning disable xUnit1045
     [Theory, ClassData(typeof(ClearanceRequestValidatorTestData))]
 #pragma warning restore xUnit1045
@@ -272,6 +470,18 @@ public class ClearanceRequestValidatorTests
             Add(
                 DataApiClearanceRequestFixture().Without(d => d.DispatchCountryCode).Create(),
                 new ExpectedResult("NewClearanceRequest.DispatchCountryCode", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationPartNumber, "123").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationPartNumber", false)
+            );
+            Add(
+                DataApiClearanceRequestFixture().With(d => d.DeclarationPartNumber, "1234").Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationPartNumber", true)
+            );
+            Add(
+                DataApiClearanceRequestFixture().Without(d => d.DeclarationPartNumber).Create(),
+                new ExpectedResult("NewClearanceRequest.DeclarationPartNumber", false)
             );
         }
     }

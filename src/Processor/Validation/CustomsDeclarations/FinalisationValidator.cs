@@ -9,9 +9,11 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
 {
     public FinalisationValidator()
     {
-        RuleFor(p => p.NewFinalisation.ExternalVersion).NotNull().InclusiveBetween(1, 99);
+        RuleFor(p => p.NewFinalisation.DecisionNumber)
+            .InclusiveBetween(1, 9999)
+            .When(p => p.NewFinalisation.DecisionNumber != null)
+            .WithBtmsErrorCode("ERR031", p => p.NewFinalisation.ExternalCorrelationId);
 
-        // INCORRECT ERROR CODE
         RuleFor(p => p.Mrn)
             .NotEmpty()
             .MaximumLength(22)
