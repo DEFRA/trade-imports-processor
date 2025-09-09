@@ -4,7 +4,7 @@ The Trade Imports Processor is a .NET application which subscribes to a number o
 
 When messages are received the Imports Processor will map the messages to internal BTMS types and then use the Trade Imports API via a Http to persist the data.
 
-* [Prerequisites](#prerequisites) 
+* [Prerequisites](#prerequisites)
 * [Setup Process](#setup-process)
 * [How to run in development](#how-to-run-in-development)
 * [How to run Tests](#how-to-run-tests)
@@ -22,9 +22,9 @@ When messages are received the Imports Processor will map the messages to intern
 - .NET 9 SDK
 - Docker
   - localstack - used for local queuing
-  - wiremock - used for mocking out http requests 
+  - wiremock - used for mocking out http requests
   - service-bus-emulator - used for local queuing
-  
+
 
 ### Setup Process
 
@@ -56,11 +56,11 @@ dotnet test --filter "Category=IntegrationTest"
 ```
 Run all tests with:
 ```bash
-dotnet test 
+dotnet test
 ```
 
 #### Unit Tests
-Some unit tests may run an in memory instance service. 
+Some unit tests may run an in memory instance service.
 
 Unit tests that need to edit the value of an application setting can be done via the`appsettings.IntegrationTests.json`
 
@@ -79,7 +79,15 @@ Example SonarCloud configuration are available in the GitHub Action workflows.
 
 ### Dependabot
 
-We are using dependabot
+We are using dependabot.
+
+Connection to the private Defra nuget packages is provided by a user generated PAT stored in this repo's settings - /settings/secrets/dependabot - see `DEPENDABOT_PAT` secret.
+
+The PAT is a classic token and needs permissions of `read:packages`.
+
+At time of writing, using PAT is the only way to make Dependabot work with private nuget feeds.
+
+Should the user who owns the PAT leave Defra then another user on the team should create a new PAT and update the settings in this repo.
 
 ### Message Consumption
 This service is using a framework called [Slim Message Bus](https://github.com/zarusz/SlimMessageBus), which maps queues/types to consumer classes.

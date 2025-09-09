@@ -5,4 +5,6 @@ public class BtmsOptions
     public const string SectionName = "Btms";
 
     public OperatingMode OperatingMode { get; init; } = OperatingMode.Default;
+
+    public bool PublishToIpaffs { get; init; } = true;
 }
