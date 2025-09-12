@@ -50,16 +50,15 @@ public class CustomsDeclarationsConsumer(
 
         var existingValidationErrors = await api.GetProcessingError(mrn, cancellationToken);
 
-        var alvsValErrors = validationResult
-            .Errors.Where(error => error.CustomState != null)
-            .Select(error => new DataApiErrors.ErrorItem
+        var validationErrors = validationResult
+            .Errors.Select(error => new DataApiErrors.ErrorItem
             {
                 Code = (string)error.CustomState,
                 Message = error.ErrorMessage,
             })
             .ToArray();
 
-        if (alvsValErrors.Length == 0)
+        if (validationErrors.Length == 0)
             return;
 
         var processingErrorNotification = new DataApiErrors.ProcessingError
@@ -68,7 +67,7 @@ public class CustomsDeclarationsConsumer(
             CorrelationId = correlationIdGenerator.Generate(),
             SourceExternalCorrelationId = customsDeclarationsMessage.ServiceHeader.CorrelationId,
             ExternalVersion = customsDeclarationsMessage.Header.EntryVersionNumber,
-            Errors = alvsValErrors,
+            Errors = validationErrors,
             Message = messageBody,
         };
 

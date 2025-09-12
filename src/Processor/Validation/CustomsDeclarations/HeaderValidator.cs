@@ -1,3 +1,4 @@
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentValidation;
 
@@ -7,14 +8,11 @@ public class HeaderValidator : AbstractValidator<Header>
 {
     public HeaderValidator(string correlationId)
     {
-        RuleFor(p => p.EntryVersionNumber).InclusiveBetween(1, 99);
-
-        // COPIED FROM BTMS-BACKEND - UNSURE OF CORRECT ALVSVAL
         RuleFor(p => p.EntryReference)
-            .NotEmpty()
-            .MaximumLength(22)
-            .Matches("[1-9]{2}[A-Za-z]{2}[A-Za-z0-9]{14}")
-            .WithState(p => "ALVSVAL303");
+            .Matches("^[1-9]{2}[A-Za-z]{2}[A-Za-z0-9]{14}$")
+            .WithBtmsErrorCode("ERR003", correlationId);
+
+        RuleFor(p => p.EntryVersionNumber).InclusiveBetween(1, 99).WithBtmsErrorCode("ERR004", correlationId);
 
         // CDMS-256
         RuleFor(p => p.EntryVersionNumber)

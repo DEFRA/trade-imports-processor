@@ -246,4 +246,34 @@ public class FinalisationValidatorTests
 
         Assert.Null(error);
     }
+
+    [Theory]
+    [InlineData(0, true)]
+    [InlineData(10000, true)]
+    [InlineData(-1, true)]
+    [InlineData(1, false)]
+    [InlineData(99, false)]
+    [InlineData(999, false)]
+    [InlineData(9999, false)]
+    [InlineData(null, false)]
+    public void Validate_DecisionNumber_ERR031(int? decisionNumber, bool shouldHaveError)
+    {
+        var existingClearanceRequest = DataApiClearanceRequestFixture().Create();
+        var newFinalisation = DataApiFinalisationFixture()
+            .With(f => f.DecisionNumber, decisionNumber)
+            .With(f => f.FinalState, FinalStateValues.Cleared.ToString())
+            .Create();
+
+        var result = _validator.Validate(
+            new FinalisationValidatorInput
+            {
+                ExistingClearanceRequest = existingClearanceRequest,
+                NewFinalisation = newFinalisation,
+                Mrn = GenerateMrn(),
+            }
+        );
+
+        var hasError = FindWithErrorCode(result, "ERR031") != null;
+        Assert.True(hasError == shouldHaveError);
+    }
 }

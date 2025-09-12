@@ -49,10 +49,14 @@ public static class ClearanceRequestFixtures
             .With(h => h.EntryVersionNumber, version)
             .With(h => h.PreviousVersionNumber, version - 1)
             .With(h => h.DeclarationUcr, GenerateRandomString(35))
+            .With(h => h.DeclarationPartNumber, GenerateRandomString(3))
             .With(h => h.DeclarantId, GenerateRandomString(18))
             .With(h => h.DeclarantName, GenerateRandomString(35))
             .With(h => h.DispatchCountryCode, GenerateRandomString(2))
+            .With(h => h.GoodsLocationCode, GenerateRandomString(17))
+            .With(h => h.MasterUcr, GenerateRandomString(35))
             .With(h => h.DeclarationType, "S")
+            .With(h => h.SubmitterTurn, GenerateRandomString(18))
             .Create();
     }
 
@@ -96,7 +100,8 @@ public static class ClearanceRequestFixtures
             .Build<Document>()
             .With(d => d.DocumentCode, documentCode)
             .With(d => d.DocumentStatus, GenerateRandomString(2))
-            .With(d => d.DocumentControl, GenerateRandomString(1));
+            .With(d => d.DocumentControl, GenerateRandomString(1))
+            .With(d => d.DocumentReference, GenerateRandomString(20));
     }
 
     private static IPostprocessComposer<Check> CheckFixture(string checkCode)

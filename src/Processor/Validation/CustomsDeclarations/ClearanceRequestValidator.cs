@@ -11,14 +11,47 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
 {
     public ClearanceRequestValidator()
     {
-        RuleFor(p => p.NewClearanceRequest.DeclarationUcr).MaximumLength(35);
-        RuleFor(p => p.NewClearanceRequest.DeclarantId).NotEmpty().MaximumLength(18);
-        RuleFor(p => p.NewClearanceRequest.DeclarantName).NotEmpty().MaximumLength(35);
-        RuleFor(p => p.NewClearanceRequest.DispatchCountryCode).NotEmpty().Length(2);
-        RuleFor(p => p.NewClearanceRequest.DeclarationType).Must(p => p is "S" or "F");
+        RuleFor(p => p.NewClearanceRequest.DeclarationUcr)
+            .MaximumLength(35)
+            .WithBtmsErrorCode("ERR006", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.DeclarationPartNumber)
+            .MaximumLength(3)
+            .WithBtmsErrorCode("ERR007", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.DeclarationType)
+            .Must(p => p is "S" or "F")
+            .WithBtmsErrorCode("ERR008", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.SubmitterTurn)
+            .MaximumLength(18)
+            .WithBtmsErrorCode("ERR010", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.DeclarantId)
+            .NotEmpty()
+            .MaximumLength(18)
+            .WithBtmsErrorCode("ERR011", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.DeclarantName)
+            .NotEmpty()
+            .MaximumLength(35)
+            .WithBtmsErrorCode("ERR012", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.DispatchCountryCode)
+            .NotEmpty()
+            .Length(2)
+            .WithBtmsErrorCode("ERR013", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.GoodsLocationCode)
+            .MaximumLength(17)
+            .WithBtmsErrorCode("ERR014", p => p.NewClearanceRequest.ExternalCorrelationId);
+
+        RuleFor(p => p.NewClearanceRequest.MasterUcr)
+            .MaximumLength(35)
+            .WithBtmsErrorCode("ERR015", p => p.NewClearanceRequest.ExternalCorrelationId);
+
         RuleForEach(p => p.NewClearanceRequest.Commodities)
             .SetValidator(p => new CommodityValidator(p.NewClearanceRequest.ExternalCorrelationId!));
-        RuleFor(p => p.NewClearanceRequest.ExternalVersion).InclusiveBetween(1, 99);
 
         // CDMS-255
         RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
@@ -28,6 +61,11 @@ public class ClearanceRequestValidator : AbstractValidator<ClearanceRequestValid
                 $"PreviousVersionNumber has not been provided for the import document. Provide a PreviousVersionNumber. Your request with correlation ID {p.NewClearanceRequest.ExternalCorrelationId} has been terminated."
             )
             .When(p => p.NewClearanceRequest.ExternalVersion > 1);
+
+        RuleFor(p => p.NewClearanceRequest.PreviousExternalVersion)
+            .InclusiveBetween(1, 99)
+            .WithBtmsErrorCode("ERR005", p => p.NewClearanceRequest.ExternalCorrelationId!)
+            .When(p => p.NewClearanceRequest.PreviousExternalVersion != null);
 
         // CDMS-257 - NEW
         RuleForEach(p =>
