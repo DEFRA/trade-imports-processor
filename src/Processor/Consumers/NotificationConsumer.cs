@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
@@ -11,21 +10,39 @@ namespace Defra.TradeImportsProcessor.Processor.Consumers;
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
     : IConsumer<JsonElement>
 {
-    private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
-    {
-        { ImportNotificationStatus.Draft, 0 },
-        { ImportNotificationStatus.Deleted, 0 },
-        { ImportNotificationStatus.Amend, 0 },
-        { ImportNotificationStatus.Submitted, 0 },
-        { ImportNotificationStatus.Modify, 0 },
-        { ImportNotificationStatus.InProgress, 1 },
-        { ImportNotificationStatus.Cancelled, 2 },
-        { ImportNotificationStatus.PartiallyRejected, 2 },
-        { ImportNotificationStatus.Rejected, 2 },
-        { ImportNotificationStatus.Validated, 2 },
-        { ImportNotificationStatus.SplitConsignment, 3 },
-        { ImportNotificationStatus.Replaced, 3 },
-    }.ToFrozenDictionary();
+    /// <summary>
+    /// See https://eaflood.atlassian.net/wiki/spaces/ALVS/pages/5352587513/IPAFFS+Notification+States
+    /// </summary>
+    private static readonly HashSet<(string, string)> s_statusStateMachine =
+    [
+        // Draft
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Draft),
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Deleted),
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Submitted),
+        // Amend
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted),
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Submitted),
+        // Submitted
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+        // In progress
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Validated),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
+        // Modify
+        (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
+        // Partially rejected
+        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
+        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
+    ];
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
@@ -144,7 +161,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return false;
         }
 
-        if (IsLaterInTheLifecycle(newNotification, existingNotification))
+        if (IsStateTransitionAllowed(newNotification, existingNotification))
             return true;
 
         logger.LogInformation(
@@ -175,14 +192,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
-    private static bool IsLaterInTheLifecycle(
+    private static bool IsStateTransitionAllowed(
         DataApiIpaffs.ImportPreNotification newNotification,
         DataApiIpaffs.ImportPreNotification existingNotification
-    )
-    {
-        var newPriority = s_statusPriority.GetValueOrDefault(newNotification.Status!, 0);
-        var oldPriority = s_statusPriority.GetValueOrDefault(existingNotification.Status!, 0);
-
-        return newPriority >= oldPriority;
-    }
+    ) => s_statusStateMachine.Contains((existingNotification.Status!, newNotification.Status!));
 }
