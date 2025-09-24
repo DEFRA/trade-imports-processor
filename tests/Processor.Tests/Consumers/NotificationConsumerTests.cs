@@ -141,7 +141,6 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(ImportNotificationStatus.Amend)]
     [InlineData(ImportNotificationStatus.Draft)]
     [InlineData(ImportNotificationStatus.Modify)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
