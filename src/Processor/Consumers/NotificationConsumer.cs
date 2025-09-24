@@ -27,6 +27,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
         // In progress
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend),
