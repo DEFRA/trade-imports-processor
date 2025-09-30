@@ -62,7 +62,7 @@ public class FinalisationValidator : AbstractValidator<FinalisationValidatorInpu
                     .When(c => c.NewFinalisation.FinalStateValue().IsCancelled())
                     .WithState(_ => "ALVSVAL506")
                     .WithMessage(p =>
-                        $"The import declaration was received as a cancellation. The EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} has already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
+                        $"An attempt to cancel EntryReference {p.Mrn} EntryVersionNumber {p.NewFinalisation.ExternalVersion} was made but the import declaration has already been replaced by a later version. Your request with correlation ID {p.NewFinalisation.ExternalCorrelationId} has been terminated."
                     );
             }
         );
