@@ -30,6 +30,27 @@ public class MongoIndexService(IMongoDatabase database, ILogger<MongoIndexServic
             Builders<RawMessageEntity>.IndexKeys.Ascending(x => x.ExpiresAt),
             cancellationToken: cancellationToken
         );
+
+        await CreateIndex(
+            "ResourceIdx",
+            Builders<RawMessageEntity>.IndexKeys.Ascending(x => x.ResourceId).Ascending(x => x.Updated),
+            cancellationToken: cancellationToken
+        );
+
+        await CreateIndex(
+            "MessageIdx",
+            Builders<RawMessageEntity>.IndexKeys.Ascending(x => x.MessageId).Ascending(x => x.Updated),
+            cancellationToken: cancellationToken
+        );
+
+        await CreateIndex(
+            "ResourceMessageIdx",
+            Builders<RawMessageEntity>
+                .IndexKeys.Ascending(x => x.ResourceId)
+                .Ascending(x => x.MessageId)
+                .Ascending(x => x.Updated),
+            cancellationToken: cancellationToken
+        );
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
