@@ -1,4 +1,6 @@
+using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Microsoft.Extensions.Logging.Testing;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
@@ -6,13 +8,14 @@ namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
 public class ClearanceRequestTests
 {
     [Theory]
-    [InlineData("Valid", "GBCHD2025.3338265")]
-    [InlineData("SpaceAtEnd", "GBCHD2025.3338265 ")]
-    [InlineData("Carriage Return", "GBCHD2025.3338265\r\n")]
-    [InlineData("Tab", "GBCHD2025.3338265\t")]
+    [InlineData("Valid", "GBCHD2025.3338265", false)]
+    [InlineData("SpaceAtEnd", "GBCHD2025.3338265 ", true)]
+    [InlineData("Carriage Return", "GBCHD2025.3338265\r\n", true)]
+    [InlineData("Tab", "GBCHD2025.3338265\t", true)]
     public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect(
         string fileName,
-        string documentReference
+        string documentReference,
+        bool expectedLog
     )
     {
         var clearanceRequest = new ClearanceRequest
@@ -71,6 +74,11 @@ public class ClearanceRequestTests
         };
 
         var dataApiClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
+
+        var logger = new FakeLogger();
+        CustomsDeclarationsConsumer.LogAnyDocumentReferenceWithWhitespaceSuffix(clearanceRequest, logger);
+
+        logger.Collector.Count.Should().Be(expectedLog ? 1 : 0);
 
         await Verify(dataApiClearanceRequest)
             .UseFileName(
