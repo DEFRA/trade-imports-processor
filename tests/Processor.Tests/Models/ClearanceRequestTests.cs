@@ -9,6 +9,7 @@ public class ClearanceRequestTests
     [InlineData("Valid", "GBCHD2025.3338265")]
     [InlineData("SpaceAtEnd", "GBCHD2025.3338265 ")]
     [InlineData("Carriage Return", "GBCHD2025.3338265\r\n")]
+    [InlineData("Tab", "GBCHD2025.3338265\t")]
     public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect(
         string fileName,
         string documentReference
