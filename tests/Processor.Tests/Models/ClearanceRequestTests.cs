@@ -5,8 +5,14 @@ namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
 
 public class ClearanceRequestTests
 {
-    [Fact]
-    public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect()
+    [Theory]
+    [InlineData("Valid", "GBCHD2025.3338265")]
+    [InlineData("SpaceAtEnd", "GBCHD2025.3338265 ")]
+    [InlineData("Carriage Return", "GBCHD2025.3338265\r\n")]
+    public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect(
+        string fileName,
+        string documentReference
+    )
     {
         var clearanceRequest = new ClearanceRequest
         {
@@ -52,7 +58,7 @@ public class ClearanceRequestTests
                         new Document
                         {
                             DocumentCode = "N002",
-                            DocumentReference = "GBCHD2025.3338265",
+                            DocumentReference = documentReference,
                             DocumentStatus = "AG",
                             DocumentControl = "P",
                             DocumentQuantity = null,
@@ -65,6 +71,10 @@ public class ClearanceRequestTests
 
         var dataApiClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
 
-        await Verify(dataApiClearanceRequest).DontScrubDateTimes();
+        await Verify(dataApiClearanceRequest)
+            .UseFileName(
+                $"{nameof(ClearanceRequestTests)}.{nameof(ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect)}_{fileName}"
+            )
+            .DontScrubDateTimes();
     }
 }
