@@ -200,10 +200,10 @@ public class CustomsDeclarationsConsumer(
         CancellationToken cancellationToken
     )
     {
-        var clearanceRequest = DeserializeMessage<ClearanceRequest>(received, mrn);
+        var unmappedClearanceRequest = DeserializeMessage<ClearanceRequest>(received, mrn);
 
         //This is here because the mapping uses an explicit operator and we can't add logic there
-        LogAnyDocumentReferenceWithWhitespaceSuffix(clearanceRequest, logger);
+        LogAnyDocumentReferenceWithWhitespaceSuffix(unmappedClearanceRequest, logger);
 
         var mappedClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)
             DeserializeMessage<ClearanceRequest>(received, mrn);
@@ -244,22 +244,14 @@ public class CustomsDeclarationsConsumer(
     {
         if (clearanceRequest.Items != null)
         {
-            foreach (
-                var documents in clearanceRequest.Items.Where(x => x.Documents is not null).Select(x => x.Documents)
-            )
+            var documentReferencesWithSpaces = clearanceRequest.Items.Where(x => x.Documents is not null)
+                .SelectMany(x => x.Documents!)
+                .Where(x => x.DocumentReference is not null && char.IsWhiteSpace(x.DocumentReference[^1]))
+                .Select(x => x.DocumentReference);
+
+            foreach (var documentReference in documentReferencesWithSpaces)
             {
-                foreach (
-                    var documentReference in documents!
-                        .Where(x => x.DocumentReference is not null)
-                        .Select(x => x.DocumentReference)
-                )
-                {
-                    var length = documentReference!.Length;
-                    if (char.IsWhiteSpace(documentReference[length - 1]))
-                    {
-                        logger.LogInformation("{DocumentReference} contains whitespace at the end", documentReference);
-                    }
-                }
+                logger.LogInformation("{DocumentReference} contains whitespace at the end", documentReference);
             }
         }
     }
