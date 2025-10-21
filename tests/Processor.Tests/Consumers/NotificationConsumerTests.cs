@@ -2,6 +2,7 @@ using System.Text.Json;
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
@@ -34,6 +35,19 @@ public class NotificationConsumerTests
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
         var importNotification = ImportNotificationFixture().Create();
+        importNotification.PartOne!.Commodities = new Commodities
+        {
+            ComplementParameterSets =
+            [
+                new ComplementParameterSet()
+                {
+                    KeyDataPairs =
+                    [
+                        new DataApiIpaffs.KeyDataPair() { Key = "is_catch_certificate_required", Data = "true" },
+                    ],
+                },
+            ],
+        };
 
         _mockApi
             .GetImportPreNotification(importNotification.ReferenceNumber, _cancellationToken)
