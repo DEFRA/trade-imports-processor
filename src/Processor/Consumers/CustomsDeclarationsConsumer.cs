@@ -244,7 +244,8 @@ public class CustomsDeclarationsConsumer(
     {
         if (clearanceRequest.Items != null)
         {
-            var documentReferencesWithSpaces = clearanceRequest.Items.Where(x => x.Documents is not null)
+            var documentReferencesWithSpaces = clearanceRequest
+                .Items.Where(x => x.Documents is not null)
                 .SelectMany(x => x.Documents!)
                 .Where(x => x.DocumentReference is not null && char.IsWhiteSpace(x.DocumentReference[^1]))
                 .Select(x => x.DocumentReference);
