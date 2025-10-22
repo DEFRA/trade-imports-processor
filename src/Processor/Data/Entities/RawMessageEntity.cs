@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using Defra.TradeImportsProcessor.Processor.Data.Extensions;
 
 namespace Defra.TradeImportsProcessor.Processor.Data.Entities;
 
+[DbCollection("RawMessage")]
 public class RawMessageEntity : IDataEntity
 {
     [JsonPropertyName("id")]
