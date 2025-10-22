@@ -20,6 +20,42 @@ public class CheckValidatorTests
         Assert.Contains("The CheckCode field on item number 1 must have a value.", error.ErrorMessage);
     }
 
+    [Theory]
+    [InlineData("H222", false)]
+    [InlineData("H223", false)]
+    [InlineData("P", false)]
+    [InlineData("AB12", false)]
+    [InlineData("H2222", true)]
+    [InlineData("TOOLONG", true)]
+    public void Validate_CheckCode_ERR029(string checkCode, bool shouldError)
+    {
+        var check = new CommodityCheck { CheckCode = checkCode };
+
+        var result = _validator.TestValidate(check);
+
+        var hasError = result.Errors.Find(e => (string)e.CustomState == "ERR029") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("PHA", false)]
+    [InlineData("HMI-GMS", false)]
+    [InlineData("PHA-POAO", false)]
+    [InlineData("12345678", false)]
+    [InlineData("TOOLONGXX", true)]
+    [InlineData("WAYTOOLONG", true)]
+    public void Validate_DepartmentCode_ERR030(string? departmentCode, bool shouldError)
+    {
+        var check = new CommodityCheck { DepartmentCode = departmentCode };
+
+        var result = _validator.TestValidate(check);
+
+        var hasError = result.Errors.Find(e => (string)e.CustomState == "ERR030") != null;
+        Assert.True(hasError == shouldError);
+    }
+
 #pragma warning disable xUnit1045
     [Theory, ClassData(typeof(CheckValidatorTestData))]
 #pragma warning restore xUnit1045

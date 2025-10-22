@@ -1,3 +1,4 @@
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentValidation;
 
@@ -7,7 +8,7 @@ public class ServiceHeaderValidator : AbstractValidator<ServiceHeader>
 {
     public ServiceHeaderValidator()
     {
-        RuleFor(p => p.CorrelationId).NotEmpty().MaximumLength(20);
+        RuleFor(p => p.CorrelationId).Length(1, 20).WithBtmsErrorCode("ERR001", p => p.CorrelationId);
 
         // CDMS-252
         RuleFor(p => p.SourceSystem)
