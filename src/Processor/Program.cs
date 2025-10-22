@@ -42,10 +42,6 @@ static void ConfigureWebApplication(WebApplicationBuilder builder, string[] args
 {
     var integrationTest = args.Contains("--integrationTest=true");
 
-    builder.Configuration.AddJsonFile(
-        $"appsettings.cdp.{Environment.GetEnvironmentVariable("ENVIRONMENT")?.ToLower()}.json",
-        integrationTest
-    );
     builder.Configuration.AddEnvironmentVariables();
 
     // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
