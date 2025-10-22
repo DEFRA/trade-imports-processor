@@ -1,5 +1,6 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
+using FluentValidation.Results;
 using FluentValidation.TestHelper;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Validation.CustomsDeclarations;
@@ -8,7 +9,13 @@ public class CommodityValidatorTests
 {
     private readonly CommodityValidator _validator = new("123");
 
+    private static ValidationFailure? FindWithErrorCode(ValidationResult result, string errorCode)
+    {
+        return result.Errors.Find(s => (string)s.CustomState == errorCode);
+    }
+
     [Theory]
+    [InlineData(0, false)]
     [InlineData(1, false)]
     [InlineData(99999999999.999, false)]
     [InlineData(999999999999.999, true)]
@@ -32,6 +39,7 @@ public class CommodityValidatorTests
     }
 
     [Theory]
+    [InlineData(0, false)]
     [InlineData(1, false)]
     [InlineData(99999999999.999, false)]
     [InlineData(999999999999.999, true)]
@@ -242,5 +250,157 @@ public class CommodityValidatorTests
         var errors = result.Errors.Where(e => (string)e.CustomState == "ALVSVAL328").ToList();
 
         Assert.Empty(errors);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData(0, true)]
+    [InlineData(1000, true)]
+    [InlineData(1, false)]
+    [InlineData(500, false)]
+    [InlineData(999, false)]
+    public void Validate_ItemNumber_ERR016(int? itemNumber, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = itemNumber };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR016") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("1234567", false)]
+    [InlineData("12345678", true)]
+    [InlineData("ABC1234", false)]
+    public void Validate_CustomsProcedureCode_ERR017(string? customsProcedureCode, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, CustomsProcedureCode = customsProcedureCode };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR017") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("1234567890", false)]
+    [InlineData("123456789", true)]
+    [InlineData("12345678901", true)]
+    [InlineData("ABCDEFGHIJ", true)]
+    [InlineData("123456789A", true)]
+    public void Validate_TaricCommodityCode_ERR018(string? taricCommodityCode, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, TaricCommodityCode = taricCommodityCode };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR018") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("Horses", false)]
+    [InlineData("Extremely Large Vegetables", false)]
+    [InlineData("Significantly Large Sausages", false)]
+    [InlineData("Fresh or chilled beef cuts with bone in, other than carcasses and half-carcasses", false)]
+    [InlineData(
+        "This is an extremely long goods description that exceeds the maximum allowed length of 280 characters for validation purposes and should trigger an error when processed by the validation rules that have been implemented to ensure data quality and compliance with the system requirements that govern the acceptable length of goods descriptions in the customs declaration processing system",
+        true
+    )]
+    public void Validate_GoodsDescription_ERR019(string? goodsDescription, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, GoodsDescription = goodsDescription };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR019") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("123456789012345678", false)]
+    [InlineData("1234567890123456789", true)]
+    [InlineData("12345678901234567890", true)]
+    public void Validate_ConsigneeId_ERR020(string? consigneeId, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, ConsigneeId = consigneeId };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR020") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("ABC Trading Company Ltd", false)]
+    [InlineData("Smith & Sons Import Export Ltd", false)]
+    [InlineData("This Company Name Is Way Too Long For Field", true)]
+    public void Validate_ConsigneeName_ERR021(string? consigneeName, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, ConsigneeName = consigneeName };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR021") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    public void Validate_NetMass_ERR022(decimal? netMass, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, NetMass = netMass };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR022") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(0d, false)]
+    [InlineData(1.5d, false)]
+    [InlineData(99999999999.999d, false)]
+    [InlineData(999999999999.999d, true)]
+    [InlineData(9999999999.9999d, true)]
+    public void Validate_ThirdQuantity_ERR023(double? thirdQuantity, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, ThirdQuantity = (decimal?)thirdQuantity };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR023") != null;
+        Assert.True(hasError == shouldError);
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("", true)]
+    [InlineData("GB", false)]
+    [InlineData("US", false)]
+    [InlineData("FR", false)]
+    [InlineData("G", true)]
+    [InlineData("GBR", true)]
+    [InlineData("USA", true)]
+    public void Validate_OriginCountryCode_ERR024(string? originCountryCode, bool shouldError)
+    {
+        var commodity = new Commodity { ItemNumber = 1, OriginCountryCode = originCountryCode };
+
+        var result = _validator.Validate(commodity);
+
+        var hasError = FindWithErrorCode(result, "ERR024") != null;
+        Assert.True(hasError == shouldError);
     }
 }

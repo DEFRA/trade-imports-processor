@@ -39,12 +39,12 @@ public class ServiceHeaderValidatorTests
     [InlineData("A", false)]
     [InlineData("ABCDABCDABCDABCDABC", false)]
     [InlineData("ABCDABCDABCDABCDABCDABCD", true)]
-    private void Validate_CorrelationId_Validation(string correlationId, bool shouldError)
+    private void Validate_CorrelationId_ERR001(string correlationId, bool shouldError)
     {
         var serviceHeader = ServiceHeaderFixture().With(sh => sh.CorrelationId, correlationId).Create();
 
         var result = _validator.Validate(serviceHeader);
-        var hasError = result.Errors.Find(e => e.PropertyName == "CorrelationId") != null;
+        var hasError = result.Errors.Find(e => (string)e.CustomState == "ERR001") != null;
 
         Assert.True(hasError == shouldError);
     }

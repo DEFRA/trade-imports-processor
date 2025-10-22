@@ -18,7 +18,7 @@
           "checkCode": "H219",
           "decisionCode": "X00",
           "decisionValidUntil": "202501081200",
-          "decisionReason": [
+          "decisionReasons": [
             "Test reason 1",
             "Test reason 2"
           ]

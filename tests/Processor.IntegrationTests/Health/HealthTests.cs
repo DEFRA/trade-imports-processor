@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using FluentAssertions;
 using WireMock.Client;
@@ -49,5 +51,25 @@ public class HealthTests(WireMockClient wireMockClient)
         var response = await client.GetAsync("/health/all");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result =
+            await response.Content.ReadFromJsonAsync<HealthResponse>(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            ) ?? throw new InvalidOperationException("Could not deserialize response");
+
+        // Azure service bus emulator does not support the management client. Therefore,
+        // as the integration test uses the emulator, we expected the IPAFFS topic health check
+        // to be degraded but all others should be healthy
+        result.Status.Should().Be("Degraded");
+        result.Results.Count.Should().Be(5);
+        result.Results.Single(x => x.Key == "IPAFFS topic (outgoing)").Value.Status.Should().Be("Degraded");
+        result
+            .Results.Where(x => x.Key != "IPAFFS topic (outgoing)")
+            .Should()
+            .AllSatisfy(y => y.Value.Status.Should().Be("Healthy"));
     }
+
+    private record HealthResponse(string Status, Dictionary<string, Result> Results);
+
+    private record Result(string Status);
 }

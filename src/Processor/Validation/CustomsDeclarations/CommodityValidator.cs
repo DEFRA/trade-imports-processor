@@ -1,5 +1,5 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using FluentValidation;
 
 namespace Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
@@ -8,15 +8,26 @@ public class CommodityValidator : AbstractValidator<Commodity>
 {
     public CommodityValidator(string correlationId)
     {
-        RuleFor(p => p.ItemNumber).NotNull().InclusiveBetween(1, 999);
-        RuleFor(p => p.CustomsProcedureCode).NotEmpty().MaximumLength(7);
-        RuleFor(p => p.TaricCommodityCode).NotEmpty().Matches("\\d").Length(10);
-        RuleFor(p => p.GoodsDescription).NotEmpty().MaximumLength(280);
+        RuleFor(p => p.ItemNumber).NotNull().InclusiveBetween(1, 999).WithBtmsErrorCode("ERR016", correlationId);
 
-        RuleFor(p => p.ConsigneeId).NotEmpty().MaximumLength(18);
-        RuleFor(p => p.ConsigneeName).NotEmpty().MaximumLength(35);
-        RuleFor(p => p.NetMass).NotNull();
-        RuleFor(p => p.OriginCountryCode).NotNull().Length(2);
+        RuleFor(p => p.CustomsProcedureCode).NotEmpty().MaximumLength(7).WithBtmsErrorCode("ERR017", correlationId);
+
+        RuleFor(p => p.TaricCommodityCode).NotEmpty().Matches("^\\d{10}$").WithBtmsErrorCode("ERR018", correlationId);
+
+        RuleFor(p => p.GoodsDescription).NotEmpty().MaximumLength(280).WithBtmsErrorCode("ERR019", correlationId);
+
+        RuleFor(p => p.ConsigneeId).NotEmpty().MaximumLength(18).WithBtmsErrorCode("ERR020", correlationId);
+
+        RuleFor(p => p.ConsigneeName).NotEmpty().MaximumLength(35).WithBtmsErrorCode("ERR021", correlationId);
+
+        RuleFor(p => p.NetMass).NotNull().WithBtmsErrorCode("ERR022", correlationId);
+
+        RuleFor(p => p.ThirdQuantity)
+            .HaveAValidDecimalFormat()
+            .When(p => p.ThirdQuantity != null)
+            .WithBtmsErrorCode("ERR023", correlationId);
+
+        RuleFor(p => p.OriginCountryCode).NotNull().Length(2).WithBtmsErrorCode("ERR024", correlationId);
 
         RuleForEach(p => p.Documents)
             .SetValidator(item => new ImportDocumentValidator((int)item.ItemNumber!, correlationId));
@@ -25,7 +36,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
         // CDMS-275 - NEW
         RuleFor(p => p.SupplementaryUnits)
-            .Must(HaveAValidCommodityDecimalFormat)
+            .HaveAValidDecimalFormat()
             .WithState(_ => "ALVSVAL108")
             .WithMessage(p =>
                 $"Supplementary units format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
@@ -33,7 +44,7 @@ public class CommodityValidator : AbstractValidator<Commodity>
 
         // CDMS-254 - NEW
         RuleFor(p => p.NetMass)
-            .Must(HaveAValidCommodityDecimalFormat)
+            .HaveAValidDecimalFormat()
             .WithState(_ => "ALVSVAL109")
             .WithMessage(p =>
                 $"Net mass format on item number {p.ItemNumber} is invalid. Your request with correlation ID {correlationId} has been terminated. Enter it in the format 99999999999.999."
@@ -111,14 +122,6 @@ public class CommodityValidator : AbstractValidator<Commodity>
             .AuthorityDocumentChecks.Where(x => x.CheckCode == check.CheckCode)
             .Select(x => x.DocumentCode);
         return commodity.Documents != null && commodity.Documents.Any(x => documentCodes.Contains(x.DocumentCode));
-    }
-
-    private static bool HaveAValidCommodityDecimalFormat(Commodity commodity, decimal? value)
-    {
-        var supplementaryUnits = value.ToString() ?? "";
-        var length = supplementaryUnits.Replace(".", "").Length;
-        var numDecimals = supplementaryUnits.SkipWhile(c => c != '.').Skip(1).Count();
-        return length <= 14 && numDecimals <= 3;
     }
 
     private static bool IsNotAnIuuCheckCode(string? checkCode)

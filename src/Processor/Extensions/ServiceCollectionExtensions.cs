@@ -213,7 +213,7 @@ public static class ServiceCollectionExtensions
                         mbb.WithProviderAmazonSQS(cfg =>
                         {
                             cfg.TopologyProvisioning.Enabled = false;
-                            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
                                 cfg.SqsClientConfig,
                                 configuration
                             );
@@ -239,7 +239,7 @@ public static class ServiceCollectionExtensions
                         mbb.WithProviderAmazonSQS(cfg =>
                         {
                             cfg.TopologyProvisioning.Enabled = false;
-                            cfg.ClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
                                 cfg.SqsClientConfig,
                                 configuration
                             );
@@ -286,7 +286,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .Get();
 
-        if (btmsOptions.OperatingMode == OperatingMode.Cutover)
+        if (btmsOptions is { OperatingMode: OperatingMode.Cutover, PublishToIpaffs: true })
         {
             services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
             services.AddScoped<IIpaffsStrategy, ClearanceRequestStrategy>();
