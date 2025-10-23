@@ -200,14 +200,19 @@ public class CustomsDeclarationsConsumer(
         CancellationToken cancellationToken
     )
     {
-        var clearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)
+        var unmappedClearanceRequest = DeserializeMessage<ClearanceRequest>(received, mrn);
+
+        //This is here because the mapping uses an explicit operator and we can't add logic there
+        LogAnyDocumentReferenceWithWhitespaceSuffix(unmappedClearanceRequest, logger);
+
+        var mappedClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)
             DeserializeMessage<ClearanceRequest>(received, mrn);
 
         var validationResult = await clearanceRequestValidator.ValidateAsync(
             new ClearanceRequestValidatorInput
             {
                 Mrn = mrn,
-                NewClearanceRequest = clearanceRequest,
+                NewClearanceRequest = mappedClearanceRequest,
                 ExistingClearanceRequest = existingCustomsDeclaration?.ClearanceRequest,
             },
             cancellationToken
@@ -220,19 +225,36 @@ public class CustomsDeclarationsConsumer(
 
         if (
             existingCustomsDeclaration?.ClearanceRequest == null
-            || IsClearanceRequestNewerThan(clearanceRequest, existingCustomsDeclaration.ClearanceRequest)
+            || IsClearanceRequestNewerThan(mappedClearanceRequest, existingCustomsDeclaration.ClearanceRequest)
         )
-            return (UpdatedCustomsDeclaration(existingCustomsDeclaration, clearanceRequest), null);
+            return (UpdatedCustomsDeclaration(existingCustomsDeclaration, mappedClearanceRequest), null);
 
         logger.LogInformation(
             "Skipping {Mrn} because new {Type} {NewClearanceVersion} is older than existing {ExistingClearanceVersion}",
             mrn,
             nameof(ClearanceRequest),
-            clearanceRequest.ExternalVersion,
+            mappedClearanceRequest.ExternalVersion,
             existingCustomsDeclaration.ClearanceRequest.ExternalVersion
         );
 
         return (null, null);
+    }
+
+    public static void LogAnyDocumentReferenceWithWhitespaceSuffix(ClearanceRequest clearanceRequest, ILogger logger)
+    {
+        if (clearanceRequest.Items != null)
+        {
+            var documentReferencesWithSpaces = clearanceRequest
+                .Items.Where(x => x.Documents is not null)
+                .SelectMany(x => x.Documents!)
+                .Where(x => x.DocumentReference is not null && char.IsWhiteSpace(x.DocumentReference[^1]))
+                .Select(x => x.DocumentReference);
+
+            foreach (var documentReference in documentReferencesWithSpaces)
+            {
+                logger.LogInformation("{DocumentReference} contains whitespace at the end", documentReference);
+            }
+        }
     }
 
     private async Task<(DataApiCustomsDeclaration.CustomsDeclaration?, ValidationResult?)> OnHandleInboundError(
