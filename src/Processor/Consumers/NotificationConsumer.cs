@@ -48,6 +48,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return;
         }
 
+        LogIuuInformation(newNotification);
         var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
 
         var existingNotification = await api.GetImportPreNotification(
@@ -157,6 +158,40 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         );
 
         return false;
+    }
+
+    private void LogIuuInformation(ImportNotification importNotification)
+    {
+        if (importNotification.PartOne?.Commodities?.ComplementParameterSets != null)
+        {
+            foreach (
+                var keyDataPairs in importNotification
+                    .PartOne.Commodities.ComplementParameterSets.Where(x => x.KeyDataPairs is not null)
+                    .Select(x => x.KeyDataPairs)
+            )
+            {
+                foreach (DataApiIpaffs.KeyDataPair? keyDataPair in keyDataPairs!)
+                {
+                    if (keyDataPair?.Key == "is_catch_certificate_required")
+                    {
+                        logger.LogInformation(
+                            "{ReferenceNumber} IUU is_catch_certificate_required  {Value} ",
+                            importNotification.ReferenceNumber,
+                            keyDataPair.Data
+                        );
+                    }
+                }
+            }
+        }
+
+        if (importNotification.PartTwo?.ControlAuthority?.IuuCheckRequired != null)
+        {
+            logger.LogInformation(
+                "{ReferenceNumber} IUU IuuCheckRequired  {Value} ",
+                importNotification.ReferenceNumber,
+                importNotification.PartTwo?.ControlAuthority?.IuuCheckRequired
+            );
+        }
     }
 
     private static bool NewNotificationIsOlderThanExistingNotification(
