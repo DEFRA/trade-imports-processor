@@ -59,7 +59,7 @@ public class GmrConsumerTests(WireMockClient wireMockClient, ServiceBusFixture s
     [Fact]
     public async Task WhenGmrCannotDeserialize_ShouldDeadLetter()
     {
-        var message = new ServiceBusMessage { Body = new BinaryData("{ \"GmrId\": 1 }") };
+        var message = new ServiceBusMessage { Body = new BinaryData("{ \"gmrId\": 1 }") };
         var traceId = Guid.NewGuid().ToString("N");
         message.ApplicationProperties.Add(MessageBusHeaders.TraceId, traceId);
         message.ApplicationProperties.Add(MessageBusHeaders.ResourceId, "123");
