@@ -85,7 +85,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
     {
         var result = resourceType switch
         {
-            ResourceTypes.Gmr => jsonElement.GetProperty(nameof(Gmr.GmrId)).GetString(),
+            ResourceTypes.Gmr => jsonElement.GetProperty("gmrId").GetString(),
             ResourceTypes.ImportPreNotification => jsonElement
                 .GetProperty(
                     // Currently case-sensitive based on JsonPropertyName on type
