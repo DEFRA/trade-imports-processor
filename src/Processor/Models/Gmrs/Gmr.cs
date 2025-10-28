@@ -9,7 +9,7 @@ public class Gmr
     [JsonPropertyName("gmrId")]
     public string? GmrId { get; init; }
 
-    [JsonPropertyName("haulierEori")]
+    [JsonPropertyName("haulierEORI")]
     public string? HaulierEori { get; init; }
 
     [JsonPropertyName("state")]
