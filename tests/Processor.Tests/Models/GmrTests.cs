@@ -14,7 +14,7 @@ public class GmrTests
         const string gmr = """
             {
               "gmrId": "GMRAADYA9J8G",
-              "haulierEori": "GB1196193155298",
+              "haulierEORI": "GB1196193155298",
               "state": "OPEN",
               "inspectionRequired": null,
               "reportToLocations": null,
@@ -65,7 +65,7 @@ public class GmrTests
         const string gmr = """
             {
               "gmrId": "GMRAADYA9J8G",
-              "haulierEori": "GB1196193155298",
+              "haulierEORI": "GB1196193155298",
               "state": "OPEN",
               "inspectionRequired": null,
               "reportToLocations": null,
