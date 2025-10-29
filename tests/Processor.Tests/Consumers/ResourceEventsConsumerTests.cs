@@ -19,7 +19,6 @@ public class ResourceEventsConsumerTests
 {
     private const string Mrn = "25GB001ABCDEF1ABC5";
 
-    private readonly IOptions<BtmsOptions> _btmsOptions = Substitute.For<IOptions<BtmsOptions>>();
     private readonly IIpaffsStrategy _ipaffsStrategy = Substitute.For<IIpaffsStrategy>();
     private readonly ILogger<ResourceEventsConsumer> _logger = Substitute.For<ILogger<ResourceEventsConsumer>>();
 
@@ -28,7 +27,7 @@ public class ResourceEventsConsumerTests
     public ResourceEventsConsumerTests()
     {
         _ipaffsStrategy.SupportedSubResourceType.Returns("ClearanceDecision");
-        _resourceEventsConsumer = new ResourceEventsConsumer(_btmsOptions, [_ipaffsStrategy], _logger);
+        _resourceEventsConsumer = new ResourceEventsConsumer([_ipaffsStrategy], _logger);
         _resourceEventsConsumer.Context = Substitute.For<IConsumerContext>();
         var transportMessage = new Message { MessageId = "SQS123" };
         var messageProperties = new Dictionary<string, object> { ["Sqs_Message"] = transportMessage };
@@ -36,10 +35,8 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenInCutoverAndValidDecisionReceived_ThenMessagePublished()
+    public async Task WhenValidDecisionReceived_ThenMessagePublished()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Cutover });
-
         var customsDeclaration = new CustomsDeclaration
         {
             ClearanceDecision = new ClearanceDecision
@@ -97,10 +94,8 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenNotInCutover_ThenMessageIsNotPublished()
+    public async Task WhenUnknownResourceType_ThenMessageIsNotPublished()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Default });
-
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = Mrn,
@@ -124,10 +119,8 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenInCutoverAndResourceEventIsNotCustomsDeclaration_ThenMessageIsNotPublished()
+    public async Task WhenResourceEventIsNotCustomsDeclaration_ThenMessageIsNotPublished()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Cutover });
-
         var resourceEvent = new ResourceEvent<ImportPreNotification>
         {
             ResourceId = Mrn,
@@ -153,10 +146,9 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenInCutoverAndSubResourceTypeHasNoStrategy_ThenMessageIsNotPublishedToAzureTopic()
+    public async Task WhenSubResourceTypeHasNoStrategy_ThenMessageIsNotPublishedToAzureTopic()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Cutover });
-        _resourceEventsConsumer = new ResourceEventsConsumer(_btmsOptions, [], _logger);
+        _resourceEventsConsumer = new ResourceEventsConsumer([], _logger);
         _resourceEventsConsumer.Context = Substitute.For<IConsumerContext>();
 
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
@@ -188,10 +180,8 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenInCutoverAndResourceIdIsInvalid_ThenExceptionIsThrown()
+    public async Task WhenResourceIdIsInvalid_ThenExceptionIsThrown()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Cutover });
-
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = string.Empty,
@@ -220,10 +210,8 @@ public class ResourceEventsConsumerTests
     }
 
     [Fact]
-    public async Task WhenInCutoverAndResourceIsInvalid_ThenExceptionIsThrown()
+    public async Task WhenResourceIsInvalid_ThenExceptionIsThrown()
     {
-        _btmsOptions.Value.Returns(new BtmsOptions { OperatingMode = OperatingMode.Cutover });
-
         var resourceEvent = new ResourceEvent<CustomsDeclaration>
         {
             ResourceId = Mrn,

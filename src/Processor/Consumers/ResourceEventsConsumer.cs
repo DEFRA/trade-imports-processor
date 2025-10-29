@@ -12,11 +12,9 @@ using SlimMessageBus.Host.AmazonSQS;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class ResourceEventsConsumer(
-    IOptions<BtmsOptions> btmsOptions,
-    IEnumerable<IIpaffsStrategy> strategies,
-    ILogger<ResourceEventsConsumer> logger
-) : IConsumer<string>, IConsumerWithContext
+public class ResourceEventsConsumer(IEnumerable<IIpaffsStrategy> strategies, ILogger<ResourceEventsConsumer> logger)
+    : IConsumer<string>,
+        IConsumerWithContext
 {
     private string MessageId => Context.GetTransportMessage().MessageId;
 
@@ -24,47 +22,41 @@ public class ResourceEventsConsumer(
 
     public async Task OnHandle(string received, CancellationToken cancellationToken)
     {
-        if (btmsOptions.Value.OperatingMode == OperatingMode.Cutover)
+        var resourceType = Context.GetResourceType();
+
+        if (resourceType == ResourceEventResourceTypes.CustomsDeclaration)
         {
-            var resourceType = Context.GetResourceType();
+            var message = MessageDeserializer.Deserialize<JsonElement>(received, Context.Headers.GetContentEncoding());
+            var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclaration>>();
 
-            if (resourceType == ResourceEventResourceTypes.CustomsDeclaration)
+            if (string.IsNullOrEmpty(customsDeclaration?.ResourceId))
             {
-                var message = MessageDeserializer.Deserialize<JsonElement>(
-                    received,
-                    Context.Headers.GetContentEncoding()
+                logger.LogError("Invalid resource id for {MessageId}", MessageId);
+                throw new ResourceEventException(MessageId);
+            }
+
+            if (customsDeclaration.Resource is null)
+            {
+                logger.LogError(
+                    "{MRN} Invalid resource event message received for {MessageId}",
+                    customsDeclaration.ResourceId,
+                    MessageId
                 );
-                var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclaration>>();
+                throw new ResourceEventException(MessageId);
+            }
 
-                if (string.IsNullOrEmpty(customsDeclaration?.ResourceId))
-                {
-                    logger.LogError("Invalid resource id for {MessageId}", MessageId);
-                    throw new ResourceEventException(MessageId);
-                }
+            var strategy = strategies.FirstOrDefault(strategy =>
+                strategy.SupportedSubResourceType == customsDeclaration.SubResourceType
+            );
 
-                if (customsDeclaration.Resource is null)
-                {
-                    logger.LogError(
-                        "{MRN} Invalid resource event message received for {MessageId}",
-                        customsDeclaration.ResourceId,
-                        MessageId
-                    );
-                    throw new ResourceEventException(MessageId);
-                }
-
-                var strategy = strategies.FirstOrDefault(strategy =>
-                    strategy.SupportedSubResourceType == customsDeclaration.SubResourceType
+            if (strategy is not null)
+            {
+                await strategy.PublishToIpaffs(
+                    MessageId,
+                    customsDeclaration.ResourceId,
+                    customsDeclaration.Resource,
+                    cancellationToken
                 );
-
-                if (strategy is not null)
-                {
-                    await strategy.PublishToIpaffs(
-                        MessageId,
-                        customsDeclaration.ResourceId,
-                        customsDeclaration.Resource,
-                        cancellationToken
-                    );
-                }
             }
         }
     }
