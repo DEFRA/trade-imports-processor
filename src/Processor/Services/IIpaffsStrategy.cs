@@ -1,4 +1,4 @@
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Events;
 
 namespace Defra.TradeImportsProcessor.Processor.Services;
 
@@ -8,7 +8,7 @@ public interface IIpaffsStrategy
     Task PublishToIpaffs(
         string messageId,
         string resourceId,
-        CustomsDeclaration customsDeclaration,
+        CustomsDeclarationEvent customsDeclaration,
         CancellationToken cancellationToken
     );
 }

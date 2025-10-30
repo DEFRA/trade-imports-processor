@@ -16,7 +16,7 @@ public class FinalisationStrategy(IMessageBus azureServiceBus, ILogger<Finalisat
     public async Task PublishToIpaffs(
         string messageId,
         string resourceId,
-        CustomsDeclaration customsDeclaration,
+        CustomsDeclarationEvent customsDeclaration,
         CancellationToken cancellationToken
     )
     {
