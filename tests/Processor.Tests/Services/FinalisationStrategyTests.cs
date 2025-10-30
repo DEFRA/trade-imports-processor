@@ -1,4 +1,4 @@
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -27,8 +27,9 @@ public class FinalisationStrategyTests
     [Fact]
     public async Task WhenValidFinalisationReceived_ThenMessagePublishedToAzureTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             Finalisation = new Finalisation
             {
                 DecisionNumber = 1,
@@ -68,7 +69,7 @@ public class FinalisationStrategyTests
     public async Task WhenFinalisationIsNull_ThenExceptionIsThrown()
     {
         await Assert.ThrowsAsync<ResourceEventException>(() =>
-            finalisationStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclaration(), CancellationToken.None)
+            finalisationStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclarationEvent() { Id = "Test" }, CancellationToken.None)
         );
 
         await azureServiceBus

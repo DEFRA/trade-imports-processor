@@ -1,4 +1,5 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -28,8 +29,9 @@ public class DecisionNotificationStrategyTests
     [Fact]
     public async Task WhenValidDecisionReceived_ThenMessagePublishedToAzureTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             ClearanceDecision = new ClearanceDecision
             {
                 CorrelationId = "ABC123",
@@ -77,7 +79,7 @@ public class DecisionNotificationStrategyTests
             decisionNotificationStrategy.PublishToIpaffs(
                 "SQS123",
                 Mrn,
-                new CustomsDeclaration(),
+                new CustomsDeclarationEvent()  {Id = "test"},
                 CancellationToken.None
             )
         );

@@ -1,4 +1,5 @@
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -27,8 +28,9 @@ public class ClearanceRequestStrategyTests
     [Fact]
     public async Task WhenValidClearanceRequestReceived_ThenMessagePublishedToAzureTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             ClearanceRequest = new ClearanceRequest
             {
                 ExternalCorrelationId = "ABC123",
@@ -97,7 +99,7 @@ public class ClearanceRequestStrategyTests
     public async Task WhenClearanceRequestIsNull_ThenExceptionIsThrown()
     {
         await Assert.ThrowsAsync<ResourceEventException>(() =>
-            clearanceRequestStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclaration(), CancellationToken.None)
+            clearanceRequestStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclarationEvent()  {Id = "Test"}, CancellationToken.None)
         );
 
         await azureServiceBus

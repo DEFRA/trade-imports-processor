@@ -85,7 +85,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Is("SQS123"),
                 Arg.Is(Mrn),
-                Arg.Is<CustomsDeclaration>(x =>
+                Arg.Is<CustomsDeclarationEvent>(x =>
                     x.ClearanceDecision != null
                     && x.ClearanceDecision.CorrelationId == customsDeclaration.ClearanceDecision.CorrelationId
                 ),
@@ -113,7 +113,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -140,7 +140,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -174,7 +174,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -204,7 +204,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -234,7 +234,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
