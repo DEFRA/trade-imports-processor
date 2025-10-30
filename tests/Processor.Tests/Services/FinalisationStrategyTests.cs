@@ -69,7 +69,12 @@ public class FinalisationStrategyTests
     public async Task WhenFinalisationIsNull_ThenExceptionIsThrown()
     {
         await Assert.ThrowsAsync<ResourceEventException>(() =>
-            finalisationStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclarationEvent() { Id = "Test" }, CancellationToken.None)
+            finalisationStrategy.PublishToIpaffs(
+                "SQS123",
+                Mrn,
+                new CustomsDeclarationEvent() { Id = "Test" },
+                CancellationToken.None
+            )
         );
 
         await azureServiceBus

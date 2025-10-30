@@ -79,7 +79,7 @@ public class DecisionNotificationStrategyTests
             decisionNotificationStrategy.PublishToIpaffs(
                 "SQS123",
                 Mrn,
-                new CustomsDeclarationEvent()  {Id = "test"},
+                new CustomsDeclarationEvent() { Id = "test" },
                 CancellationToken.None
             )
         );

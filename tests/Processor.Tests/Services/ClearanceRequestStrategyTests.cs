@@ -99,7 +99,12 @@ public class ClearanceRequestStrategyTests
     public async Task WhenClearanceRequestIsNull_ThenExceptionIsThrown()
     {
         await Assert.ThrowsAsync<ResourceEventException>(() =>
-            clearanceRequestStrategy.PublishToIpaffs("SQS123", Mrn, new CustomsDeclarationEvent()  {Id = "Test"}, CancellationToken.None)
+            clearanceRequestStrategy.PublishToIpaffs(
+                "SQS123",
+                Mrn,
+                new CustomsDeclarationEvent() { Id = "Test" },
+                CancellationToken.None
+            )
         );
 
         await azureServiceBus
