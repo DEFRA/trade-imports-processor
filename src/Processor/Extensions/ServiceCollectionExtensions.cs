@@ -286,7 +286,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .Get();
 
-        if (btmsOptions is { OperatingMode: OperatingMode.Cutover, PublishToIpaffs: true })
+        if (btmsOptions is { PublishToIpaffs: true })
         {
             services.AddScoped<IIpaffsStrategy, DecisionNotificationStrategy>();
             services.AddScoped<IIpaffsStrategy, ClearanceRequestStrategy>();
