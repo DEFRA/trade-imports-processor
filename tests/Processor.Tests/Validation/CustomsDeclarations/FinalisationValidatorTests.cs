@@ -214,7 +214,7 @@ public class FinalisationValidatorTests
 
         Assert.NotNull(error);
         Assert.Contains(
-            $"The import declaration was received as a cancellation. The EntryReference {mrn} EntryVersionNumber 2 has already been replaced by a later version.",
+            $"An attempt to cancel EntryReference {mrn} EntryVersionNumber 2 was made but the import declaration has already been replaced by a later version.",
             error.ErrorMessage
         );
     }

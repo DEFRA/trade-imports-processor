@@ -13,42 +13,42 @@ public class GmrTests
     {
         const string gmr = """
             {
-              "GmrId": "GMRAADYA9J8G",
-              "HaulierEori": "GB1196193155298",
-              "State": "OPEN",
-              "InspectionRequired": null,
-              "ReportToLocations": null,
-              "UpdatedDateTime": "2025-04-18T19:00:00.353Z",
-              "Direction": "UK_INBOUND",
-              "HaulierType": "NATO_MOD",
-              "IsUnaccompanied": true,
-              "VehicleRegNum": "RXPXOW",
-              "TrailerRegistrationNums": [
+              "gmrId": "GMRAADYA9J8G",
+              "haulierEORI": "GB1196193155298",
+              "state": "OPEN",
+              "inspectionRequired": null,
+              "reportToLocations": null,
+              "updatedDateTime": "2025-04-18T19:00:00.353Z",
+              "direction": "UK_INBOUND",
+              "haulierType": "NATO_MOD",
+              "isUnaccompanied": true,
+              "vehicleRegNum": "RXPXOW",
+              "trailerRegistrationNums": [
                 "7PIHPW",
                 "E4FWLP"
               ],
-              "ContainerReferenceNums": null,
-              "ActualCrossing": {
-                "LocalDateTimeOfArrival": "2025-04-28T19:00",
-                "RouteId": "19"
+              "containerReferenceNums": null,
+              "actualCrossing": {
+                "localDateTimeOfArrival": "2025-04-28T19:00",
+                "routeId": "19"
               },
-              "CheckedInCrossing": {
-                "LocalDateTimeOfArrival": "2025-04-28T19:00",
-                "RouteId": "19"
+              "checkedInCrossing": {
+                "localDateTimeOfArrival": "2025-04-28T19:00",
+                "routeId": "19"
               },
-              "PlannedCrossing": {
-                "LocalDateTimeOfDeparture": "2025-04-28T19:00",
-                "RouteId": "19"
+              "plannedCrossing": {
+                "localDateTimeOfDeparture": "2025-04-28T19:00",
+                "routeId": "19"
               },
-              "Declarations": {
-                "Transits": [
+              "declarations": {
+                "transits": [
                   {
-                    "Id": "ABCD"
+                    "id": "ABCD"
                   }
                 ],
-                "Customs": [
+                "customs": [
                   {
-                    "Id": "ALVSCDSSTAND9930082"
+                    "id": "ALVSCDSSTAND9930082"
                   }
                 ]
               }
@@ -64,42 +64,42 @@ public class GmrTests
     {
         const string gmr = """
             {
-              "GmrId": "GMRAADYA9J8G",
-              "HaulierEori": "GB1196193155298",
-              "State": "OPEN",
-              "InspectionRequired": null,
-              "ReportToLocations": null,
-              "UpdatedDateTime": "2025-04-18T19:00:00.353Z",
-              "Direction": "UK_INBOUND",
-              "HaulierType": "NATO_MOD",
-              "IsUnaccompanied": true,
-              "VehicleRegNum": "RXPXOW",
-              "TrailerRegistrationNums": [
+              "gmrId": "GMRAADYA9J8G",
+              "haulierEORI": "GB1196193155298",
+              "state": "OPEN",
+              "inspectionRequired": null,
+              "reportToLocations": null,
+              "updatedDateTime": "2025-04-18T19:00:00.353Z",
+              "direction": "UK_INBOUND",
+              "haulierType": "NATO_MOD",
+              "isUnaccompanied": true,
+              "vehicleRegNum": "RXPXOW",
+              "trailerRegistrationNums": [
                 "7PIHPW",
                 "E4FWLP"
               ],
-              "ContainerReferenceNums": null,
-              "ActualCrossing": {
-                "LocalDateTimeOfArrival": "2025-04-28T19:00",
-                "RouteId": "19"
+              "containerReferenceNums": null,
+              "actualCrossing": {
+                "localDateTimeOfArrival": "2025-04-28T19:00",
+                "routeId": "19"
               },
-              "CheckedInCrossing": {
-                "LocalDateTimeOfArrival": "2025-04-28T19:00",
-                "RouteId": "19"
+              "checkedInCrossing": {
+                "localDateTimeOfArrival": "2025-04-28T19:00",
+                "routeId": "19"
               },
-              "PlannedCrossing": {
-                "LocalDateTimeOfDeparture": null,
-                "RouteId": "19"
+              "plannedCrossing": {
+                "localDateTimeOfDeparture": null,
+                "routeId": "19"
               },
-              "Declarations": {
-                "Transits": [
+              "declarations": {
+                "transits": [
                   {
-                    "Id": "ABCD"
+                    "id": "ABCD"
                   }
                 ],
-                "Customs": [
+                "customs": [
                   {
-                    "Id": "ALVSCDSSTAND9930082"
+                    "id": "ALVSCDSSTAND9930082"
                   }
                 ]
               }

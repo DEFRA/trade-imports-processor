@@ -1,12 +1,22 @@
+using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Microsoft.Extensions.Logging.Testing;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
 
 public class ClearanceRequestTests
 {
-    [Fact]
-    public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect()
+    [Theory]
+    [InlineData("Valid", "GBCHD2025.3338265", false)]
+    [InlineData("SpaceAtEnd", "GBCHD2025.3338265 ", true)]
+    [InlineData("Carriage Return", "GBCHD2025.3338265\r\n", true)]
+    [InlineData("Tab", "GBCHD2025.3338265\t", true)]
+    public async Task ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect(
+        string fileName,
+        string documentReference,
+        bool expectedLog
+    )
     {
         var clearanceRequest = new ClearanceRequest
         {
@@ -52,7 +62,7 @@ public class ClearanceRequestTests
                         new Document
                         {
                             DocumentCode = "N002",
-                            DocumentReference = "GBCHD2025.3338265",
+                            DocumentReference = documentReference,
                             DocumentStatus = "AG",
                             DocumentControl = "P",
                             DocumentQuantity = null,
@@ -65,6 +75,15 @@ public class ClearanceRequestTests
 
         var dataApiClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
 
-        await Verify(dataApiClearanceRequest).DontScrubDateTimes();
+        var logger = new FakeLogger();
+        CustomsDeclarationsConsumer.LogAnyDocumentReferenceWithWhitespaceSuffix(clearanceRequest, logger);
+
+        logger.Collector.Count.Should().Be(expectedLog ? 1 : 0);
+
+        await Verify(dataApiClearanceRequest)
+            .UseFileName(
+                $"{nameof(ClearanceRequestTests)}.{nameof(ClearanceRequest_ConversionToDataApiClearanceRequest_IsCorrect)}_{fileName}"
+            )
+            .DontScrubDateTimes();
     }
 }

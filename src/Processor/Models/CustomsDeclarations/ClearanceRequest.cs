@@ -55,7 +55,9 @@ public class ClearanceRequest : CustomsDeclarationsBase
                             DocumentCode = doc.DocumentCode,
                             DocumentReference =
                                 doc.DocumentReference != null
-                                    ? new DataApiCustomsDeclaration.ImportDocumentReference(doc.DocumentReference)
+                                    ? new DataApiCustomsDeclaration.ImportDocumentReference(
+                                        doc.DocumentReference.TrimEnd()
+                                    )
                                     : null,
                             DocumentStatus = doc.DocumentStatus,
                             DocumentControl = doc.DocumentControl,
