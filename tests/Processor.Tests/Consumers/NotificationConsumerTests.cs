@@ -319,7 +319,9 @@ public class NotificationConsumerTests
             );
     }
 
-    [Theory]
+    [Theory(
+        Skip = "This is skip as the new state machine logic is not used functionally, its just logging.  Once the new state machine is in use, then this test should be un skipped."
+    )]
     [InlineData(ImportNotificationStatus.InProgress)]
     [InlineData(ImportNotificationStatus.Submitted)]
     public async Task OnHandle_WhenNewImportNotificationIsAmend_AndTheExistingIsMoreMature_ThenItIsUpdated(

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
@@ -44,6 +45,22 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
     ];
+
+    private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
+    {
+        { ImportNotificationStatus.Draft, 0 },
+        { ImportNotificationStatus.Deleted, 0 },
+        { ImportNotificationStatus.Amend, 0 },
+        { ImportNotificationStatus.Submitted, 0 },
+        { ImportNotificationStatus.Modify, 0 },
+        { ImportNotificationStatus.InProgress, 1 },
+        { ImportNotificationStatus.Cancelled, 2 },
+        { ImportNotificationStatus.PartiallyRejected, 2 },
+        { ImportNotificationStatus.Rejected, 2 },
+        { ImportNotificationStatus.Validated, 2 },
+        { ImportNotificationStatus.SplitConsignment, 3 },
+        { ImportNotificationStatus.Replaced, 3 },
+    }.ToFrozenDictionary();
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
@@ -163,7 +180,16 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return false;
         }
 
-        if (IsStateTransitionAllowed(newNotification, existingNotification))
+        if (!IsStateTransitionAllowed(newNotification, existingNotification))
+        {
+            logger.LogWarning(
+                "Transition from '{From}' to '{To}' not allowed.",
+                existingNotification.Status,
+                newNotification.Status
+            );
+        }
+
+        if (IsLaterInTheLifecycle(newNotification, existingNotification))
             return true;
 
         logger.LogInformation(
@@ -226,6 +252,17 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         return notification.Status == ImportNotificationStatus.Modify
             || notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private static bool IsLaterInTheLifecycle(
+        DataApiIpaffs.ImportPreNotification newNotification,
+        DataApiIpaffs.ImportPreNotification existingNotification
+    )
+    {
+        var newPriority = s_statusPriority.GetValueOrDefault(newNotification.Status!, 0);
+        var oldPriority = s_statusPriority.GetValueOrDefault(existingNotification.Status!, 0);
+
+        return newPriority >= oldPriority;
     }
 
     private static bool IsStateTransitionAllowed(
