@@ -1,4 +1,3 @@
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using IpaffsDataApi = Defra.TradeImportsDataApi.Domain.Ipaffs;
 
 namespace Defra.TradeImportsProcessor.Processor.Models.ImportNotification.Mappers;
@@ -34,6 +33,7 @@ public static class PartTwoMapper
             InspectionRequired = from.InspectionRequired,
             InspectionOverride = InspectionOverrideMapper.Map(from.InspectionOverride),
             AutoClearedOn = from.AutoClearedDateTime,
+            RequestAmendmentAdditionalDetails = from.RequestAmendmentAdditionalDetails,
         };
 
         return to;

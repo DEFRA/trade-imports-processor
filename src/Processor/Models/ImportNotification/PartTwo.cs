@@ -135,4 +135,10 @@ public class PartTwo
     /// </summary>
     [JsonPropertyName("autoClearedDateTime")]
     public DateTime? AutoClearedDateTime { get; set; }
+
+    /// <summary>
+    /// The reason why a notification is put into a modify state.
+    /// </summary>
+    [JsonPropertyName("requestAmendmentAdditionalDetails")]
+    public string? RequestAmendmentAdditionalDetails { get; set; }
 }
