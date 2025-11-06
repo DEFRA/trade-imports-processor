@@ -183,7 +183,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         if (!IsStateTransitionAllowed(newNotification, existingNotification))
         {
             logger.LogWarning(
-                "Transition from '{From}' to '{To}' not allowed.",
+                "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
                 existingNotification.Status,
                 newNotification.Status
             );
