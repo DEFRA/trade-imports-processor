@@ -11,6 +11,41 @@ namespace Defra.TradeImportsProcessor.Processor.Consumers;
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
     : IConsumer<JsonElement>
 {
+    /// <summary>
+    /// See https://eaflood.atlassian.net/wiki/spaces/ALVS/pages/5352587513/IPAFFS+Notification+States
+    /// </summary>
+    private static readonly HashSet<(string, string)> s_statusStateMachine =
+    [
+        // Draft
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Draft),
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Deleted),
+        (ImportNotificationStatus.Draft, ImportNotificationStatus.Submitted),
+        // Amend
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted),
+        (ImportNotificationStatus.Amend, ImportNotificationStatus.Submitted),
+        // Submitted
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
+        // In progress
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Validated),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
+        // Modify
+        (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
+        // Partially rejected
+        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
+        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
+    ];
+
     private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
     {
         { ImportNotificationStatus.Draft, 0 },
@@ -145,6 +180,15 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return false;
         }
 
+        if (!IsStateTransitionAllowed(newNotification, existingNotification))
+        {
+            logger.LogWarning(
+                "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
+                existingNotification.Status,
+                newNotification.Status
+            );
+        }
+
         if (IsLaterInTheLifecycle(newNotification, existingNotification))
             return true;
 
@@ -205,8 +249,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool IsInvalidStatus(ImportNotification notification)
     {
-        return notification.Status == ImportNotificationStatus.Amend
-            || notification.Status == ImportNotificationStatus.Modify
+        return notification.Status == ImportNotificationStatus.Modify
             || notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
@@ -221,4 +264,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         return newPriority >= oldPriority;
     }
+
+    private static bool IsStateTransitionAllowed(
+        DataApiIpaffs.ImportPreNotification newNotification,
+        DataApiIpaffs.ImportPreNotification existingNotification
+    ) => s_statusStateMachine.Contains((existingNotification.Status!, newNotification.Status!));
 }
