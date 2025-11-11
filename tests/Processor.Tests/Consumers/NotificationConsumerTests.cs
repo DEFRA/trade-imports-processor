@@ -155,6 +155,7 @@ public class NotificationConsumerTests
     }
 
     [Theory]
+    [InlineData(ImportNotificationStatus.Amend)]
     [InlineData(ImportNotificationStatus.Draft)]
     [InlineData(ImportNotificationStatus.Modify)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
@@ -314,47 +315,6 @@ public class NotificationConsumerTests
             .PutImportPreNotification(
                 Arg.Any<string>(),
                 Arg.Any<DataApiIpaffs.ImportPreNotification>(),
-                Arg.Any<string>(),
-                Arg.Any<CancellationToken>()
-            );
-    }
-
-    [Theory(
-        Skip = "This is skip as the new state machine logic is not used functionally, its just logging.  Once the new state machine is in use, then this test should be un skipped."
-    )]
-    [InlineData(ImportNotificationStatus.InProgress)]
-    [InlineData(ImportNotificationStatus.Submitted)]
-    public async Task OnHandle_WhenNewImportNotificationIsAmend_AndTheExistingIsMoreMature_ThenItIsUpdated(
-        string existingStatus
-    )
-    {
-        var consumer = new NotificationConsumer(_mockLogger, _mockApi);
-
-        var existingNotificationTimestamp = new DateTime(2025, 05, 05, 10, 07, 33, 817, DateTimeKind.Utc);
-        var newNotificationTimestamp = new DateTime(2025, 05, 07, 13, 54, 23, 984, DateTimeKind.Utc);
-
-        var newNotification = ImportNotificationFixture()
-            .With(i => i.LastUpdated, newNotificationTimestamp)
-            .With(i => i.Status, ImportNotificationStatus.Amend)
-            .Create();
-
-        var existingNotification = (DataApiIpaffs.ImportPreNotification)
-            ImportNotificationFixture()
-                .With(i => i.LastUpdated, existingNotificationTimestamp)
-                .With(i => i.Status, existingStatus)
-                .Create();
-
-        _mockApi
-            .GetImportPreNotification(newNotification.ReferenceNumber, _cancellationToken)
-            .Returns(new ImportPreNotificationResponse(existingNotification, DateTime.Now, DateTime.Now, ExpectedEtag));
-
-        await consumer.OnHandle(JsonSerializer.SerializeToElement(newNotification), _cancellationToken);
-
-        await _mockApi
-            .Received()
-            .PutImportPreNotification(
-                Arg.Any<string>(),
-                Arg.Is<DataApiIpaffs.ImportPreNotification>(n => n.Status == ImportNotificationStatus.Amend),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             );
