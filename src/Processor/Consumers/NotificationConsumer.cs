@@ -80,8 +80,10 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             cancellationToken
         );
 
-        if (existingNotification != null
-            && !IsStateTransitionAllowed(dataApiImportPreNotification, existingNotification.ImportPreNotification))
+        if (
+            existingNotification != null
+            && !IsStateTransitionAllowed(dataApiImportPreNotification, existingNotification.ImportPreNotification)
+        )
         {
             logger.LogWarning(
                 "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
@@ -174,8 +176,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-       
-
         if (
             newNotification.Status == existingNotification.Status
             && NewNotificationIsOlderThanExistingNotification(newNotification, existingNotification)
