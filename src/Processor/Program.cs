@@ -73,7 +73,6 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseStatusCodePages();
     app.UseHeaderPropagation();
     app.UseMiddleware<MetricsMiddleware>();
-    app.MapReplayEndpoints();
     app.MapRawMessageEndpoints();
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
