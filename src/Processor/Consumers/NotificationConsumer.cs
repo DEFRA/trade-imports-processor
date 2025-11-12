@@ -72,6 +72,24 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
 
+        LogIuuInformation(newNotification);
+        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
+
+        var existingNotification = await api.GetImportPreNotification(
+            newNotification.ReferenceNumber,
+            cancellationToken
+        );
+
+        if (existingNotification != null
+            && !IsStateTransitionAllowed(dataApiImportPreNotification, existingNotification.ImportPreNotification))
+        {
+            logger.LogWarning(
+                "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
+                existingNotification.ImportPreNotification.Status,
+                newNotification.Status
+            );
+        }
+
         if (IsInvalidStatus(newNotification))
         {
             logger.LogInformation(
@@ -82,14 +100,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
             return;
         }
-
-        LogIuuInformation(newNotification);
-        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
-
-        var existingNotification = await api.GetImportPreNotification(
-            newNotification.ReferenceNumber,
-            cancellationToken
-        );
 
         if (
             existingNotification != null
@@ -164,14 +174,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         DataApiIpaffs.ImportPreNotification existingNotification
     )
     {
-        if (!IsStateTransitionAllowed(newNotification, existingNotification))
-        {
-            logger.LogWarning(
-                "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
-                existingNotification.Status,
-                newNotification.Status
-            );
-        }
+       
 
         if (
             newNotification.Status == existingNotification.Status
