@@ -167,7 +167,7 @@ public class NotificationConsumerTests
         await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
         await _mockApi
-            .DidNotReceiveWithAnyArgs()
+            .ReceivedWithAnyArgs()
             .GetImportPreNotification(Arg.Any<string>(), Arg.Any<CancellationToken>());
         await _mockApi
             .DidNotReceiveWithAnyArgs()
