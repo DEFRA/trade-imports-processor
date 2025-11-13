@@ -46,22 +46,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
     ];
 
-    private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
-    {
-        { ImportNotificationStatus.Draft, 0 },
-        { ImportNotificationStatus.Deleted, 0 },
-        { ImportNotificationStatus.Amend, 0 },
-        { ImportNotificationStatus.Submitted, 0 },
-        { ImportNotificationStatus.Modify, 0 },
-        { ImportNotificationStatus.InProgress, 1 },
-        { ImportNotificationStatus.Cancelled, 2 },
-        { ImportNotificationStatus.PartiallyRejected, 2 },
-        { ImportNotificationStatus.Rejected, 2 },
-        { ImportNotificationStatus.Validated, 2 },
-        { ImportNotificationStatus.SplitConsignment, 3 },
-        { ImportNotificationStatus.Replaced, 3 },
-    }.ToFrozenDictionary();
-
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
         var newNotification = received.Deserialize<ImportNotification>();
@@ -71,26 +55,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         }
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
-
-        LogIuuInformation(newNotification);
-        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
-
-        var existingNotification = await api.GetImportPreNotification(
-            newNotification.ReferenceNumber,
-            cancellationToken
-        );
-
-        if (
-            existingNotification != null
-            && !IsStateTransitionAllowed(dataApiImportPreNotification, existingNotification.ImportPreNotification)
-        )
-        {
-            logger.LogWarning(
-                "Unexpected IPAFFS State Transition - Previous state [{From}], new state [{To}]",
-                existingNotification.ImportPreNotification.Status,
-                newNotification.Status
-            );
-        }
 
         if (IsInvalidStatus(newNotification))
         {
@@ -102,6 +66,14 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
             return;
         }
+
+        LogIuuInformation(newNotification);
+        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
+
+        var existingNotification = await api.GetImportPreNotification(
+            newNotification.ReferenceNumber,
+            cancellationToken
+        );
 
         if (
             existingNotification != null
@@ -192,7 +164,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return false;
         }
 
-        if (IsLaterInTheLifecycle(newNotification, existingNotification))
+        if (IsStateTransitionAllowed(newNotification, existingNotification))
             return true;
 
         logger.LogInformation(
@@ -252,22 +224,21 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool IsInvalidStatus(ImportNotification notification)
     {
-        return notification.Status == ImportNotificationStatus.Amend
-            || notification.Status == ImportNotificationStatus.Modify
+        return  notification.Status == ImportNotificationStatus.Modify
             || notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
-    private static bool IsLaterInTheLifecycle(
-        DataApiIpaffs.ImportPreNotification newNotification,
-        DataApiIpaffs.ImportPreNotification existingNotification
-    )
-    {
-        var newPriority = s_statusPriority.GetValueOrDefault(newNotification.Status!, 0);
-        var oldPriority = s_statusPriority.GetValueOrDefault(existingNotification.Status!, 0);
+    ////private static bool IsLaterInTheLifecycle(
+    ////    DataApiIpaffs.ImportPreNotification newNotification,
+    ////    DataApiIpaffs.ImportPreNotification existingNotification
+    ////)
+    ////{
+    ////    var newPriority = s_statusPriority.GetValueOrDefault(newNotification.Status!, 0);
+    ////    var oldPriority = s_statusPriority.GetValueOrDefault(existingNotification.Status!, 0);
 
-        return newPriority >= oldPriority;
-    }
+    ////    return newPriority >= oldPriority;
+    ////}
 
     private static bool IsStateTransitionAllowed(
         DataApiIpaffs.ImportPreNotification newNotification,
