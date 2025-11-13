@@ -224,7 +224,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool IsInvalidStatus(ImportNotification notification)
     {
-        return  notification.Status == ImportNotificationStatus.Modify
+        return notification.Status == ImportNotificationStatus.Modify
             || notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
