@@ -17,7 +17,7 @@ public class DecisionNotificationStrategy(IMessageBus azureServiceBus, ILogger<D
     public async Task PublishToIpaffs(
         string messageId,
         string resourceId,
-        CustomsDeclaration customsDeclaration,
+        CustomsDeclarationEvent customsDeclaration,
         CancellationToken cancellationToken
     )
     {

@@ -37,8 +37,9 @@ public class ResourceEventsConsumerTests
     [Fact]
     public async Task WhenValidDecisionReceived_ThenMessagePublished()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             ClearanceDecision = new ClearanceDecision
             {
                 CorrelationId = "ABC123",
@@ -65,7 +66,7 @@ public class ResourceEventsConsumerTests
             },
         };
 
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = Mrn,
             ResourceType = "CustomsDeclaration",
@@ -85,7 +86,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Is("SQS123"),
                 Arg.Is(Mrn),
-                Arg.Is<CustomsDeclaration>(x =>
+                Arg.Is<CustomsDeclarationEvent>(x =>
                     x.ClearanceDecision != null
                     && x.ClearanceDecision.CorrelationId == customsDeclaration.ClearanceDecision.CorrelationId
                 ),
@@ -113,7 +114,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -140,7 +141,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -151,14 +152,14 @@ public class ResourceEventsConsumerTests
         _resourceEventsConsumer = new ResourceEventsConsumer([], _logger);
         _resourceEventsConsumer.Context = Substitute.For<IConsumerContext>();
 
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = Mrn,
             ResourceType = "CustomsDeclaration",
             SubResourceType = "Finalisation",
             Operation = "Created",
             ETag = "123",
-            Resource = new CustomsDeclaration(),
+            Resource = new CustomsDeclarationEvent() { Id = "test" },
         };
 
         var headers = new Dictionary<string, object> { ["ResourceType"] = resourceEvent.ResourceType };
@@ -174,7 +175,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -182,14 +183,14 @@ public class ResourceEventsConsumerTests
     [Fact]
     public async Task WhenResourceIdIsInvalid_ThenExceptionIsThrown()
     {
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = string.Empty,
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
             ETag = "123",
-            Resource = new CustomsDeclaration(),
+            Resource = new CustomsDeclarationEvent() { Id = "test" },
         };
 
         var headers = new Dictionary<string, object> { ["ResourceType"] = resourceEvent.ResourceType };
@@ -204,7 +205,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }
@@ -234,7 +235,7 @@ public class ResourceEventsConsumerTests
             .PublishToIpaffs(
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<CustomsDeclaration>(),
+                Arg.Any<CustomsDeclarationEvent>(),
                 Arg.Any<CancellationToken>()
             );
     }

@@ -17,7 +17,7 @@ public class ClearanceRequestStrategy(IMessageBus azureServiceBus, ILogger<Clear
     public async Task PublishToIpaffs(
         string messageId,
         string resourceId,
-        CustomsDeclaration customsDeclaration,
+        CustomsDeclarationEvent customsDeclaration,
         CancellationToken cancellationToken
     )
     {

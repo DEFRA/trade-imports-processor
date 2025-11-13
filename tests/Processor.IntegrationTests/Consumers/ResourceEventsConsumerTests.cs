@@ -25,8 +25,9 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             ClearanceDecision = new ClearanceDecision
             {
                 CorrelationId = "ABC123",
@@ -53,7 +54,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             },
         };
 
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = MRN,
             ResourceType = "CustomsDeclaration",
@@ -84,8 +85,9 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
     [Fact]
     public async Task WhenClearanceRequestSent_ThenClearanceRequestIsSentToAlvsServiceBusTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             ClearanceRequest = new ClearanceRequest
             {
                 ExternalCorrelationId = "ABC123",
@@ -136,7 +138,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             },
         };
 
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = MRN,
             ResourceType = "CustomsDeclaration",
@@ -167,8 +169,9 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
     [Fact]
     public async Task WhenFinalisationSent_ThenFinalisationIsSentToAlvsServiceBusTopic()
     {
-        var customsDeclaration = new CustomsDeclaration
+        var customsDeclaration = new CustomsDeclarationEvent
         {
+            Id = "test",
             Finalisation = new Finalisation
             {
                 ExternalCorrelationId = "ABC123",
@@ -180,7 +183,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             },
         };
 
-        var resourceEvent = new ResourceEvent<CustomsDeclaration>
+        var resourceEvent = new ResourceEvent<CustomsDeclarationEvent>
         {
             ResourceId = MRN,
             ResourceType = "CustomsDeclaration",
