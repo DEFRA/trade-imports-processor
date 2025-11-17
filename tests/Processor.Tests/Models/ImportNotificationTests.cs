@@ -212,7 +212,8 @@ public class ImportNotificationTests
                     }
                 },
                 "bipLocalReferenceNumber": "HR/11/11/11",
-                "checkDate": "2024-12-28T19:45:00Z"
+                "checkDate": "2024-12-28T19:45:00Z",
+                "requestAmendmentAdditionalDetails": "Some Modify Details"
             },
             "partThree": {
                 "sealCheckRequired": false
