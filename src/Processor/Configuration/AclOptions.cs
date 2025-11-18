@@ -10,5 +10,8 @@ public class AclOptions
     {
         [Required]
         public required string Secret { get; init; } = string.Empty;
+
+        [Required]
+        public required string[] Scopes { get; init; } = [];
     }
 }
