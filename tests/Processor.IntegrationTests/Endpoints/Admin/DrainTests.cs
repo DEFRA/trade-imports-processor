@@ -74,7 +74,10 @@ public class DrainTests(ITestOutputHelper output) : SqsTestBase(output)
         Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
 
         var httpClient = CreateHttpClient();
-        var response = await httpClient.PostAsync(Testing.Endpoints.Admin.ResourceEventsDeadLetterQueue.Redrive(), null);
+        var response = await httpClient.PostAsync(
+            Testing.Endpoints.Admin.ResourceEventsDeadLetterQueue.Redrive(),
+            null
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
