@@ -6,7 +6,6 @@ using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Services;
 using Defra.TradeImportsProcessor.Processor.Utils;
-using Microsoft.Extensions.Options;
 using SlimMessageBus;
 using SlimMessageBus.Host.AmazonSQS;
 
@@ -27,7 +26,7 @@ public class ResourceEventsConsumer(IEnumerable<IIpaffsStrategy> strategies, ILo
         if (resourceType == ResourceEventResourceTypes.CustomsDeclaration)
         {
             var message = MessageDeserializer.Deserialize<JsonElement>(received, Context.Headers.GetContentEncoding());
-            var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclaration>>();
+            var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclarationEvent>>();
 
             if (string.IsNullOrEmpty(customsDeclaration?.ResourceId))
             {
