@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Defra.TradeImportsProcessor.Processor.Authentication;
 using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Services.Admin;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Defra.TradeImportsProcessor.Processor.Endpoints.Admin;
 
+[ExcludeFromCodeCoverage(Justification = "This is covered by integration tests")]
 public static class EndpointRouteBuilderExtensions
 {
     public static void MapAdminEndpoints(this IEndpointRouteBuilder app)
