@@ -145,7 +145,7 @@ public class SqsDeadLetterService(IAmazonSQS amazonSqs, ILogger<SqsDeadLetterSer
                 };
 
                 var response = await amazonSqs.ReceiveMessageAsync(request, cancellationToken);
-                if (response.Messages.Count == 0)
+                if (response.Messages is null || response.Messages.Count == 0)
                 {
                     logger.LogInformation("Dead letter queue is empty, {Removed} message(s) removed", removed);
 
@@ -168,7 +168,7 @@ public class SqsDeadLetterService(IAmazonSQS amazonSqs, ILogger<SqsDeadLetterSer
                 };
 
                 var deleteResponse = await amazonSqs.DeleteMessageBatchAsync(deleteRequest, cancellationToken);
-                if (deleteResponse.HttpStatusCode != HttpStatusCode.OK || deleteResponse.Failed.Count > 0)
+                if (deleteResponse.HttpStatusCode != HttpStatusCode.OK || (deleteResponse.Failed is not null && deleteResponse.Failed.Count > 0))
                 {
                     logger.LogWarning("Failed to remove a batch of message(s), stopping");
 
