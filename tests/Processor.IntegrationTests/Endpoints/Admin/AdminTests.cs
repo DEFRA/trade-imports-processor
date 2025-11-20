@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Endpoints.Admin;
 
 [Collection("UsesWireMockClient")]
-public class DrainTests(ITestOutputHelper output) : SqsTestBase(output)
+public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
 {
     [Fact]
     public async Task When_message_processing_fails_and_moved_to_dlq_Then_dlq_can_be_drained()
