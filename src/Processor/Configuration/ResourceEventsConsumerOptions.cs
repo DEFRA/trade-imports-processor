@@ -12,5 +12,7 @@ public class ResourceEventsConsumerOptions
     [Required]
     public required string QueueName { get; init; }
 
+    public string DeadLetterQueueName => $"{QueueName}-deadletter";
+
     public int ConsumersPerHost { get; init; } = 20;
 }

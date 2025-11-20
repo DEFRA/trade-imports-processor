@@ -7,7 +7,7 @@
     <RootNamespace>Defra.TradeImportsProcessor.Processor.IntegrationTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SQS" Version="4.0.2.2" />
+    <PackageReference Include="AWSSDK.SQS" Version="4.0.2.3" />
     <PackageReference Include="Azure.Messaging.Servicebus" Version="7.20.1" />
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.10" />
@@ -31,5 +31,10 @@
     <ProjectReference Include="..\..\src\Processor\Processor.csproj" />
     <ProjectReference Include="..\TestFixtures\TestFixtures.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Fixtures\CustomsDeclarationClearanceDecisionResourceEvent.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

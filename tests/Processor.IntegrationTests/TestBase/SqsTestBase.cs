@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Amazon.Runtime;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Xunit.Abstractions;
 
@@ -13,6 +14,8 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
     protected const string ResourceEventsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_processor";
+    protected const string ResourceEventsDeadLetterQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_data_upserted_processor-deadletter";
 
     private readonly AmazonSQSClient _sqsClient = new(
         new BasicAWSCredentials("test", "test"),
@@ -44,6 +47,11 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
             new GetQueueAttributesRequest { AttributeNames = ["ApproximateNumberOfMessages"], QueueUrl = queueUrl },
             CancellationToken.None
         );
+    }
+
+    protected Task PurgeQueue(string queueUrl)
+    {
+        return _sqsClient.PurgeQueueAsync(queueUrl, CancellationToken.None);
     }
 
     protected async Task DrainAllMessages(string queueUrl)
@@ -96,5 +104,34 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
         output.WriteLine("Sent {0} to {1}", result.MessageId, queueUrl);
 
         return result.MessageId;
+    }
+
+    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
+        string resourceType,
+        string? subResourceType,
+        string resourceId
+    )
+    {
+        var messageAttributes = new Dictionary<string, MessageAttributeValue>
+        {
+            {
+                MessageBusHeaders.ResourceTypeHeader,
+                new MessageAttributeValue { DataType = "String", StringValue = resourceType }
+            },
+            {
+                MessageBusHeaders.ResourceId,
+                new MessageAttributeValue { DataType = "String", StringValue = resourceId }
+            },
+        };
+
+        if (subResourceType != null)
+        {
+            messageAttributes.Add(
+                MessageBusHeaders.SubResourceTypeHeader,
+                new MessageAttributeValue { DataType = "String", StringValue = subResourceType }
+            );
+        }
+
+        return messageAttributes;
     }
 }

@@ -59,8 +59,13 @@ services:
       ServiceBus__Ipaffs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       SQS_ENDPOINT: http://localstack:4566
       AWS_EMF_ENVIRONMENT: Local
+      AWS__ServiceURL: http://localstack:4566
+      AWS__AuthenticationRegion: eu-west-2
       Mongo__DatabaseUri: mongodb://mongodb:27017/?directConnection=true
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
+      Acl__Clients__IntegrationTests__Scopes__0: read
+      Acl__Clients__IntegrationTests__Scopes__1: write
+      Acl__Clients__IntegrationTests__Scopes__2: execute
     image: trade-imports-processor:latest
     ports:
       - "8080:8080"

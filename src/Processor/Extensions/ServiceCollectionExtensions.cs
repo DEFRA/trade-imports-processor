@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Amazon.SQS;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Configuration;
@@ -8,6 +9,7 @@ using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
+using Defra.TradeImportsProcessor.Processor.Services.Admin;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
@@ -69,6 +71,8 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration
     )
     {
+        services.AddAWSService<IAmazonSQS>();
+        services.AddSingleton<ISqsDeadLetterService, SqsDeadLetterService>();
         services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();

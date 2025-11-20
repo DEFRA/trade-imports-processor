@@ -46,7 +46,10 @@ public class BasicAuthenticationHandler(
         if (client == null || client.Secret != secret)
             return Fail();
 
-        var identity = new ClaimsIdentity(null, Scheme.Name);
+        var claims = new List<Claim> { new(ClaimTypes.Name, clientId) };
+        claims.AddRange(client.Scopes.Select(scope => new Claim(Claims.Scope, scope)));
+
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
