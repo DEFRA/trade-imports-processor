@@ -7,10 +7,16 @@ using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using FluentAssertions;
 using Xunit.Abstractions;
+using YamlDotNet.Serialization.NamingConventions;
 using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
 using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalisation;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
+
+public class UpperCaseNamingPolicy : JsonNamingPolicy
+{
+    public override string ConvertName(string name) => name.ToUpper();
+}
 
 [Collection("UsesServiceBus")]
 public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
@@ -66,7 +72,10 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
 
         await SendMessage(
             MRN,
-            JsonSerializer.Serialize(resourceEvent),
+            JsonSerializer.Serialize(
+                resourceEvent,
+                new JsonSerializerOptions() { PropertyNamingPolicy = new UpperCaseNamingPolicy() }
+            ),
             ResourceEventsQueueUrl,
             WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", MRN),
             false
