@@ -12,6 +12,11 @@ using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalis
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
+public class UpperCaseNamingPolicy : JsonNamingPolicy
+{
+    public override string ConvertName(string name) => name.ToUpper();
+}
+
 [Collection("UsesServiceBus")]
 public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
     : SqsTestBase(output)
@@ -21,6 +26,10 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
         "alvs_topic",
         "trade-imports-processor.tests.subscription"
     );
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = new UpperCaseNamingPolicy(),
+    };
 
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
@@ -66,7 +75,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
 
         await SendMessage(
             MRN,
-            JsonSerializer.Serialize(resourceEvent),
+            JsonSerializer.Serialize(resourceEvent, _jsonSerializerOptions),
             ResourceEventsQueueUrl,
             WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", MRN),
             false
