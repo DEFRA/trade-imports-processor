@@ -7,7 +7,6 @@ using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using FluentAssertions;
 using Xunit.Abstractions;
-using YamlDotNet.Serialization.NamingConventions;
 using ClearanceRequest = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.ClearanceRequest;
 using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalisation;
 
@@ -27,6 +26,10 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
         "alvs_topic",
         "trade-imports-processor.tests.subscription"
     );
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = new UpperCaseNamingPolicy(),
+    };
 
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
@@ -72,10 +75,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
 
         await SendMessage(
             MRN,
-            JsonSerializer.Serialize(
-                resourceEvent,
-                new JsonSerializerOptions() { PropertyNamingPolicy = new UpperCaseNamingPolicy() }
-            ),
+            JsonSerializer.Serialize(resourceEvent, _jsonSerializerOptions),
             ResourceEventsQueueUrl,
             WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", MRN),
             false
