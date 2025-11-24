@@ -33,7 +33,7 @@
     <PackageReference Include="SlimMessageBus.Host.AzureServiceBus" Version="3.3.5" />
     <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.3.5" />
     <PackageReference Include="Amazon.CloudWatch.EMF" Version="2.2.0" />
-    <PackageReference Include="MongoDB.Driver.Authentication.AWS" Version="3.5.0" />
-    <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
+    <PackageReference Include="MongoDB.Driver.Authentication.AWS" Version="3.5.1" />
+    <PackageReference Include="MongoDB.Driver" Version="3.5.1" />
   </ItemGroup>
 </Project>
