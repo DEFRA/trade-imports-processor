@@ -69,7 +69,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = customsDeclaration,
         };
 
@@ -153,7 +153,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceRequest",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = customsDeclaration,
         };
 
@@ -198,7 +198,7 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             ResourceType = "CustomsDeclaration",
             SubResourceType = "Finalisation",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = customsDeclaration,
         };
 
