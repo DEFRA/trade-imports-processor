@@ -1,7 +1,4 @@
-using System.Text.Json;
-using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsDataApi.Domain.Events;
-using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -25,8 +22,10 @@ public class ResourceEventsConsumer(IEnumerable<IIpaffsStrategy> strategies, ILo
 
         if (resourceType == ResourceEventResourceTypes.CustomsDeclaration)
         {
-            var message = MessageDeserializer.Deserialize<JsonElement>(received, Context.Headers.GetContentEncoding());
-            var customsDeclaration = message.Deserialize<ResourceEvent<CustomsDeclarationEvent>>();
+            var customsDeclaration = MessageDeserializer.Deserialize<ResourceEvent<CustomsDeclarationEvent>>(
+                received,
+                Context.Headers.GetContentEncoding()
+            );
 
             if (string.IsNullOrEmpty(customsDeclaration?.ResourceId))
             {

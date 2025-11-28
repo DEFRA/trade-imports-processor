@@ -72,7 +72,7 @@ public class ResourceEventsConsumerTests
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = customsDeclaration,
         };
 
@@ -103,7 +103,7 @@ public class ResourceEventsConsumerTests
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = new CustomsDeclaration(),
         };
 
@@ -127,7 +127,7 @@ public class ResourceEventsConsumerTests
             ResourceId = Mrn,
             ResourceType = "ImportPreNotification",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = new ImportPreNotification(),
         };
 
@@ -158,7 +158,7 @@ public class ResourceEventsConsumerTests
             ResourceType = "CustomsDeclaration",
             SubResourceType = "Finalisation",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = new CustomsDeclarationEvent() { Id = "test" },
         };
 
@@ -189,7 +189,7 @@ public class ResourceEventsConsumerTests
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = new CustomsDeclarationEvent() { Id = "test" },
         };
 
@@ -219,7 +219,7 @@ public class ResourceEventsConsumerTests
             ResourceType = "CustomsDeclaration",
             SubResourceType = "ClearanceDecision",
             Operation = "Created",
-            ETag = "123",
+            Etag = "123",
             Resource = null,
         };
 
