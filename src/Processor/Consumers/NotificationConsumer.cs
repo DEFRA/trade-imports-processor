@@ -28,6 +28,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
         // In progress
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
@@ -44,6 +46,10 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         // Partially rejected
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
+        // Validated
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Validated),
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced),
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled),
     ];
 
     private static readonly FrozenDictionary<string, int> s_statusPriority = new Dictionary<string, int>
