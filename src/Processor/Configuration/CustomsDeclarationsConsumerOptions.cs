@@ -12,7 +12,8 @@ public class CustomsDeclarationsConsumerOptions
     [Required]
     public required string QueueName { get; init; }
 
-    public string DeadLetterQueueName => $"{QueueName}-deadletter";
+    [Required]
+    public required string DeadLetterQueueName { get; init; }
 
     public int ConsumersPerHost { get; init; } = 20;
 }

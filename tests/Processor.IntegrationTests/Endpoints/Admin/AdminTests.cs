@@ -137,4 +137,135 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             )
         );
     }
+
+    [Fact]
+    public async Task When_customs_declarations_message_processing_fails_and_moved_to_dlq_Then_dlq_can_be_drained()
+    {
+        var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
+        const string mrn = "25GB0XX00XXXXX0002";
+        resourceEvent = resourceEvent.Replace("25GB0XX00XXXXX0000", mrn);
+
+        await PurgeQueue(InboundCustomsDeclarationsQueueUrl);
+        await PurgeQueue(InboundCustomsDeclarationsDeadLetterQueueUrl);
+
+        await SendMessage(
+            mrn,
+            resourceEvent,
+            InboundCustomsDeclarationsDeadLetterQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+        );
+
+        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
+            (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
+        );
+        Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not drained");
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.PostAsync(
+            Testing.Endpoints.Admin.CustomsDeclarationsDeadLetterQueue.Drain(),
+            null
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // We expect no messages on either queue following a drain
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsQueueUrl)).ApproximateNumberOfMessages == 0
+            )
+        );
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages
+                == 0
+            )
+        );
+    }
+
+    [Fact]
+    public async Task When_customs_declarations_message_processing_fails_and_moved_to_dlq_Then_message_can_be_redriven()
+    {
+        const string mrn = "25GB0XX00XXXXX0000";
+        var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
+
+        await PurgeQueue(InboundCustomsDeclarationsQueueUrl);
+        await PurgeQueue(InboundCustomsDeclarationsDeadLetterQueueUrl);
+
+        await SendMessage(
+            mrn,
+            resourceEvent,
+            InboundCustomsDeclarationsDeadLetterQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+        );
+
+        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
+            (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
+        );
+        Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.PostAsync(
+            Testing.Endpoints.Admin.CustomsDeclarationsDeadLetterQueue.Redrive(),
+            null
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsQueueUrl)).ApproximateNumberOfMessages == 0
+            )
+        );
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages
+                == 0
+            )
+        );
+    }
+
+    [Fact]
+    public async Task When_customs_declarations_message_processing_fails_and_moved_to_dlq_Then_message_can_be_removed()
+    {
+        var resourceEvent = FixtureTest.UsingContent("CustomsDeclarationClearanceDecisionResourceEvent.json");
+        const string mrn = "25GB0XX00XXXXX0001";
+        resourceEvent = resourceEvent.Replace("25GB0XX00XXXXX0000", mrn);
+
+        await PurgeQueue(InboundCustomsDeclarationsQueueUrl);
+        await PurgeQueue(InboundCustomsDeclarationsDeadLetterQueueUrl);
+
+        var messageId = await SendMessage(
+            mrn,
+            resourceEvent,
+            InboundCustomsDeclarationsDeadLetterQueueUrl,
+            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+        );
+
+        var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
+            (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages == 1
+        );
+        Assert.True(messagesOnDeadLetterQueue, "Messages on dead letter queue was not received");
+
+        var httpClient = CreateHttpClient();
+        var response = await httpClient.PostAsync(
+            Testing.Endpoints.Admin.CustomsDeclarationsDeadLetterQueue.RemoveMessage(messageId),
+            null
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // We expect no messages on either queue following removal of the single message
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsQueueUrl)).ApproximateNumberOfMessages == 0
+            )
+        );
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+                (await GetQueueAttributes(InboundCustomsDeclarationsDeadLetterQueueUrl)).ApproximateNumberOfMessages
+                == 0
+            )
+        );
+    }
 }

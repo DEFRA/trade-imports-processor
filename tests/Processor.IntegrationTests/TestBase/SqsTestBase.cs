@@ -10,6 +10,8 @@ namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
 public class SqsTestBase(ITestOutputHelper output) : TestBase
 {
+    protected const string InboundCustomsDeclarationsDeadLetterQueueUrl =
+        "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor-deadletter.fifo";
     protected const string InboundCustomsDeclarationsQueueUrl =
         "http://sqs.eu-west-2.127.0.0.1:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo";
     protected const string ResourceEventsQueueUrl =
