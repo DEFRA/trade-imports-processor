@@ -219,27 +219,4 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
 
         await VerifyJson(messages[0].Body.ToString()).DontIgnoreEmptyCollections().UseStrictJson();
     }
-
-    private static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
-        string resourceType,
-        string subResourceType,
-        string resourceId
-    )
-    {
-        return new Dictionary<string, MessageAttributeValue>
-        {
-            {
-                MessageBusHeaders.ResourceTypeHeader,
-                new MessageAttributeValue { DataType = "String", StringValue = resourceType }
-            },
-            {
-                MessageBusHeaders.SubResourceTypeHeader,
-                new MessageAttributeValue { DataType = "String", StringValue = subResourceType }
-            },
-            {
-                MessageBusHeaders.ResourceId,
-                new MessageAttributeValue { DataType = "String", StringValue = resourceId }
-            },
-        };
-    }
 }
