@@ -77,7 +77,11 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             MRN,
             JsonSerializer.Serialize(resourceEvent, _jsonSerializerOptions),
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", MRN),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                MRN
+            ),
             false
         );
 
@@ -161,7 +165,11 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             MRN,
             JsonSerializer.Serialize(resourceEvent),
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceRequest", MRN),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceRequest",
+                MRN
+            ),
             false
         );
 
@@ -206,7 +214,11 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
             MRN,
             JsonSerializer.Serialize(resourceEvent),
             ResourceEventsQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "Finalisation", MRN),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "Finalisation",
+                MRN
+            ),
             false
         );
 
