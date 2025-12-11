@@ -40,7 +40,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted), // This is here temp until we start to allow AMEND, because the flow is Inprocess -> AMEND -> DELETED
         // Modify
         (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
