@@ -1,4 +1,5 @@
 using System.Net;
+using Defra.TradeImportsDataApi.Domain.Events;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestUtils;
@@ -24,7 +25,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             ResourceEventsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            ),
             false
         );
 
@@ -64,7 +69,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             ResourceEventsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            ),
             false
         );
 
@@ -108,7 +117,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             ResourceEventsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn),
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            ),
             false
         );
 
@@ -152,7 +165,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             InboundCustomsDeclarationsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            )
         );
 
         var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
@@ -195,7 +212,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             InboundCustomsDeclarationsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            )
         );
 
         var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
@@ -239,7 +260,11 @@ public class AdminTests(ITestOutputHelper output) : SqsTestBase(output)
             mrn,
             resourceEvent,
             InboundCustomsDeclarationsDeadLetterQueueUrl,
-            WithResourceEventAttributes("CustomsDeclaration", "ClearanceDecision", mrn)
+            WithResourceEventAttributes<ResourceEvent<CustomsDeclarationEvent>>(
+                "CustomsDeclaration",
+                "ClearanceDecision",
+                mrn
+            )
         );
 
         var messagesOnDeadLetterQueue = await AsyncWaiter.WaitForAsync(async () =>
