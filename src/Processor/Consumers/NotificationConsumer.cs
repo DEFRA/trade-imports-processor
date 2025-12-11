@@ -28,6 +28,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify),
+        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
         // In progress
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
@@ -38,12 +40,17 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted), // This is here temp until we start to allow AMEND, because the flow is Inprocess -> AMEND -> DELETED
         // Modify
         (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
         // Partially rejected
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
+        // Validated
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Validated),
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced),
+        (ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled),
     ];
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
