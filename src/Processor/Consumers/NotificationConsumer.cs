@@ -16,10 +16,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
     /// </summary>
     private static readonly HashSet<(string, string)> s_statusStateMachine =
     [
-        // Draft
-        (ImportNotificationStatus.Draft, ImportNotificationStatus.Draft),
-        (ImportNotificationStatus.Draft, ImportNotificationStatus.Deleted),
-        (ImportNotificationStatus.Draft, ImportNotificationStatus.Submitted),
         // Amend
         (ImportNotificationStatus.Amend, ImportNotificationStatus.Amend),
         (ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted),
@@ -28,7 +24,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
         (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
         // In progress
@@ -38,11 +33,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
-        // Modify
-        (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
-        (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
         // Partially rejected
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
@@ -62,13 +53,6 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
         logger.LogInformation("Received notification {ReferenceNumber}", newNotification.ReferenceNumber);
 
-        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
-
-        var existingNotification = await api.GetImportPreNotification(
-            newNotification.ReferenceNumber,
-            cancellationToken
-        );
-
         if (IsInvalidStatus(newNotification))
         {
             logger.LogInformation(
@@ -79,6 +63,13 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
             return;
         }
+
+        var dataApiImportPreNotification = (DataApiIpaffs.ImportPreNotification)newNotification;
+
+        var existingNotification = await api.GetImportPreNotification(
+            newNotification.ReferenceNumber,
+            cancellationToken
+        );
 
         if (
             existingNotification != null
