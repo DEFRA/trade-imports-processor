@@ -150,8 +150,9 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         )
         {
             logger.LogInformation(
-                "Skipping {ReferenceNumber} because new notification of the same status {Status} is older: {NewTime:O} < {OldTime:O}",
+                "Skipping {ReferenceNumber} because unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}] or older {NewTime:O} < {OldTime:O}",
                 newNotification.ReferenceNumber,
+                existingNotification.Status,
                 newNotification.Status,
                 newNotification.UpdatedSource,
                 existingNotification.UpdatedSource
@@ -164,10 +165,10 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return true;
 
         logger.LogInformation(
-            "Skipping {ReferenceNumber} because new notification is going backwards: {NewStatus} < {OldStatus} or {NewTime:O} < {OldTime:O}",
+            "Skipping {ReferenceNumber} because unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}] or older {NewTime:O} < {OldTime:O}",
             newNotification.ReferenceNumber,
-            newNotification.Status,
             existingNotification.Status,
+            newNotification.Status,
             newNotification.UpdatedSource,
             existingNotification.UpdatedSource
         );
