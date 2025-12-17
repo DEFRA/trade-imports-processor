@@ -155,7 +155,6 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(ImportNotificationStatus.Amend)]
     [InlineData(ImportNotificationStatus.Draft)]
     [InlineData(ImportNotificationStatus.Modify)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
@@ -166,7 +165,9 @@ public class NotificationConsumerTests
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(importNotification), _cancellationToken);
 
-        await _mockApi.ReceivedWithAnyArgs().GetImportPreNotification(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _mockApi
+            .DidNotReceiveWithAnyArgs()
+            .GetImportPreNotification(Arg.Any<string>(), Arg.Any<CancellationToken>());
         await _mockApi
             .DidNotReceiveWithAnyArgs()
             .PutImportPreNotification(
