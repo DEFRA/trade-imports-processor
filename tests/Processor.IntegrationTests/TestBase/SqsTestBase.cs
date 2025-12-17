@@ -4,7 +4,9 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
+using SlimMessageBus.Host;
 using Xunit.Abstractions;
+using Assert = Xunit.Assert;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 
@@ -108,7 +110,7 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
         return result.MessageId;
     }
 
-    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes(
+    protected static Dictionary<string, MessageAttributeValue> WithResourceEventAttributes<T>(
         string resourceType,
         string? subResourceType,
         string resourceId
@@ -116,6 +118,14 @@ public class SqsTestBase(ITestOutputHelper output) : TestBase
     {
         var messageAttributes = new Dictionary<string, MessageAttributeValue>
         {
+            {
+                "MessageType",
+                new MessageAttributeValue
+                {
+                    DataType = "String",
+                    StringValue = new AssemblyQualifiedNameMessageTypeResolver().ToName(typeof(T)),
+                }
+            },
             {
                 MessageBusHeaders.ResourceTypeHeader,
                 new MessageAttributeValue { DataType = "String", StringValue = resourceType }

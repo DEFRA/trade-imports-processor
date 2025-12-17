@@ -66,7 +66,8 @@ public class ClearanceRequest(string mrn, CustomsDeclarationClearanceRequest cle
                             DocumentControl = document.DocumentControl,
                             DocumentQuantity = document.DocumentQuantity,
                         })
-                        .ToArray() ?? [],
+                        .ToArray()
+                    ?? [],
                 Checks =
                     commodity
                         .Checks?.Select(check => new ClearanceRequestCheck
@@ -74,7 +75,8 @@ public class ClearanceRequest(string mrn, CustomsDeclarationClearanceRequest cle
                             CheckCode = check.CheckCode,
                             DepartmentCode = check.DepartmentCode,
                         })
-                        .ToArray() ?? [],
+                        .ToArray()
+                    ?? [],
             })
             .ToArray();
     }
