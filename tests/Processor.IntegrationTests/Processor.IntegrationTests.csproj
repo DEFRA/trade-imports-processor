@@ -5,6 +5,7 @@
     <IsTestProject>true</IsTestProject>
     <AssemblyName>Defra.TradeImportsProcessor.Processor.IntegrationTests</AssemblyName>
     <RootNamespace>Defra.TradeImportsProcessor.Processor.IntegrationTests</RootNamespace>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.SQS" Version="4.0.2.11" />

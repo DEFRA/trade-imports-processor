@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
     <AssemblyName>Defra.TradeImportsProcessor.Processor.Tests</AssemblyName>
     <RootNamespace>Defra.TradeImportsProcessor.Processor.Tests</RootNamespace>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
     <Using Include="Xunit" />

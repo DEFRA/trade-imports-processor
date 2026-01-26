@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Defra.TradeImportsProcessor.TestFixtures</AssemblyName>
     <RootNamespace>Defra.TradeImportsProcessor.TestFixtures</RootNamespace>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Processor\Processor.csproj" />

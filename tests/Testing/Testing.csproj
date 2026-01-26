@@ -5,6 +5,7 @@
     <IsTestProject>true</IsTestProject>
     <AssemblyName>Defra.TradeImportsProcessor.Testing</AssemblyName>
     <RootNamespace>Defra.TradeImportsProcessor.Testing</RootNamespace>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
