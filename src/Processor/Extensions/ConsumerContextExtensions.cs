@@ -77,7 +77,7 @@ public static class ConsumerContextExtensions
 
         return consumerContext.Consumer switch
         {
-            GmrsConsumer => ResourceTypes.Gmr,
+            AsbGmrsConsumer => ResourceTypes.Gmr,
             NotificationConsumer => ResourceTypes.ImportPreNotification,
             _ => ResourceTypes.Unknown,
         };

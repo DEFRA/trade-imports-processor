@@ -66,6 +66,7 @@ services:
       Acl__Clients__IntegrationTests__Scopes__0: read
       Acl__Clients__IntegrationTests__Scopes__1: write
       Acl__Clients__IntegrationTests__Scopes__2: execute
+      MatchedGmrConsumer__AutoStartConsumers: true
     image: trade-imports-processor:latest
     ports:
       - "8080:8080"

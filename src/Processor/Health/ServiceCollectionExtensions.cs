@@ -40,6 +40,13 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
+            .AddSqs(
+                configuration,
+                "Matched GMRs from BTMS",
+                sp => sp.GetRequiredService<IOptions<MatchedGmrConsumerOptions>>().Value.QueueName,
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
+            )
             .AddDataApi(
                 sp => sp.GetRequiredService<IOptions<DataApiOptions>>().Value,
                 tags: [WebApplicationExtensions.Extended],

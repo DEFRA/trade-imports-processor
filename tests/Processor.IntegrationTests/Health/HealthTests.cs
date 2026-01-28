@@ -61,7 +61,7 @@ public class HealthTests(WireMockClient wireMockClient)
         // as the integration test uses the emulator, we expected the IPAFFS topic health check
         // to be degraded but all others should be healthy
         result.Status.Should().Be("Degraded");
-        result.Results.Count.Should().Be(5);
+        result.Results.Count.Should().Be(6);
         result.Results.Single(x => x.Key == "IPAFFS topic (outgoing)").Value.Status.Should().Be("Degraded");
         result
             .Results.Where(x => x.Key != "IPAFFS topic (outgoing)")
