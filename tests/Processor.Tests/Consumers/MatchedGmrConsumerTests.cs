@@ -34,7 +34,7 @@ public class MatchedGmrConsumerTests
         var matchedGmr = MatchedGmrFixture().Create();
         var consumer = new MatchedGmrConsumer(_mockLogger, _mockService) { Context = GetConsumerContext() };
 
-        await consumer.OnHandle(JsonSerializer.SerializeToElement(matchedGmr), _cancellationToken);
+        await consumer.OnHandle(matchedGmr, _cancellationToken);
 
         await _mockService
             .Received(1)

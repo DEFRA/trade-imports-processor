@@ -6,6 +6,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -202,7 +203,7 @@ public static class ServiceCollectionExtensions
                             );
                         });
                         mbb.AddJsonSerializer();
-                        mbb.Consume<JsonElement>(x =>
+                        mbb.Consume<MatchedGmr>(x =>
                         {
                             x.WithConsumer<MatchedGmrConsumer>()
                                 .Queue(matchedGmrConsumerOptions.QueueName)
