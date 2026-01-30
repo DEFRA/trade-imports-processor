@@ -41,6 +41,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.Validated, ImportNotificationStatus.Validated),
         (ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced),
         (ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled),
+        // Rejected
+        (ImportNotificationStatus.Rejected, ImportNotificationStatus.Replaced),
     ];
 
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
