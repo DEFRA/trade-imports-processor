@@ -6,6 +6,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Metrics;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
 using Defra.TradeImportsProcessor.Processor.Services;
@@ -170,15 +171,44 @@ public static class ServiceCollectionExtensions
                             )
                         );
                         mbb.AddJsonSerializer();
-                        mbb.AddServicesFromAssemblyContaining<GmrsConsumer>();
+                        mbb.AddServicesFromAssemblyContaining<AsbGmrsConsumer>();
                         mbb.AutoStartConsumersEnabled(serviceBusOptions.Gmrs.AutoStartConsumers)
                             .Consume<JsonElement>(x =>
                             {
                                 x.Topic(serviceBusOptions.Gmrs.Topic)
                                     .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
-                                    .WithConsumer<GmrsConsumer>()
+                                    .WithConsumer<AsbGmrsConsumer>()
                                     .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
                             });
+                    }
+                );
+            }
+
+            var matchedGmrConsumerOptions = services
+                .AddValidateOptions<MatchedGmrConsumerOptions>(MatchedGmrConsumerOptions.SectionName)
+                .Get();
+
+            if (matchedGmrConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_MatchedGmrs",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                new AmazonSQSConfig(),
+                                configuration
+                            );
+                        });
+                        mbb.AddJsonSerializer();
+                        mbb.Consume<MatchedGmr>(x =>
+                        {
+                            x.WithConsumer<MatchedGmrConsumer>()
+                                .Queue(matchedGmrConsumerOptions.QueueName)
+                                .Instances(matchedGmrConsumerOptions.ConsumersPerHost);
+                        });
                     }
                 );
             }
@@ -273,6 +303,7 @@ public static class ServiceCollectionExtensions
         // Concrete consumers added for temporary replay endpoints
         services.AddTransient<NotificationConsumer>();
         services.AddTransient<CustomsDeclarationsConsumer>();
+        services.AddTransient<MatchedGmrConsumer>();
 
         services.AddPublishers(serviceBusOptions);
 
@@ -371,6 +402,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IValidator<ExternalError>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
+
+        services.AddScoped<IGmrProcessingService, GmrProcessingService>();
 
         return services;
     }

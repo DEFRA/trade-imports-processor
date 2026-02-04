@@ -14,7 +14,7 @@ using static Defra.TradeImportsProcessor.TestFixtures.GmrFixtures;
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 
 [Collection("UsesWireMockClientAndServiceBus")]
-public class GmrConsumerTests(WireMockClient wireMockClient, ServiceBusFixture serviceBusFixture) : TestBase.TestBase
+public class AsbGmrConsumerTests(WireMockClient wireMockClient, ServiceBusFixture serviceBusFixture) : TestBase.TestBase
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
     private readonly ServiceBusFixtureClient _serviceBusFixtureClient = serviceBusFixture.GetClient(

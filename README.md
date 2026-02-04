@@ -102,6 +102,21 @@ Getting the trace.id header is achieved via a SMB `TraceContextInterceptor`
 Making sure that trace.id is then used in log messages is achieved via `TraceContextEnricher`
 Setting the trace.id header on Http Request is achieved via Header Propagation
 
+### Feature Flags
+
+#### GVMS GMR Ingestion
+
+The processor supports consuming GMR messages from two different sources, controlled by `AutoStartConsumers` configuration flags:
+
+** Azure Service Bus (Legacy) **
+These comes from the old DMP services running in Azure.
+- Configuration: `ServiceBus.Gmrs.AutoStartConsumers: true`
+
+** AWS SQS **
+These come from the new GMR Finder service running in CDP.
+- Configuration: `MatchedGmrConsumer.AutoStartConsumers: true`
+
+By default the Azure Service Bus is enabled.
 
 ### Licence Information
 
