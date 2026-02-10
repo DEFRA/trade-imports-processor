@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
-using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Services;
 using SlimMessageBus;
