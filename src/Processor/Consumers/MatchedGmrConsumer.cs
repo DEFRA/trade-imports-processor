@@ -21,22 +21,8 @@ public class MatchedGmrConsumer(ILogger<MatchedGmrConsumer> logger, IGmrProcessi
         {
             throw new GmrMessageException(MessageId);
         }
-
-        using (
-            logger.BeginScope(
-                new Dictionary<string, object>
-                {
-                    ["event.id"] = Context.GetMessageId(),
-                    ["event.reference"] = message.Gmr.GmrId!,
-                    ["event.type"] = ResourceTypes.Gmr,
-                    ["event.provider"] = nameof(MatchedGmrConsumer),
-                }
-            )
-        )
-        {
-            logger.LogInformation("Received MatchedGmr for identifier {Identifier}", message.GetIdentifier);
-            var dataApiGmr = (Defra.TradeImportsDataApi.Domain.Gvms.Gmr)message.Gmr;
-            return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
-        }
+        logger.LogInformation("Received MatchedGmr for identifier {Identifier}", message.GetIdentifier);
+        var dataApiGmr = (Defra.TradeImportsDataApi.Domain.Gvms.Gmr)message.Gmr;
+        return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
     }
 }

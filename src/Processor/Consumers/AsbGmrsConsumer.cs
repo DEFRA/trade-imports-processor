@@ -23,23 +23,9 @@ public class AsbGmrsConsumer(ILogger<AsbGmrsConsumer> logger, IGmrProcessingServ
         {
             throw new GmrMessageException(MessageId);
         }
+        logger.LogInformation("Received Gmr for {GmrId}", gmr.GmrId);
 
-        using (
-            logger.BeginScope(
-                new Dictionary<string, object>
-                {
-                    ["event.id"] = Context.GetMessageId(),
-                    ["event.reference"] = gmr.GmrId!,
-                    ["event.type"] = ResourceTypes.Gmr,
-                    ["event.provider"] = nameof(AsbGmrsConsumer),
-                }
-            )
-        )
-        {
-            logger.LogInformation("Received Gmr for {GmrId}", gmr.GmrId);
-
-            var dataApiGmr = (DataApiGvms.Gmr)gmr;
-            return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
-        }
+        var dataApiGmr = (DataApiGvms.Gmr)gmr;
+        return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
     }
 }
