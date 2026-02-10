@@ -16,16 +16,17 @@ public class AsbGmrsConsumer(ILogger<AsbGmrsConsumer> logger, IGmrProcessingServ
     private string MessageId => Context.GetTransportMessage().MessageId;
     public required IConsumerContext Context { get; set; }
 
-    public Task OnHandle(JsonElement message, CancellationToken cancellationToken)
+    public async Task OnHandle(JsonElement message, CancellationToken cancellationToken)
     {
         var gmr = message.Deserialize<Gmr>();
         if (gmr == null)
         {
             throw new GmrMessageException(MessageId);
         }
+
         logger.LogInformation("Received Gmr for {GmrId}", gmr.GmrId);
 
         var dataApiGmr = (DataApiGvms.Gmr)gmr;
-        return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
+        await gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
     }
 }
