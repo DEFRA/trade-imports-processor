@@ -1,10 +1,10 @@
+using System.Text.Json;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Services;
 using SlimMessageBus;
 using SlimMessageBus.Host.AzureServiceBus;
-using System.Text.Json;
 using DataApiGvms = Defra.TradeImportsDataApi.Domain.Gvms;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
@@ -28,7 +28,9 @@ public class AsbGmrsConsumer(ILogger<AsbGmrsConsumer> logger, IGmrProcessingServ
             logger.BeginScope(
                 new Dictionary<string, object>
                 {
-                    ["event.reference"] = gmr.GmrId!, ["event.type"] = ResourceTypes.Gmr,
+                    ["event.id"] = Context.GetMessageId(),
+                    ["event.reference"] = gmr.GmrId!,
+                    ["event.type"] = ResourceTypes.Gmr,
                     ["event.provider"] = nameof(AsbGmrsConsumer),
                 }
             )

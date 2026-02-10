@@ -26,9 +26,10 @@ public class MatchedGmrConsumer(ILogger<MatchedGmrConsumer> logger, IGmrProcessi
             logger.BeginScope(
                 new Dictionary<string, object>
                 {
+                    ["event.id"] = Context.GetMessageId(),
                     ["event.reference"] = message.Gmr.GmrId!,
                     ["event.type"] = ResourceTypes.Gmr,
-                    ["event.provider"] = nameof(AsbGmrsConsumer),
+                    ["event.provider"] = nameof(MatchedGmrConsumer),
                 }
             )
         )
