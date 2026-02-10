@@ -25,7 +25,9 @@ public class RawMessageLoggingInterceptor<TMessage>(
         try
         {
             if (message is not JsonElement jsonElement)
-                return await next();
+            {
+                jsonElement = JsonSerializer.SerializeToElement(message);
+            }
 
             var resourceType = context.GetResourceType();
             if (resourceType == ResourceTypes.Unknown)

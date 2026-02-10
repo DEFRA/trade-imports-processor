@@ -1,4 +1,6 @@
+using Defra.TradeImportsDataApi.Domain.Gvms;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Services;
 using SlimMessageBus;
@@ -13,16 +15,27 @@ public class MatchedGmrConsumer(ILogger<MatchedGmrConsumer> logger, IGmrProcessi
     private string MessageId => Context.GetTransportMessage().MessageId;
     public required IConsumerContext Context { get; set; }
 
-    public async Task OnHandle(MatchedGmr message, CancellationToken cancellationToken)
+    public Task OnHandle(MatchedGmr message, CancellationToken cancellationToken)
     {
         if (message == null)
         {
             throw new GmrMessageException(MessageId);
         }
 
-        logger.LogInformation("Received MatchedGmr for identifier {Identifier}", message.GetIdentifier);
-
-        var dataApiGmr = (Defra.TradeImportsDataApi.Domain.Gvms.Gmr)message.Gmr;
-        await gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
+        using (
+            logger.BeginScope(
+                new Dictionary<string, object>
+                {
+                    ["event.reference"] = message.Gmr.GmrId!,
+                    ["event.type"] = ResourceTypes.Gmr,
+                    ["event.provider"] = nameof(AsbGmrsConsumer),
+                }
+            )
+        )
+        {
+            logger.LogInformation("Received MatchedGmr for identifier {Identifier}", message.GetIdentifier);
+            var dataApiGmr = (Defra.TradeImportsDataApi.Domain.Gvms.Gmr)message.Gmr;
+            return gmrProcessingService.ProcessGmr(dataApiGmr, cancellationToken);
+        }
     }
 }
