@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using SlimMessageBus;
 using SlimMessageBus.Host.Interceptor;
-using Gmr = Defra.TradeImportsProcessor.Processor.Models.Gmrs.Gmr;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
@@ -25,15 +24,30 @@ public class RawMessageLoggingInterceptor<TMessage>(
         try
         {
             if (message is not JsonElement jsonElement)
-                return await next();
+            {
+                jsonElement = JsonSerializer.SerializeToElement(message);
+            }
 
             var resourceType = context.GetResourceType();
             if (resourceType == ResourceTypes.Unknown)
                 return await next();
 
-            await LogRawMessage(context, resourceType, jsonElement);
+            using (
+                logger.BeginScope(
+                    new Dictionary<string, object>
+                    {
+                        ["event.id"] = context.GetMessageId(),
+                        ["event.reference"] = GetResourceId(resourceType, jsonElement, context),
+                        ["event.type"] = resourceType,
+                        ["event.provider"] = context.Consumer.GetType().Name,
+                    }
+                )
+            )
+            {
+                await LogRawMessage(context, resourceType, jsonElement);
 
-            return await next();
+                return await next();
+            }
         }
         catch (OperationCanceledException)
         {
