@@ -23,6 +23,9 @@ public class RawMessageLoggingInterceptor<TMessage>(
     {
         try
         {
+            if (message is ResourceEventsConsumer)
+                return await next();
+
             if (message is not JsonElement jsonElement)
             {
                 jsonElement = JsonSerializer.SerializeToElement(message);
@@ -32,17 +35,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
             if (resourceType == ResourceTypes.Unknown)
                 return await next();
 
-            using (
-                logger.BeginScope(
-                    new Dictionary<string, object>
-                    {
-                        ["event.id"] = context.GetMessageId(),
-                        ["event.reference"] = GetResourceId(resourceType, jsonElement, context),
-                        ["event.type"] = resourceType,
-                        ["event.provider"] = context.Consumer.GetType().Name,
-                    }
-                )
-            )
+            using (logger.BeginScope(BuildScopeState(resourceType, jsonElement, context)))
             {
                 await LogRawMessage(context, resourceType, jsonElement);
 
@@ -93,6 +86,25 @@ public class RawMessageLoggingInterceptor<TMessage>(
 
             // Intentionally swallowed
         }
+    }
+
+    private Dictionary<string, object> BuildScopeState(
+        string resourceType,
+        JsonElement jsonElement,
+        IConsumerContext context
+    )
+    {
+        try
+        {
+            var resourceId = GetResourceId(resourceType, jsonElement, context);
+            return new Dictionary<string, object>() { ["event.reference"] = resourceId };
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed To build ScopeState");
+        }
+
+        return new Dictionary<string, object>();
     }
 
     private static string GetResourceId(string resourceType, JsonElement jsonElement, IConsumerContext context)
