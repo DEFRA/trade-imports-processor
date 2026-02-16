@@ -23,7 +23,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
     {
         try
         {
-            if (message is ResourceEventsConsumer)
+            if (message is string)
                 return await next();
 
             if (message is not JsonElement jsonElement)
