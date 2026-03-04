@@ -82,7 +82,8 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
         resourceEventsOptions.Value.QueueName,
         resourceEventsOptions.Value.DeadLetterQueueName,
         policyName: PolicyNames.Execute,
-        pattern: "admin/resource-events/dlq"
+        pattern: "admin/resource-events/dlq",
+        nameSuffix: "resource-events"
     );
     var customsDeclarationsEventsOptions = app.Services.GetRequiredService<
         IOptions<CustomsDeclarationsConsumerOptions>
@@ -91,7 +92,8 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
         customsDeclarationsEventsOptions.Value.QueueName,
         customsDeclarationsEventsOptions.Value.DeadLetterQueueName,
         policyName: PolicyNames.Execute,
-        pattern: "admin/customs-declarations/dlq"
+        pattern: "admin/customs-declarations/dlq",
+        nameSuffix: "customs-declarations"
     );
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
