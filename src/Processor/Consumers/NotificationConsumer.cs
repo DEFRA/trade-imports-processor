@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
@@ -11,40 +10,6 @@ namespace Defra.TradeImportsProcessor.Processor.Consumers;
 public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeImportsDataApiClient api)
     : IConsumer<JsonElement>
 {
-    /// <summary>
-    /// See https://eaflood.atlassian.net/wiki/spaces/ALVS/pages/5352587513/IPAFFS+Notification+States
-    /// </summary>
-    private static readonly HashSet<(string, string)> s_statusStateMachine =
-    [
-        // Amend
-        (ImportNotificationStatus.Amend, ImportNotificationStatus.Amend),
-        (ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted),
-        (ImportNotificationStatus.Amend, ImportNotificationStatus.Submitted),
-        // Submitted
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
-        (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
-        // In progress
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Validated),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
-        (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
-        // Partially rejected
-        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
-        (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
-        // Validated
-        (ImportNotificationStatus.Validated, ImportNotificationStatus.Validated),
-        (ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced),
-        (ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled),
-        // Rejected
-        (ImportNotificationStatus.Rejected, ImportNotificationStatus.Replaced),
-    ];
-
     public async Task OnHandle(JsonElement received, CancellationToken cancellationToken)
     {
         var newNotification = received.Deserialize<ImportNotification>();
@@ -163,7 +128,12 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return false;
         }
 
-        if (IsStateTransitionAllowed(newNotification, existingNotification))
+        if (
+            ImportPreNotificationStateMachine.IsStateTransitionAllowed(
+                newNotification.Status!,
+                existingNotification.Status!
+            )
+        )
             return true;
 
         logger.LogInformation(
@@ -189,13 +159,50 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
 
     private static bool IsInvalidStatus(ImportNotification notification)
     {
-        return notification.Status == ImportNotificationStatus.Modify
-            || notification.Status == ImportNotificationStatus.Draft
+        return notification.Status == ImportNotificationStatus.Draft
             || notification.ReferenceNumber.StartsWith("DRAFT", StringComparison.InvariantCultureIgnoreCase);
     }
 
-    private static bool IsStateTransitionAllowed(
-        DataApiIpaffs.ImportPreNotification newNotification,
-        DataApiIpaffs.ImportPreNotification existingNotification
-    ) => s_statusStateMachine.Contains((existingNotification.Status!, newNotification.Status!));
+    public static class ImportPreNotificationStateMachine
+    {
+        /// <summary>
+        /// See https://eaflood.atlassian.net/wiki/spaces/ALVS/pages/5352587513/IPAFFS+Notification+States
+        /// </summary>
+        private static readonly HashSet<(string, string)> s_statusStateMachine =
+        [
+            // Amend
+            (ImportNotificationStatus.Amend, ImportNotificationStatus.Amend),
+            (ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted),
+            (ImportNotificationStatus.Amend, ImportNotificationStatus.Submitted),
+            // Submitted
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
+            // In progress
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Validated),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
+            // Partially rejected
+            (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
+            (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
+            // Validated
+            (ImportNotificationStatus.Validated, ImportNotificationStatus.Validated),
+            (ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced),
+            (ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled),
+            // Rejected
+            (ImportNotificationStatus.Rejected, ImportNotificationStatus.Replaced),
+            // Modify
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
+        ];
+
+        public static bool IsStateTransitionAllowed(string newNotificationStatus, string existingNotificationStatus) =>
+            s_statusStateMachine.Contains((existingNotificationStatus, newNotificationStatus));
+    }
 }
