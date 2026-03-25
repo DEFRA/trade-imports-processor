@@ -1,7 +1,8 @@
+using Defra.TradeImports.SQS.Endpoints.Endpoints;
 using Defra.TradeImportsProcessor.Processor.Authentication;
+using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Data.Extensions;
 using Defra.TradeImportsProcessor.Processor.Endpoints;
-using Defra.TradeImportsProcessor.Processor.Endpoints.Admin;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.Health;
 using Defra.TradeImportsProcessor.Processor.Metrics;
@@ -10,6 +11,7 @@ using Defra.TradeImportsProcessor.Processor.Utils.Http;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Elastic.CommonSchema.Serilog;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console(new EcsTextFormatter()).CreateBootstrapLogger();
@@ -75,7 +77,26 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseHeaderPropagation();
     app.UseMiddleware<MetricsMiddleware>();
     app.MapRawMessageEndpoints();
-    app.MapAdminEndpoints();
+    var resourceEventsOptions = app.Services.GetRequiredService<IOptions<ResourceEventsConsumerOptions>>();
+    app.MapDeadLetterQueueEndpoints(
+        resourceEventsOptions.Value.QueueName,
+        resourceEventsOptions.Value.DeadLetterQueueName,
+        policyName: PolicyNames.Execute,
+        pattern: "admin/resource-events/dlq",
+        nameSuffix: "resource-events",
+        tags: "Admin"
+    );
+    var customsDeclarationsEventsOptions = app.Services.GetRequiredService<
+        IOptions<CustomsDeclarationsConsumerOptions>
+    >();
+    app.MapDeadLetterQueueEndpoints(
+        customsDeclarationsEventsOptions.Value.QueueName,
+        customsDeclarationsEventsOptions.Value.DeadLetterQueueName,
+        policyName: PolicyNames.Execute,
+        pattern: "admin/customs-declarations/dlq",
+        nameSuffix: "customs-declarations",
+        tags: "Admin"
+    );
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
         {
