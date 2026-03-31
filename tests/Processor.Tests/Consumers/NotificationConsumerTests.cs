@@ -156,7 +156,6 @@ public class NotificationConsumerTests
 
     [Theory]
     [InlineData(ImportNotificationStatus.Draft)]
-    [InlineData(ImportNotificationStatus.Modify)]
     public async Task OnHandle_WhenImportNotificationShouldNotBeProcessed_ThenItIsSkipped(string status)
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
@@ -316,6 +315,108 @@ public class NotificationConsumerTests
                 Arg.Any<DataApiIpaffs.ImportPreNotification>(),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
+            );
+    }
+
+    [Theory]
+    // Amend
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Amend, true)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Deleted, true)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Submitted, true)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.InProgress, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.PartiallyRejected, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Validated, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.Replaced, false)]
+    [InlineData(ImportNotificationStatus.Amend, ImportNotificationStatus.SplitConsignment, false)]
+    // Submitted
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend, true)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Submitted, true)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress, true)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted, true)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated, true)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.PartiallyRejected, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Replaced, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.SplitConsignment, false)]
+    // InProgress
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Amend, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Validated, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Cancelled, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted, false)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment, false)]
+    // PartiallyRejected
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected, true)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment, true)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Amend, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.InProgress, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Validated, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Replaced, false)]
+    [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.Deleted, false)]
+    // Validated
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Validated, true)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Replaced, true)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Cancelled, true)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Amend, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.InProgress, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.PartiallyRejected, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.Deleted, false)]
+    [InlineData(ImportNotificationStatus.Validated, ImportNotificationStatus.SplitConsignment, false)]
+    // Rejected
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Replaced, true)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Amend, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.InProgress, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.PartiallyRejected, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Validated, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.Deleted, false)]
+    [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.SplitConsignment, false)]
+    // Modify
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Amend, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.PartiallyRejected, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Validated, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Rejected, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Deleted, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Replaced, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.SplitConsignment, false)]
+    public void StateMachine_Tests(string existingStatus, string newStatus, bool valid)
+    {
+        // Act
+        var result = NotificationConsumer.ImportPreNotificationStateMachine.IsStateTransitionAllowed(
+            newStatus,
+            existingStatus
+        );
+
+        // Assert
+        result
+            .Should()
+            .Be(
+                valid,
+                because: $"Transitioning from {existingStatus} to {newStatus} should {(valid ? "be allowed" : "not be allowed")}"
             );
     }
 }
