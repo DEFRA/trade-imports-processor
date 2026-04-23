@@ -65,18 +65,22 @@ public class NotificationConsumerTests
             );
     }
 
-    [Fact]
-    public async Task OnHandle_WhenImportNotificationReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated()
+    [Theory]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Rejected)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected)]
+    public async Task OnHandle_WhenImportNotificationReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated(
+        string fromNotificationStatus,
+        string toNotificationStatus
+    )
     {
         var consumer = new NotificationConsumer(_mockLogger, _mockApi);
 
-        var importNotification = ImportNotificationFixture()
-            .With(i => i.Status, ImportNotificationStatus.InProgress)
-            .Create();
+        var importNotification = ImportNotificationFixture().With(i => i.Status, toNotificationStatus).Create();
         var dataApiImportNotification = (DataApiIpaffs.ImportPreNotification)
             ImportNotificationFixture()
                 .With(i => i.LastUpdated, DateTime.UtcNow.AddMinutes(-5))
-                .With(i => i.Status, ImportNotificationStatus.InProgress)
+                .With(i => i.Status, fromNotificationStatus)
                 .Create();
         var response = new ImportPreNotificationResponse(
             dataApiImportNotification,
