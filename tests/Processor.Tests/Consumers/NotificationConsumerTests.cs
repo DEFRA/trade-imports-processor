@@ -66,7 +66,7 @@ public class NotificationConsumerTests
     }
 
     [Theory]
-    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Rejected)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected)]
     public async Task OnHandle_WhenImportNotificationReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated(
