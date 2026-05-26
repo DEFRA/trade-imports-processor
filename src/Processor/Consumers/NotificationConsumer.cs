@@ -153,10 +153,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         )
         {
             logger.LogInformation(
-                "Skipping {ReferenceNumber} because unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}] or older {NewTime:O} < {OldTime:O}",
+                "Skipping {ReferenceNumber} as timestamp on latest message received {NewTime:O} is before the timestamp {OldTime:O} on the current message.  This message appears to have been sent out of sequence.",
                 newNotification.ReferenceNumber,
-                existingNotification.Status,
-                newNotification.Status,
                 newNotification.UpdatedSource,
                 existingNotification.UpdatedSource
             );
@@ -168,12 +166,10 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return true;
 
         logger.LogInformation(
-            "Skipping {ReferenceNumber} because unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}] or older {NewTime:O} < {OldTime:O}",
+            "Skipping {ReferenceNumber} due to an unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}]",
             newNotification.ReferenceNumber,
             existingNotification.Status,
-            newNotification.Status,
-            newNotification.UpdatedSource,
-            existingNotification.UpdatedSource
+            newNotification.Status
         );
 
         return false;
