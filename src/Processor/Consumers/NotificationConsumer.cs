@@ -166,7 +166,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             return true;
 
         logger.LogInformation(
-            "Skipping {ReferenceNumber} because unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}]",
+            "Skipping {ReferenceNumber} due to an unexpected IPAFFS State Transition -  Previous state [{OldStatus}], new state [{NewStatus}]",
             newNotification.ReferenceNumber,
             existingNotification.Status,
             newNotification.Status
