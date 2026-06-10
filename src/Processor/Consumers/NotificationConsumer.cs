@@ -35,6 +35,7 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Rejected),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced),
         (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
+        (ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment),
         // Partially rejected
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
         (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),

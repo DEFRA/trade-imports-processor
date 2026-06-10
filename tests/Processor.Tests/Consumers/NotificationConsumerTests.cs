@@ -288,6 +288,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Validated)]
     [InlineData(ImportNotificationStatus.Rejected)]
     [InlineData(ImportNotificationStatus.PartiallyRejected)]
+    [InlineData(ImportNotificationStatus.SplitConsignment)]
     public async Task OnHandle_WhenNewImportNotificationIsInProgress_AndTheExistingIsMoreMature_Skip(
         string existingStatus
     )
