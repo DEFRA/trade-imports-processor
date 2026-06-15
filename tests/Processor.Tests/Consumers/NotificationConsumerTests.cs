@@ -359,7 +359,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify, true)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Submitted, false)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted, false)]
-    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment, false)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment, true)]
     // PartiallyRejected
     [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected, true)]
     [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment, true)]
