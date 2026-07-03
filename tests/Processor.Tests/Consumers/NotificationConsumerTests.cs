@@ -345,7 +345,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.PartiallyRejected, false)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Rejected, false)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify, false)]
-    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Cancelled, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Cancelled, true)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Replaced, false)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.SplitConsignment, false)]
     // InProgress
@@ -357,8 +357,8 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Replaced, true)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected, true)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify, true)]
-    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Submitted, false)]
-    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted, false)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Submitted, true)]
+    [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted, true)]
     [InlineData(ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment, true)]
     // PartiallyRejected
     [InlineData(ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected, true)]
