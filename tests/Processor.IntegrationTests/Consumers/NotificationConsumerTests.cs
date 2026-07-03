@@ -50,7 +50,7 @@ public class NotificationConsumerTests(WireMockClient wireMockClient, ServiceBus
                 {
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
                     var requests = (await _wireMockAdminApi.FindRequestsAsync(requestModel)).Where(x =>
-                        x.Request.Headers != null
+                        x.Request?.Headers != null
                         && x.Request.Headers.ContainsKey(MessageBusHeaders.TraceId)
                         && x.Request.Headers.TryGetValue(MessageBusHeaders.TraceId, out var list)
                         && list.Contains(traceId)
