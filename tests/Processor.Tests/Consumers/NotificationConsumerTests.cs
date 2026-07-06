@@ -344,7 +344,7 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated, true)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.PartiallyRejected, false)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Rejected, false)]
-    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify, false)]
+    [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify, true)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Cancelled, true)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.Replaced, false)]
     [InlineData(ImportNotificationStatus.Submitted, ImportNotificationStatus.SplitConsignment, false)]
