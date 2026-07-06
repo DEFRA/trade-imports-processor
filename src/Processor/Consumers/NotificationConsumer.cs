@@ -175,6 +175,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             (ImportNotificationStatus.Submitted, ImportNotificationStatus.Amend),
             (ImportNotificationStatus.Submitted, ImportNotificationStatus.InProgress),
             (ImportNotificationStatus.Submitted, ImportNotificationStatus.Deleted),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Cancelled),
+            (ImportNotificationStatus.Submitted, ImportNotificationStatus.Modify),
             (ImportNotificationStatus.Submitted, ImportNotificationStatus.Validated), // auto clearance process
             // In progress
             (ImportNotificationStatus.InProgress, ImportNotificationStatus.InProgress),
@@ -186,6 +188,8 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             (ImportNotificationStatus.InProgress, ImportNotificationStatus.PartiallyRejected),
             (ImportNotificationStatus.InProgress, ImportNotificationStatus.Modify),
             (ImportNotificationStatus.InProgress, ImportNotificationStatus.SplitConsignment),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Submitted),
+            (ImportNotificationStatus.InProgress, ImportNotificationStatus.Deleted),
             // Partially rejected
             (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.PartiallyRejected),
             (ImportNotificationStatus.PartiallyRejected, ImportNotificationStatus.SplitConsignment),
