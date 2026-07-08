@@ -34,8 +34,8 @@
     <PackageReference Include="SlimMessageBus.Host.AzureServiceBus" Version="3.4.0" />
     <PackageReference Include="SlimMessageBus.Host.Serialization.SystemTextJson" Version="3.4.0" />
     <PackageReference Include="Amazon.CloudWatch.EMF" Version="2.2.0" />
-    <PackageReference Include="MongoDB.Driver.Authentication.AWS" Version="3.9.0" />
-    <PackageReference Include="MongoDB.Driver" Version="3.9.0" />
+    <PackageReference Include="MongoDB.Driver.Authentication.AWS" Version="3.10.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.10.0" />
     <PackageReference Include="AWSSDK.Core" Version="4.0.100.2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.2" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.100.2" />
