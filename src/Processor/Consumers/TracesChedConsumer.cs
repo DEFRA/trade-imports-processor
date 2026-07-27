@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.Json;
 using Defra.TradeImportsDataApi.Api.Client;
 using SlimMessageBus;
 using Trade.Gateway.Api.Contract.Certificate;
@@ -13,14 +12,7 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
 
     public async Task OnHandle(DefraUNVTDCHEDProfile received, CancellationToken cancellationToken)
     {
-        var newChed = received;
-
-        if (newChed == null)
-        {
-            throw new InvalidOperationException("Received invalid message, deserialised as null");
-        }
-
-        var chedReference = newChed.ExchangedDocument.Identifier;
+        var chedReference = received.ExchangedDocument.Identifier;
 
         logger.LogInformation("Received Traces Ched {ReferenceNumber}", chedReference);
 
@@ -28,14 +20,14 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
 
         if (existingChed == null)
         {
-            await CreateChed(newChed, cancellationToken);
+            await CreateChed(received, cancellationToken);
 
             return;
         }
 
-        if (ShouldProcess(newChed, existingChed.Ched))
+        if (ShouldProcess(received, existingChed.Ched))
         {
-            await UpdateChed(existingChed.ETag!, newChed, cancellationToken);
+            await UpdateChed(existingChed.ETag!, received, cancellationToken);
         }
     }
 
