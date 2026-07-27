@@ -31,6 +31,7 @@ public static class ResourceTypes
     public const string Finalisation = InboundHmrcMessageType.Finalisation;
     public const string CustomsDeclaration = nameof(TradeImportsDataApi.Domain.CustomsDeclaration);
     public const string ProcessingError = nameof(TradeImportsDataApi.Domain.Errors.ProcessingError);
+    public const string TracesChed = nameof(TracesChed);
 }
 
 [ExcludeFromCodeCoverage]
@@ -53,6 +54,9 @@ public static class ConsumerContextExtensions
 
     public static string GetResourceType(this IConsumerContext consumerContext)
     {
+        if (consumerContext.Consumer is TracesChedConsumer)
+            return ResourceTypes.TracesChed;
+
         if (consumerContext.Headers.TryGetValue(MessageBusHeaders.InboundHmrcMessageTypeHeader, out var value))
         {
             return value.ToString()! switch

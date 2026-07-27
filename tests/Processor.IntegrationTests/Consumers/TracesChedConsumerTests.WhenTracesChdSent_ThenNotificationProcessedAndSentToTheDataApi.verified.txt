@@ -1,0 +1,12 @@
+﻿{
+  created: DateTimeOffset_1,
+  updated: DateTimeOffset_1,
+  resourceId: CHEDPP.GB.2026.2596331,
+  resourceType: TracesChed,
+  headers: {
+    x-cdp-request-id: Guid_1,
+    ResourceId: CHEDPP.GB.2026.2596331
+  },
+  messageId: Guid_2,
+  expiresAt: DateTimeOffset_2
+}

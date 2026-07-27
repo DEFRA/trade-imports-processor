@@ -47,6 +47,13 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
+            .AddSqs(
+                configuration,
+                "TRACES CHEDs",
+                sp => sp.GetRequiredService<IOptions<TracesChedConsumerOptions>>().Value.QueueName,
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
+            )
             .AddDataApi(
                 sp => sp.GetRequiredService<IOptions<DataApiOptions>>().Value,
                 tags: [WebApplicationExtensions.Extended],
