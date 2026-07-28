@@ -16,6 +16,7 @@ using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
+using Defra.TradeImportsProcessor.Processor.Validation.TracesCheds;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
@@ -432,6 +433,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IValidator<ExternalError>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
+        services.AddScoped<IValidator<DefraUNVTDCHEDProfile>, TracesChedValidator>();
 
         services.AddScoped<IGmrProcessingService, GmrProcessingService>();
 

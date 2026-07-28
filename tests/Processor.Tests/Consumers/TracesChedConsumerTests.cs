@@ -1,6 +1,7 @@
 using AutoFixture;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Consumers;
+using Defra.TradeImportsProcessor.Processor.Validation.TracesCheds;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Trade.Gateway.Api.Contract.Certificate;
@@ -16,9 +17,49 @@ public class TracesChedConsumerTests
     private readonly ILogger<TracesChedConsumer> _mockLogger = Substitute.For<ILogger<TracesChedConsumer>>();
 
     [Fact]
+    public async Task OnHandle_WhenTracesChedReceived_AndNoLastUpdated_ThenItFails()
+    {
+        var consumer = new TracesChedConsumer(_mockLogger, _mockApi, new TracesChedValidator());
+
+        var importNotification = ImportNotificationFixture().Create();
+        var ched = new DefraUNVTDCHEDProfile
+        {
+            ExchangedDocument = new ExchangedDocument()
+            {
+                Identifier = importNotification.ReferenceNumber,
+                NotificationStatusCode = importNotification.Status,
+                IncludedNote =
+                [
+                    new IncludedNote()
+                    {
+                        Content = [DateTime.UtcNow.ToString("o")],
+                        SubjectCode = new CodedValue() { Value = "LAST_UPDATE_DATETIME_MISSING" },
+                    },
+                ],
+            },
+            SpecifiedConsignment = new Consignment(),
+        };
+
+        _mockApi
+            .GetTracesChed(importNotification.ReferenceNumber, _cancellationToken)
+            .Returns(null as TracesChedResponse);
+
+        await consumer.OnHandle(ched, _cancellationToken);
+
+        await _mockApi
+            .DidNotReceive()
+            .PutTracesChed(
+                importNotification.ReferenceNumber,
+                Arg.Any<DefraUNVTDCHEDProfile>(),
+                null,
+                _cancellationToken
+            );
+    }
+
+    [Fact]
     public async Task OnHandle_WhenTracesChedReceived_AndNoTracesChedExistsInTheDataApi_ThenItIsCreated()
     {
-        var consumer = new TracesChedConsumer(_mockLogger, _mockApi);
+        var consumer = new TracesChedConsumer(_mockLogger, _mockApi, new TracesChedValidator());
 
         var importNotification = ImportNotificationFixture().Create();
         var ched = new DefraUNVTDCHEDProfile
@@ -58,7 +99,7 @@ public class TracesChedConsumerTests
     [Fact]
     public async Task OnHandle_WhenTracesChedReceived_AndOneAlreadyExistsInTheDataApi_ThenItIsUpdated()
     {
-        var consumer = new TracesChedConsumer(_mockLogger, _mockApi);
+        var consumer = new TracesChedConsumer(_mockLogger, _mockApi, new TracesChedValidator());
 
         var importNotification = ImportNotificationFixture().Create();
 
@@ -117,7 +158,7 @@ public class TracesChedConsumerTests
     [Fact]
     public async Task OnHandle_WhenTracesChedReceived_AndOneAlreadyExistsInTheDataApi_ButItIsNewer_ThenItIsNotUpdated()
     {
-        var consumer = new TracesChedConsumer(_mockLogger, _mockApi);
+        var consumer = new TracesChedConsumer(_mockLogger, _mockApi, new TracesChedValidator());
 
         var importNotification = ImportNotificationFixture().Create();
 

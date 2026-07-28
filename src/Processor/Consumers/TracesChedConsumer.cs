@@ -1,17 +1,27 @@
-using System.Globalization;
 using Defra.TradeImportsDataApi.Api.Client;
+using Defra.TradeImportsProcessor.Processor.Extensions;
+using FluentValidation;
+using FluentValidation.Results;
 using SlimMessageBus;
 using Trade.Gateway.Api.Contract.Certificate;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
-public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImportsDataApiClient api)
-    : IConsumer<DefraUNVTDCHEDProfile>
+public class TracesChedConsumer(
+    ILogger<TracesChedConsumer> logger,
+    ITradeImportsDataApiClient api,
+    IValidator<DefraUNVTDCHEDProfile> validator
+) : IConsumer<DefraUNVTDCHEDProfile>
 {
-    private const string LastUpdateSubjectCode = "LAST_UPDATE_DATETIME";
-
     public async Task OnHandle(DefraUNVTDCHEDProfile received, CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(received, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            LogValidationErrors(received, validationResult);
+            return;
+        }
+
         var chedReference = received.ExchangedDocument.Identifier;
 
         logger.LogInformation("Received Traces Ched {ReferenceNumber}", chedReference);
@@ -31,13 +41,25 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
         }
     }
 
+    private void LogValidationErrors(DefraUNVTDCHEDProfile ched, ValidationResult validationResult)
+    {
+        validationResult.Errors.ForEach(error =>
+            logger.LogInformation(
+                "Traces Ched {Id} failed validation with {ErrorCode}: {ErrorMessage}",
+                ched.ExchangedDocument.Identifier,
+                error.CustomState ?? error.ErrorCode,
+                error.ErrorMessage
+            )
+        );
+    }
+
     private async Task UpdateChed(string eTag, DefraUNVTDCHEDProfile ched, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             "Updating existing Traces Ched {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}",
             ched.ExchangedDocument.Identifier,
             ched.ExchangedDocument.NotificationStatusCode,
-            GetLatestLastUpdateDateTime(ched)
+            ched.GetLatestLastUpdateDateTime()
         );
 
         await api.PutTracesChed(ched.ExchangedDocument.Identifier, ched, eTag, cancellationToken);
@@ -49,7 +71,7 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
             "Creating new Traces Ched {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}",
             ched.ExchangedDocument.Identifier,
             ched.ExchangedDocument.NotificationStatusCode,
-            GetLatestLastUpdateDateTime(ched)
+            ched.GetLatestLastUpdateDateTime()
         );
 
         await api.PutTracesChed(ched.ExchangedDocument.Identifier, ched, null, cancellationToken);
@@ -57,8 +79,8 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
 
     private bool ShouldProcess(DefraUNVTDCHEDProfile newChed, DefraUNVTDCHEDProfile existingChed)
     {
-        var newChedTime = GetLatestLastUpdateDateTime(newChed);
-        var existingChedTime = GetLatestLastUpdateDateTime(existingChed);
+        var newChedTime = newChed.GetLatestLastUpdateDateTime();
+        var existingChedTime = existingChed.GetLatestLastUpdateDateTime();
         if (newChedTime > existingChedTime)
         {
             return true;
@@ -72,29 +94,5 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
         );
 
         return false;
-    }
-
-    private static DateTimeOffset? GetLatestLastUpdateDateTime(DefraUNVTDCHEDProfile ched)
-    {
-        var notes = ched.ExchangedDocument.IncludedNote;
-        if (notes == null)
-        {
-            return null;
-        }
-
-        return notes
-            .Where(n => string.Equals(n.SubjectCode?.Value, LastUpdateSubjectCode, StringComparison.OrdinalIgnoreCase))
-            .SelectMany(n => n.Content ?? Enumerable.Empty<string>())
-            .Select(c =>
-            {
-                if (DateTimeOffset.TryParse(c, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dto))
-                {
-                    return (DateTimeOffset?)dto;
-                }
-
-                return null;
-            })
-            .Where(d => d.HasValue)
-            .Max();
     }
 }
