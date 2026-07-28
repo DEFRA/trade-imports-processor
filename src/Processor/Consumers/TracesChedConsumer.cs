@@ -55,9 +55,23 @@ public class TracesChedConsumer(ILogger<TracesChedConsumer> logger, ITradeImport
         await api.PutTracesChed(ched.ExchangedDocument.Identifier, ched, null, cancellationToken);
     }
 
-    private static bool ShouldProcess(DefraUNVTDCHEDProfile newChed, DefraUNVTDCHEDProfile existingChed)
+    private bool ShouldProcess(DefraUNVTDCHEDProfile newChed, DefraUNVTDCHEDProfile existingChed)
     {
-        return GetLatestLastUpdateDateTime(newChed) > GetLatestLastUpdateDateTime(existingChed);
+        var newChedTime = GetLatestLastUpdateDateTime(newChed);
+        var existingChedTime = GetLatestLastUpdateDateTime(existingChed);
+        if (newChedTime > existingChedTime)
+        {
+            return true;
+        }
+
+        logger.LogInformation(
+            "Skipping {ReferenceNumber} as timestamp on latest message received {NewTime:O} is before the timestamp {OldTime:O} on the current message.  This message appears to have been sent out of sequence.",
+            newChed.ExchangedDocument.Identifier,
+            newChedTime,
+            existingChedTime
+        );
+
+        return false;
     }
 
     private static DateTimeOffset? GetLatestLastUpdateDateTime(DefraUNVTDCHEDProfile ched)
