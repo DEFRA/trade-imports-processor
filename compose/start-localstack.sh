@@ -7,6 +7,14 @@ export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 
 aws --endpoint-url=http://localhost:4566 sqs create-queue \
+    --queue-name trade_gateway_publisher_ched_updates_processor.fifo \
+    --attributes FifoQueue=true
+
+aws --endpoint-url=http://localhost:4566 sqs create-queue \
+    --queue-name trade_gateway_publisher_ched_updates_processor-deadletter.fifo \
+    --attributes FifoQueue=true
+
+aws --endpoint-url=http://localhost:4566 sqs create-queue \
     --queue-name trade_imports_inbound_customs_declarations_processor.fifo \
     --attributes FifoQueue=true
 
@@ -32,7 +40,11 @@ aws --endpoint-url=http://localhost:4566 sqs set-queue-attributes --queue-url "h
 
 aws --endpoint-url=http://localhost:4566 sqs set-queue-attributes --queue-url "http://localhost:4566/000000000000/trade_imports_inbound_customs_declarations_processor.fifo" --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_inbound_customs_declarations_processor-deadletter.fifo\",\"maxReceiveCount\":\"1\"}"}'
 
+aws --endpoint-url=http://localhost:4566 sqs set-queue-attributes --queue-url "http://localhost:4566/000000000000/trade_gateway_publisher_ched_updates_processor.fifo" --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_gateway_publisher_ched_updates_processor-deadletter.fifo\",\"maxReceiveCount\":\"1\"}"}'
+
 function is_ready() {
+    aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_gateway_publisher_ched_updates_processor.fifo || return 1
+    aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_gateway_publisher_ched_updates_processor-deadletter.fifo || return 1
     aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor.fifo || return 1
     aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_inbound_customs_declarations_processor-deadletter.fifo || return 1
     aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name trade_imports_data_upserted_processor || return 1

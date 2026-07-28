@@ -16,6 +16,7 @@ using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
+using Defra.TradeImportsProcessor.Processor.Validation.TracesCheds;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
@@ -27,6 +28,7 @@ using SlimMessageBus.Host.AzureServiceBus;
 using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
+using Trade.Gateway.Api.Contract.Certificate;
 using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.ClearanceRequest;
 using Finalisation = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.Finalisation;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
@@ -135,6 +137,9 @@ public static class ServiceCollectionExtensions
             .Get();
         var resourceEventsConsumerOptions = services
             .AddValidateOptions<ResourceEventsConsumerOptions>(ResourceEventsConsumerOptions.SectionName)
+            .Get();
+        var tracesChedConsumerOptions = services
+            .AddValidateOptions<TracesChedConsumerOptions>(TracesChedConsumerOptions.SectionName)
             .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
@@ -298,12 +303,38 @@ public static class ServiceCollectionExtensions
                     }
                 );
             }
+
+            if (tracesChedConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_TracesCheds",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                cfg.SqsClientConfig,
+                                configuration
+                            );
+                        });
+
+                        mbb.AutoStartConsumersEnabled(tracesChedConsumerOptions.AutoStartConsumers)
+                            .Consume<DefraUNVTDCHEDProfile>(x =>
+                                x.WithConsumer<TracesChedConsumer>()
+                                    .Queue(tracesChedConsumerOptions.QueueName)
+                                    .Instances(tracesChedConsumerOptions.ConsumersPerHost)
+                            );
+                    }
+                );
+            }
         });
 
         // Concrete consumers added for temporary replay endpoints
         services.AddTransient<NotificationConsumer>();
         services.AddTransient<CustomsDeclarationsConsumer>();
         services.AddTransient<MatchedGmrConsumer>();
+        services.AddTransient<TracesChedConsumer>();
 
         services.AddPublishers(serviceBusOptions);
 
@@ -402,6 +433,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IValidator<ExternalError>, ErrorNotificationValidator>();
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
+        services.AddScoped<IValidator<DefraUNVTDCHEDProfile>, TracesChedValidator>();
 
         services.AddScoped<IGmrProcessingService, GmrProcessingService>();
 
