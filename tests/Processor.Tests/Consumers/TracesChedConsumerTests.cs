@@ -113,4 +113,63 @@ public class TracesChedConsumerTests
                 _cancellationToken
             );
     }
+
+    [Fact]
+    public async Task OnHandle_WhenTracesChedReceived_AndOneAlreadyExistsInTheDataApi_ButItIsNewer_ThenItIsNotUpdated()
+    {
+        var consumer = new TracesChedConsumer(_mockLogger, _mockApi);
+
+        var importNotification = ImportNotificationFixture().Create();
+
+        var ched = new DefraUNVTDCHEDProfile
+        {
+            ExchangedDocument = new ExchangedDocument()
+            {
+                Identifier = importNotification.ReferenceNumber,
+                NotificationStatusCode = importNotification.Status,
+                IncludedNote =
+                [
+                    new IncludedNote()
+                    {
+                        Content = [DateTime.UtcNow.ToString("o")],
+                        SubjectCode = new CodedValue() { Value = "LAST_UPDATE_DATETIME" },
+                    },
+                ],
+            },
+            SpecifiedConsignment = new Consignment(),
+        };
+
+        var response = new TracesChedResponse(ched, DateTime.Now, DateTime.Now, ExpectedEtag);
+
+        _mockApi.GetTracesChed(importNotification.ReferenceNumber, _cancellationToken).Returns(response);
+
+        ched = new DefraUNVTDCHEDProfile
+        {
+            ExchangedDocument = new ExchangedDocument()
+            {
+                Identifier = importNotification.ReferenceNumber,
+                NotificationStatusCode = importNotification.Status,
+                IncludedNote =
+                [
+                    new IncludedNote()
+                    {
+                        Content = [DateTime.UtcNow.AddDays(-6).ToString("o")],
+                        SubjectCode = new CodedValue() { Value = "LAST_UPDATE_DATETIME" },
+                    },
+                ],
+            },
+            SpecifiedConsignment = new Consignment(),
+        };
+
+        await consumer.OnHandle(ched, _cancellationToken);
+
+        await _mockApi
+            .DidNotReceive()
+            .PutTracesChed(
+                importNotification.ReferenceNumber,
+                Arg.Any<DefraUNVTDCHEDProfile>(),
+                ExpectedEtag,
+                _cancellationToken
+            );
+    }
 }
