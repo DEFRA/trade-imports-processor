@@ -77,6 +77,11 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
     app.UseHeaderPropagation();
     app.UseMiddleware<MetricsMiddleware>();
     app.MapRawMessageEndpoints();
+    var devEndpointsOptions = app.Services.GetRequiredService<IOptions<DevEndpointsOptions>>();
+    if (devEndpointsOptions.Value.Enabled)
+    {
+        app.MapDevEndpoints();
+    }
     var resourceEventsOptions = app.Services.GetRequiredService<IOptions<ResourceEventsConsumerOptions>>();
     app.MapDeadLetterQueueEndpoints(
         resourceEventsOptions.Value.QueueName,
