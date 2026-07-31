@@ -11,6 +11,11 @@ public static class Endpoints
         public static string GetJson(string messageId) => $"{Get(messageId)}/json";
     }
 
+    public static class Dev
+    {
+        public static string PostTracesCheds() => "/dev/traces-cheds";
+    }
+
     public static class Admin
     {
         private const string Root = "/admin";

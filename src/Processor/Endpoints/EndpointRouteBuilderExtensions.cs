@@ -1,10 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
+using Defra.TradeImportsProcessor.Processor.Authentication;
 using Defra.TradeImportsProcessor.Processor.Configuration;
+using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Data;
 using Defra.TradeImportsProcessor.Processor.Data.Extensions;
+using Defra.TradeImportsProcessor.Processor.Utils.Logging;
+using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using MongoDB.Driver.Linq;
+using Trade.Gateway.Api.Contract.Certificate;
 
 namespace Defra.TradeImportsProcessor.Processor.Endpoints;
 
@@ -16,6 +22,11 @@ public static class EndpointRouteBuilderExtensions
         app.MapGet("raw-messages", GetByFilter).RequireAuthorization();
         app.MapGet("raw-messages/{messageId}", Get).RequireAuthorization();
         app.MapGet("raw-messages/{messageId}/json", GetJson).RequireAuthorization();
+    }
+
+    public static void MapDevEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapPost("dev/traces-cheds", PostTracesChed).RequireAuthorization(PolicyNames.Execute);
     }
 
     [HttpGet]
@@ -92,5 +103,37 @@ public static class EndpointRouteBuilderExtensions
         );
 
         return entity is not null ? Results.Content(entity.Message, "application/json") : Results.NotFound();
+    }
+
+    [HttpPost]
+    private static async Task<IResult> PostTracesChed(
+        HttpRequest request,
+        [FromServices] IOptions<TraceHeader> traceHeader,
+        [FromServices] ITraceContextAccessor traceContextAccessor,
+        [FromServices] HeaderPropagationValues headerPropagationValues,
+        [FromServices] TracesChedConsumer consumer,
+        CancellationToken cancellationToken
+    )
+    {
+        var ched = await request.ReadFromJsonAsync<DefraUNVTDCHEDProfile>(cancellationToken);
+        if (ched is null)
+            return Results.BadRequest("Request body could not be deserialized as a TRACES CHED.");
+
+        var traceId =
+            request.Headers.TryGetValue(traceHeader.Value.Name, out var headerValue)
+            && !StringValues.IsNullOrEmpty(headerValue)
+                ? headerValue.ToString().Replace("-", "")
+                : Guid.NewGuid().ToString("N");
+
+        traceContextAccessor.Context = new TraceContext { TraceId = traceId };
+
+        var headers = headerPropagationValues.Headers ??= new Dictionary<string, StringValues>(
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        headers[traceHeader.Value.Name] = traceId;
+
+        await consumer.OnHandle(ched, cancellationToken);
+        return Results.NoContent();
     }
 }

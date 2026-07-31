@@ -79,6 +79,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddOptions<CdpOptions>().Bind(configuration).ValidateDataAnnotations();
         services.AddOptions<DataApiOptions>().BindConfiguration(DataApiOptions.SectionName).ValidateDataAnnotations();
+        services
+            .AddOptions<DevEndpointsOptions>()
+            .BindConfiguration(DevEndpointsOptions.SectionName)
+            .ValidateDataAnnotations();
 
         return services;
     }
