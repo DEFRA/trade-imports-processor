@@ -7,6 +7,7 @@ using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
 using Trade.Gateway.Api.Contract.Certificate;
+using Trade.Gateway.Api.Contract.Events;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
 using WireMock.Client.Extensions;
@@ -69,7 +70,7 @@ public class TracesChedConsumerTests(WireMockClient wireMockClient, ITestOutputH
 
         var messageId = await SendMessage(
             messageGroupId,
-            JsonSerializer.Serialize(ched),
+            JsonSerializer.Serialize(ched.ToEventEnvelope("testCorrelationId")),
             QueueUrl,
             messageAttributes,
             usesFifo: true
