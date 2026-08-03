@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using MongoDB.Driver.Linq;
 using Trade.Gateway.Api.Contract.Certificate;
+using Trade.Gateway.Api.Contract.Events;
 
 namespace Defra.TradeImportsProcessor.Processor.Endpoints;
 
@@ -133,7 +134,7 @@ public static class EndpointRouteBuilderExtensions
 
         headers[traceHeader.Value.Name] = traceId;
 
-        await consumer.OnHandle(ched, cancellationToken);
+        await consumer.OnHandle(ched.ToEventEnvelope(traceId), cancellationToken);
         return Results.NoContent();
     }
 }

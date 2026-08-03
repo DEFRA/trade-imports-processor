@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Validation.TracesCheds;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Trade.Gateway.Api.Contract.Certificate;
+using Trade.Gateway.Api.Contract.Events;
 using static Defra.TradeImportsProcessor.TestFixtures.ImportNotificationFixtures;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
@@ -44,7 +45,7 @@ public class TracesChedConsumerTests
             .GetTracesChed(importNotification.ReferenceNumber, _cancellationToken)
             .Returns(null as TracesChedResponse);
 
-        await consumer.OnHandle(ched, _cancellationToken);
+        await consumer.OnHandle(ched.ToEventEnvelope("testCorrelationId"), _cancellationToken);
 
         await _mockApi
             .DidNotReceive()
@@ -84,7 +85,7 @@ public class TracesChedConsumerTests
             .GetTracesChed(importNotification.ReferenceNumber, _cancellationToken)
             .Returns(null as TracesChedResponse);
 
-        await consumer.OnHandle(ched, _cancellationToken);
+        await consumer.OnHandle(ched.ToEventEnvelope("testCorrelationId"), _cancellationToken);
 
         await _mockApi
             .Received()
@@ -143,7 +144,7 @@ public class TracesChedConsumerTests
             SpecifiedConsignment = new Consignment(),
         };
 
-        await consumer.OnHandle(ched, _cancellationToken);
+        await consumer.OnHandle(ched.ToEventEnvelope("testCorrelationId"), _cancellationToken);
 
         await _mockApi
             .Received()
@@ -202,7 +203,7 @@ public class TracesChedConsumerTests
             SpecifiedConsignment = new Consignment(),
         };
 
-        await consumer.OnHandle(ched, _cancellationToken);
+        await consumer.OnHandle(ched.ToEventEnvelope("testCorrelationId"), _cancellationToken);
 
         await _mockApi
             .DidNotReceive()

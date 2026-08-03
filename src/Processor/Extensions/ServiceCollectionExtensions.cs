@@ -29,6 +29,7 @@ using SlimMessageBus.Host.Interceptor;
 using SlimMessageBus.Host.Serialization;
 using SlimMessageBus.Host.Serialization.SystemTextJson;
 using Trade.Gateway.Api.Contract.Certificate;
+using Trade.Gateway.Api.Contract.Events;
 using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.ClearanceRequest;
 using Finalisation = Defra.TradeImportsProcessor.Processor.Models.Ipaffs.Finalisation;
 using Gmr = Defra.TradeImportsDataApi.Domain.Gvms.Gmr;
@@ -324,7 +325,7 @@ public static class ServiceCollectionExtensions
                         });
 
                         mbb.AutoStartConsumersEnabled(tracesChedConsumerOptions.AutoStartConsumers)
-                            .Consume<DefraUNVTDCHEDProfile>(x =>
+                            .Consume<EventEnvelope<DefraUNVTDCHEDProfile>>(x =>
                                 x.WithConsumer<TracesChedConsumer>()
                                     .Queue(tracesChedConsumerOptions.QueueName)
                                     .Instances(tracesChedConsumerOptions.ConsumersPerHost)

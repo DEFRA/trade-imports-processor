@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using SlimMessageBus;
 using Trade.Gateway.Api.Contract.Certificate;
+using Trade.Gateway.Api.Contract.Events;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
@@ -11,18 +12,18 @@ public class TracesChedConsumer(
     ILogger<TracesChedConsumer> logger,
     ITradeImportsDataApiClient api,
     IValidator<DefraUNVTDCHEDProfile> validator
-) : IConsumer<DefraUNVTDCHEDProfile>
+) : IConsumer<EventEnvelope<DefraUNVTDCHEDProfile>>
 {
-    public async Task OnHandle(DefraUNVTDCHEDProfile received, CancellationToken cancellationToken)
+    public async Task OnHandle(EventEnvelope<DefraUNVTDCHEDProfile> received, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(received, cancellationToken);
+        var validationResult = await validator.ValidateAsync(received.Data, cancellationToken);
         if (!validationResult.IsValid)
         {
-            LogValidationErrors(received, validationResult);
+            LogValidationErrors(received.Data, validationResult);
             return;
         }
 
-        var chedReference = received.ExchangedDocument.Identifier;
+        var chedReference = received.Data.ExchangedDocument.Identifier;
 
         logger.LogInformation("Received Traces Ched {ReferenceNumber}", chedReference);
 
@@ -30,14 +31,14 @@ public class TracesChedConsumer(
 
         if (existingChed == null)
         {
-            await CreateChed(received, cancellationToken);
+            await CreateChed(received.Data, cancellationToken);
 
             return;
         }
 
-        if (ShouldProcess(received, existingChed.Ched))
+        if (ShouldProcess(received.Data, existingChed.Ched))
         {
-            await UpdateChed(existingChed.ETag!, received, cancellationToken);
+            await UpdateChed(existingChed.ETag!, received.Data, cancellationToken);
         }
     }
 
