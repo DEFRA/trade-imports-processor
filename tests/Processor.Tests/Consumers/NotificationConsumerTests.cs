@@ -398,15 +398,15 @@ public class NotificationConsumerTests
     [InlineData(ImportNotificationStatus.Rejected, ImportNotificationStatus.SplitConsignment, false)]
     // Modify
     [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress, true)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Amend, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Submitted, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Amend, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Submitted, true)]
     [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.PartiallyRejected, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Validated, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Rejected, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Modify, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Cancelled, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Deleted, false)]
-    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Replaced, false)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Validated, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Rejected, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Modify, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Cancelled, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Deleted, true)]
+    [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.Replaced, true)]
     [InlineData(ImportNotificationStatus.Modify, ImportNotificationStatus.SplitConsignment, false)]
     public void StateMachine_Tests(string existingStatus, string newStatus, bool valid)
     {
