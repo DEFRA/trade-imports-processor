@@ -200,6 +200,14 @@ public class NotificationConsumer(ILogger<NotificationConsumer> logger, ITradeIm
             // Rejected
             (ImportNotificationStatus.Rejected, ImportNotificationStatus.Replaced),
             // Modify
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Modify),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Amend),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Deleted),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Rejected),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Replaced),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Cancelled),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Validated),
+            (ImportNotificationStatus.Modify, ImportNotificationStatus.Submitted),
             (ImportNotificationStatus.Modify, ImportNotificationStatus.InProgress),
         ];
 
