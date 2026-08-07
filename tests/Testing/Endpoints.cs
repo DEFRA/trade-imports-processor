@@ -14,6 +14,8 @@ public static class Endpoints
     public static class Dev
     {
         public static string PostTracesCheds() => "/dev/traces-cheds";
+
+        public static string PostMatchedGmrs() => "/dev/matched-gmrs";
     }
 
     public static class Admin

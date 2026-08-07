@@ -70,5 +70,34 @@ public class MatchedGmrConsumerTests(ITestOutputHelper output, WireMockClient wi
         )
             .Should()
             .BeTrue();
+
+        var messageId = await SendMessage(
+            messageGroupId,
+            JsonSerializer.Serialize(matchedGmr),
+            MatchedGmrQueueUrl,
+            messageAttributes,
+            usesFifo: false
+        );
+
+        var httpClient = CreateHttpClient();
+        var rawMessageUrl = Testing.Endpoints.RawMessages.GetJson(messageId);
+
+        Assert.True(
+            await AsyncWaiter.WaitForAsync(async () =>
+            {
+                try
+                {
+                    var response = await httpClient.GetAsync(rawMessageUrl);
+                    return response.IsSuccessStatusCode;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            })
+        );
+
+        var response = await httpClient.GetAsync(rawMessageUrl);
+        JsonSerializer.Serialize(matchedGmr).Should().Be(await response.Content.ReadAsStringAsync());
     }
 }

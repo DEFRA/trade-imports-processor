@@ -111,7 +111,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
     {
         var result = resourceType switch
         {
-            ResourceTypes.Gmr => jsonElement.GetProperty("gmrId").GetString(),
+            ResourceTypes.Gmr => GetGmrId(jsonElement) ?? context.GetResourceId(),
             ResourceTypes.ImportPreNotification => jsonElement
                 .GetProperty(
                     // Currently case-sensitive based on JsonPropertyName on type
@@ -123,5 +123,14 @@ public class RawMessageLoggingInterceptor<TMessage>(
         };
 
         return result ?? "Unknown";
+    }
+
+    private static string? GetGmrId(JsonElement jsonElement)
+    {
+        // MatchedGmr envelopes wrap the GMR under a "gmr" property
+        if (jsonElement.TryGetProperty("gmr", out var gmr) && gmr.TryGetProperty("gmrId", out var gmrId))
+            return gmrId.GetString();
+
+        return null;
     }
 }

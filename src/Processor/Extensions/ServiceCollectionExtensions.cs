@@ -98,7 +98,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AzureMetrics>();
 
         services.AddAzureDeadLetterPolling(nameof(ImportNotification), options => options.Notifications);
-        services.AddAzureDeadLetterPolling(nameof(Gmr), options => options.Gmrs);
 
         return services;
     }
@@ -168,32 +167,6 @@ public static class ServiceCollectionExtensions
 
         services.AddSlimMessageBus(smb =>
         {
-            if (serviceBusOptions.Gmrs.AutoStartConsumers)
-            {
-                smb.AddChildBus(
-                    "ASB_Gmrs",
-                    mbb =>
-                    {
-                        mbb.WithProviderServiceBus(
-                            CdpServiceBusClientFactory.ConfigureServiceBus(
-                                serviceBusOptions.Gmrs.ConnectionString,
-                                serviceBusOptions.Gmrs.ConsumersPerHost
-                            )
-                        );
-                        mbb.AddJsonSerializer();
-                        mbb.AddServicesFromAssemblyContaining<AsbGmrsConsumer>();
-                        mbb.AutoStartConsumersEnabled(serviceBusOptions.Gmrs.AutoStartConsumers)
-                            .Consume<JsonElement>(x =>
-                            {
-                                x.Topic(serviceBusOptions.Gmrs.Topic)
-                                    .SubscriptionName(serviceBusOptions.Gmrs.Subscription)
-                                    .WithConsumer<AsbGmrsConsumer>()
-                                    .Instances(serviceBusOptions.Gmrs.ConsumersPerHost);
-                            });
-                    }
-                );
-            }
-
             var matchedGmrConsumerOptions = services
                 .AddValidateOptions<MatchedGmrConsumerOptions>(MatchedGmrConsumerOptions.SectionName)
                 .Get();

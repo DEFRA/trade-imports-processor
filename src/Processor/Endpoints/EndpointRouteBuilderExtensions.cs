@@ -4,6 +4,7 @@ using Defra.TradeImportsProcessor.Processor.Configuration;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Data;
 using Defra.TradeImportsProcessor.Processor.Data.Extensions;
+using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ public static class EndpointRouteBuilderExtensions
     public static void MapDevEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("dev/traces-cheds", PostTracesChed).RequireAuthorization(PolicyNames.Execute);
+        app.MapPost("dev/matched-gmrs", PostMatchedGmr).RequireAuthorization(PolicyNames.Execute);
     }
 
     [HttpGet]
@@ -135,6 +137,38 @@ public static class EndpointRouteBuilderExtensions
         headers[traceHeader.Value.Name] = traceId;
 
         await consumer.OnHandle(ched.ToEventEnvelope(traceId), cancellationToken);
+        return Results.NoContent();
+    }
+
+    [HttpPost]
+    private static async Task<IResult> PostMatchedGmr(
+        HttpRequest request,
+        [FromServices] IOptions<TraceHeader> traceHeader,
+        [FromServices] ITraceContextAccessor traceContextAccessor,
+        [FromServices] HeaderPropagationValues headerPropagationValues,
+        [FromServices] MatchedGmrConsumer consumer,
+        CancellationToken cancellationToken
+    )
+    {
+        var matchedGmr = await request.ReadFromJsonAsync<MatchedGmr>(cancellationToken);
+        if (matchedGmr is null)
+            return Results.BadRequest("Request body could not be deserialized as a MatchedGmr.");
+
+        var traceId =
+            request.Headers.TryGetValue(traceHeader.Value.Name, out var headerValue)
+            && !StringValues.IsNullOrEmpty(headerValue)
+                ? headerValue.ToString().Replace("-", "")
+                : Guid.NewGuid().ToString("N");
+
+        traceContextAccessor.Context = new TraceContext { TraceId = traceId };
+
+        var headers = headerPropagationValues.Headers ??= new Dictionary<string, StringValues>(
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        headers[traceHeader.Value.Name] = traceId;
+
+        await consumer.OnHandle(matchedGmr, cancellationToken);
         return Results.NoContent();
     }
 }

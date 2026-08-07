@@ -18,12 +18,6 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
-            .AddAsbTopic(
-                "DMP GMRs",
-                sp => sp.GetRequiredService<IOptions<ServiceBusOptions>>().Value.Gmrs,
-                tags: [WebApplicationExtensions.Extended],
-                timeout: TimeSpan.FromSeconds(10)
-            )
             // Azure service bus emulator does not support the management client, which
             // this health check uses. Therefore, it will only work against real Azure
             .AddAsbTopic(
