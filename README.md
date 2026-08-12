@@ -106,17 +106,10 @@ Setting the trace.id header on Http Request is achieved via Header Propagation
 
 #### GVMS GMR Ingestion
 
-The processor supports consuming GMR messages from two different sources, controlled by `AutoStartConsumers` configuration flags:
-
-** Azure Service Bus (Legacy) **
-These comes from the old DMP services running in Azure.
-- Configuration: `ServiceBus.Gmrs.AutoStartConsumers: true`
-
-** AWS SQS **
-These come from the new GMR Finder service running in CDP.
+GMR messages are consumed from AWS SQS via the `MatchedGmrConsumer`:
 - Configuration: `MatchedGmrConsumer.AutoStartConsumers: true`
 
-By default the Azure Service Bus is enabled.
+These come from the GMR Processor service running in CDP.
 
 ### Licence Information
 
