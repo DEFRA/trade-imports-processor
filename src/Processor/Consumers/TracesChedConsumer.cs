@@ -1,5 +1,4 @@
 using Defra.TradeImportsDataApi.Api.Client;
-using Defra.TradeImportsProcessor.Processor.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using SlimMessageBus;
@@ -60,7 +59,7 @@ public class TracesChedConsumer(
             "Updating existing Traces Ched {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}",
             ched.ExchangedDocument.Identifier,
             ched.ExchangedDocument.NotificationStatusCode,
-            ched.GetLatestLastUpdateDateTime()
+            ched.LastUpdated
         );
 
         await api.PutTracesChed(ched.ExchangedDocument.Identifier, ched, eTag, cancellationToken);
@@ -72,7 +71,7 @@ public class TracesChedConsumer(
             "Creating new Traces Ched {ReferenceNumber}, status {Status}, updated source {UpdatedSource:O}",
             ched.ExchangedDocument.Identifier,
             ched.ExchangedDocument.NotificationStatusCode,
-            ched.GetLatestLastUpdateDateTime()
+            ched.LastUpdated
         );
 
         await api.PutTracesChed(ched.ExchangedDocument.Identifier, ched, null, cancellationToken);
@@ -80,8 +79,8 @@ public class TracesChedConsumer(
 
     private bool ShouldProcess(DefraUNVTDCHEDProfile newChed, DefraUNVTDCHEDProfile existingChed)
     {
-        var newChedTime = newChed.GetLatestLastUpdateDateTime();
-        var existingChedTime = existingChed.GetLatestLastUpdateDateTime();
+        var newChedTime = newChed.LastUpdated;
+        var existingChedTime = existingChed.LastUpdated;
         if (newChedTime > existingChedTime)
         {
             return true;

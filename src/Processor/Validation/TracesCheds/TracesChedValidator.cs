@@ -1,4 +1,3 @@
-using Defra.TradeImportsProcessor.Processor.Extensions;
 using FluentValidation;
 using Trade.Gateway.Api.Contract.Certificate;
 
@@ -13,6 +12,6 @@ public class TracesChedValidator : AbstractValidator<DefraUNVTDCHEDProfile>
 
     private static bool HaveLastUpdatedNote(DefraUNVTDCHEDProfile ched)
     {
-        return ched.GetLatestLastUpdateDateTime().HasValue;
+        return ched.LastUpdated.HasValue;
     }
 }
