@@ -42,6 +42,7 @@ public class TracesChedConsumerTests(WireMockClient wireMockClient, ITestOutputH
                 ],
             },
             SpecifiedConsignment = new Consignment(),
+            LastUpdated = DateTimeOffset.UtcNow,
         };
 
         var createPath = $"/traces-cheds/CHEDPP.GB.2026.2596331";
