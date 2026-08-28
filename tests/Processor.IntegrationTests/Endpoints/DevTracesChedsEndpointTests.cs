@@ -48,6 +48,7 @@ public class DevTracesChedsEndpointTests(WireMockClient wireMockClient, ITestOut
                 ],
             },
             SpecifiedConsignment = new Consignment(),
+            LastUpdated = DateTimeOffset.UtcNow,
         };
 
         var traceId = Guid.NewGuid().ToString("N");
