@@ -79,7 +79,7 @@ public class TracesChedConsumerTests
                 ],
             },
             SpecifiedConsignment = new Consignment(),
-            LastUpdated = DateTimeOffset.UtcNow
+            LastUpdated = DateTimeOffset.UtcNow,
         };
 
         _mockApi
@@ -121,7 +121,7 @@ public class TracesChedConsumerTests
                 ],
             },
             SpecifiedConsignment = new Consignment(),
-            LastUpdated = DateTimeOffset.UtcNow
+            LastUpdated = DateTimeOffset.UtcNow,
         };
 
         var response = new TracesChedResponse(ched, DateTime.Now, DateTime.Now, ExpectedEtag);
@@ -144,7 +144,7 @@ public class TracesChedConsumerTests
                 ],
             },
             SpecifiedConsignment = new Consignment(),
-            LastUpdated = DateTimeOffset.UtcNow
+            LastUpdated = DateTimeOffset.UtcNow,
         };
 
         await consumer.OnHandle(ched.ToEventEnvelope("testCorrelationId"), _cancellationToken);
