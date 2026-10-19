@@ -43,9 +43,8 @@ public class CustomsDeclarationsConsumer(
 
         if (string.IsNullOrWhiteSpace(mrn))
         {
-            throw new ArgumentException(
-                "Header.EntityReference must be a valid MRN",
-                nameof(customsDeclarationsMessage)
+            throw new CustomsDeclarationMessageMissingFieldException<CustomsDeclarationsMessage>(
+                customsDeclarationsMessage.Header.EntryReference
             );
         }
 
