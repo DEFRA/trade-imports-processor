@@ -6,6 +6,7 @@ using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation;
 using FluentValidation.Results;
@@ -217,6 +218,38 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Any<string>(),
                 _cancellationToken
             );
+    }
+
+    [Fact]
+    [Trait("CustomsDeclarations", "Common")]
+    public async Task OnHandle_WhenCustomsDeclarationsMessageReceived_ButValidationFailsAndMrnIsMissing_ThrowsMissingFieldException()
+    {
+        var consumer = new CustomsDeclarationsConsumer(
+            _mockLogger,
+            _mockApi,
+            _clearanceRequestValidator,
+            _customsDeclarationsMessageValidation,
+            _errorNotificationValidator,
+            _finalisationValidator,
+            new TestCorrelationIdGenerator("correlationId")
+        )
+        {
+            Context = GetConsumerContext(InboundHmrcMessageType.ClearanceRequest),
+        };
+
+        var customsDeclarationsMessage = new CustomsDeclarationsMessage
+        {
+            Header = new Header { EntryReference = " ", EntryVersionNumber = 1 },
+            ServiceHeader = ServiceHeaderFixture().Create(),
+        };
+
+        _customsDeclarationsMessageValidation
+            .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult { Errors = [new ValidationFailure("Header.EntryReference", "Missing", "ERR001")] });
+
+        await Assert.ThrowsAsync<CustomsDeclarationMessageMissingFieldException<CustomsDeclarationsMessage>>(() =>
+            consumer.OnHandle(JsonSerializer.SerializeToElement(customsDeclarationsMessage), _cancellationToken)
+        );
     }
 
     [Fact]
@@ -748,11 +781,13 @@ public class CustomsDeclarationsConsumerTests
         var finalisation = FinalisationFixture(mrn, 1)
             .With(f => f.ServiceHeader, ServiceHeaderFixture(DateTime.UtcNow.AddMinutes(-5)).Create())
             .Create();
+        var expectedFinalisation = JsonSerializer.Deserialize<Finalisation>(JsonSerializer.Serialize(finalisation))!;
         var existingFinalisation = DataApiFinalisationFixture().With(f => f.ExternalVersion, 2).Create();
+        var clearanceRequest = DataApiClearanceRequestFixture().Create();
 
         var response = new CustomsDeclarationResponse(
             mrn,
-            null,
+            clearanceRequest,
             null,
             existingFinalisation,
             null,
@@ -764,6 +799,18 @@ public class CustomsDeclarationsConsumerTests
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(response);
 
         await consumer.OnHandle(JsonSerializer.SerializeToElement(finalisation), _cancellationToken);
+
+        var expectedLogMessage =
+            $"Skipping {mrn} because new Finalisation {expectedFinalisation.ToDataApiFinalisation().MessageSentAt:O} is older than existing {existingFinalisation.MessageSentAt:O}";
+
+        Assert.Contains(
+            _mockLogger.ReceivedCalls(),
+            call =>
+                call.GetMethodInfo().Name == nameof(ILogger.Log)
+                && call.GetArguments()[0] is LogLevel logLevel
+                && logLevel == LogLevel.Information
+                && call.GetArguments()[2]?.ToString() == expectedLogMessage
+        );
 
         await _mockApi
             .DidNotReceiveWithAnyArgs()
