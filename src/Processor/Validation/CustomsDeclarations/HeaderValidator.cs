@@ -1,5 +1,5 @@
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentValidation;
 
 namespace Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;

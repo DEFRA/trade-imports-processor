@@ -1,16 +1,20 @@
 using System.Text.Json;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation;
 using FluentValidation.Results;
 using SlimMessageBus;
 using SlimMessageBus.Host.AmazonSQS;
+using CustomsDeclarationsMessage = BtmsGateway.Contract.CustomsDeclarations.CustomsDeclarationsMessage;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
+using InboundError = BtmsGateway.Contract.CustomsDeclarations.InboundError;
+using InboundHmrcMessageType = Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations.InboundHmrcMessageType;
 
 namespace Defra.TradeImportsProcessor.Processor.Consumers;
 
@@ -36,6 +40,14 @@ public class CustomsDeclarationsConsumer(
     )
     {
         var mrn = customsDeclarationsMessage.Header.EntryReference;
+
+        if (string.IsNullOrWhiteSpace(mrn))
+        {
+            throw new ArgumentException(
+                "Header.EntityReference must be a valid MRN",
+                nameof(customsDeclarationsMessage)
+            );
+        }
 
         validationResult.Errors.ForEach(error =>
             logger.LogInformation(
@@ -121,7 +133,8 @@ public class CustomsDeclarationsConsumer(
             return;
         }
 
-        var mrn = customsDeclarationsMessage.Header.EntryReference;
+        var mrn = customsDeclarationsMessage.Header.EntryReference!;
+
         var existingCustomsDeclaration = await api.GetCustomsDeclaration(mrn, cancellationToken);
 
         var (updatedCustomsDeclaration, validationError) = inboundHmrcMessageType switch
@@ -205,8 +218,7 @@ public class CustomsDeclarationsConsumer(
         //This is here because the mapping uses an explicit operator and we can't add logic there
         LogAnyDocumentReferenceWithWhitespaceSuffix(unmappedClearanceRequest, logger);
 
-        var mappedClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)
-            DeserializeMessage<ClearanceRequest>(received, mrn);
+        var mappedClearanceRequest = DeserializeMessage<ClearanceRequest>(received, mrn).ToDataApiClearanceRequest();
 
         var validationResult = await clearanceRequestValidator.ValidateAsync(
             new ClearanceRequestValidatorInput
@@ -264,8 +276,7 @@ public class CustomsDeclarationsConsumer(
         CancellationToken cancellationToken
     )
     {
-        var inboundErrorNotifications = (DataApiCustomsDeclaration.ExternalError)
-            DeserializeMessage<InboundError>(received, mrn);
+        var inboundErrorNotifications = DeserializeMessage<InboundError>(received, mrn).ToDataApiExternalError();
 
         var validationResult = await errorNotificationValidator.ValidateAsync(
             inboundErrorNotifications,
@@ -291,7 +302,7 @@ public class CustomsDeclarationsConsumer(
         CancellationToken cancellationToken
     )
     {
-        var finalisation = (DataApiCustomsDeclaration.Finalisation)DeserializeMessage<Finalisation>(received, mrn);
+        var finalisation = DeserializeMessage<Finalisation>(received, mrn).ToDataApiFinalisation();
 
         if (existingCustomsDeclaration?.ClearanceRequest == null)
         {

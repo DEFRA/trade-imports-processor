@@ -16,7 +16,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" Version="9.0.0" />
-    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.47.0" />
+    <PackageReference Include="Defra.BtmsGateway.Api.Contract" Version="0.7.0" />
+    <PackageReference Include="Defra.TradeImportsDataApi.Api.Client" Version="0.52.0" />
     <PackageReference Include="Defra.TradeImports.SQS.Endpoints" Version="0.1.3" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
     <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="9.0.0" />

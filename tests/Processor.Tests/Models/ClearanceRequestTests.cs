@@ -1,5 +1,6 @@
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Consumers;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 using Microsoft.Extensions.Logging.Testing;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
@@ -73,7 +74,7 @@ public class ClearanceRequestTests
             ],
         };
 
-        var dataApiClearanceRequest = (DataApiCustomsDeclaration.ClearanceRequest)clearanceRequest;
+        var dataApiClearanceRequest = clearanceRequest.ToDataApiClearanceRequest();
 
         var logger = new FakeLogger();
         CustomsDeclarationsConsumer.LogAnyDocumentReferenceWithWhitespaceSuffix(clearanceRequest, logger);

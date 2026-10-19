@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.Errors;
 using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Exceptions;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation;
 using FluentValidation.Results;
@@ -18,7 +18,9 @@ using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.InboundErrorFixtures;
 using Assert = Xunit.Assert;
+using CustomsDeclarationsMessage = BtmsGateway.Contract.CustomsDeclarations.CustomsDeclarationsMessage;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using InboundHmrcMessageType = Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations.InboundHmrcMessageType;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Consumers;
 
@@ -410,7 +412,7 @@ public class CustomsDeclarationsConsumerTests
         };
 
         var mrn = GenerateMrn();
-        var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
+        var inboundErrorItem = new InboundErrorItem { ErrorCode = "CODE", ErrorMessage = "An error" };
         var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
 
         var validationResult = new ValidationResult
@@ -462,7 +464,7 @@ public class CustomsDeclarationsConsumerTests
         };
 
         var mrn = GenerateMrn();
-        var inboundErrorItem = new InboundErrorItem { errorCode = "HMRCVAL101", errorMessage = "An error" };
+        var inboundErrorItem = new InboundErrorItem { ErrorCode = "HMRCVAL101", ErrorMessage = "An error" };
         var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
 
         _mockApi.GetCustomsDeclaration(mrn, _cancellationToken).Returns(null as CustomsDeclarationResponse);
@@ -476,8 +478,8 @@ public class CustomsDeclarationsConsumerTests
                 Arg.Is<DataApiCustomsDeclaration.CustomsDeclaration>(d =>
                     d.ExternalErrors![0].ExternalCorrelationId == inboundError.ServiceHeader.CorrelationId
                     && d.ExternalErrors![0].ExternalVersion == inboundError.Header.EntryVersionNumber
-                    && d.ExternalErrors![0].Errors![0].Code == inboundError.Errors[0].errorCode
-                    && d.ExternalErrors![0].Errors![0].Message == inboundError.Errors[0].errorMessage
+                    && d.ExternalErrors![0].Errors![0].Code == inboundError.Errors[0].ErrorCode
+                    && d.ExternalErrors![0].Errors![0].Message == inboundError.Errors[0].ErrorMessage
                 ),
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
@@ -502,7 +504,7 @@ public class CustomsDeclarationsConsumerTests
         };
 
         var mrn = GenerateMrn();
-        var inboundErrorItem = new InboundErrorItem { errorCode = "CODE", errorMessage = "An error" };
+        var inboundErrorItem = new InboundErrorItem { ErrorCode = "CODE", ErrorMessage = "An error" };
         var inboundError = InboundErrorFixture(mrn).With(i => i.Errors, [inboundErrorItem]).Create();
         var existingInboundErrors = (DataApiCustomsDeclaration.ExternalError[])[DataApiInboundErrorFixture().Create()];
 
