@@ -245,7 +245,9 @@ public class CustomsDeclarationsConsumerTests
 
         _customsDeclarationsMessageValidation
             .ValidateAsync(Arg.Any<CustomsDeclarationsMessage>(), Arg.Any<CancellationToken>())
-            .Returns(new ValidationResult { Errors = [new ValidationFailure("Header.EntryReference", "Missing", "ERR001")] });
+            .Returns(
+                new ValidationResult { Errors = [new ValidationFailure("Header.EntryReference", "Missing", "ERR001")] }
+            );
 
         await Assert.ThrowsAsync<CustomsDeclarationMessageMissingFieldException<CustomsDeclarationsMessage>>(() =>
             consumer.OnHandle(JsonSerializer.SerializeToElement(customsDeclarationsMessage), _cancellationToken)
