@@ -119,6 +119,7 @@ public class RawMessageLoggingInterceptor<TMessage>(
                         + nameof(ImportNotification.ReferenceNumber)[1..]
                 )
                 .GetString(),
+            ResourceTypes.IuuNotification => GetIuuNotificationReference(jsonElement) ?? context.GetResourceId(),
             _ => context.GetResourceId(),
         };
 
@@ -132,5 +133,11 @@ public class RawMessageLoggingInterceptor<TMessage>(
             return gmrId.GetString();
 
         return null;
+    }
+
+    private static string? GetIuuNotificationReference(JsonElement jsonElement)
+    {
+        // We don't know the shape of the IUU Notification Message yet. This may need updating!
+        return jsonElement.TryGetProperty("reference", out var iuuReference) ? iuuReference.GetString() : null;
     }
 }
