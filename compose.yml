@@ -39,7 +39,7 @@ services:
     depends_on:
       asb:
         condition: service_healthy
-      localstack:
+      floci:
         condition: service_healthy
       wiremock:
         condition: service_started
@@ -56,9 +56,9 @@ services:
       DataApi__Password: "secret"
       ServiceBus__Notifications__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
       ServiceBus__Ipaffs__ConnectionString: "Endpoint=sb://asb-backend;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
-      SQS_ENDPOINT: http://localstack:4566
+      SQS_ENDPOINT: http://floci:4566
       AWS_EMF_ENVIRONMENT: Local
-      AWS__ServiceURL: http://localstack:4566
+      AWS__ServiceURL: http://floci:4566
       AWS__AuthenticationRegion: eu-west-2
       Mongo__DatabaseUri: mongodb://mongodb:27017/?directConnection=true
       Acl__Clients__IntegrationTests__Secret: integration-tests-pwd
@@ -101,28 +101,23 @@ services:
     ports:
       - "9090:80"
 
-  localstack:
+  floci:
     container_name: processor-localstack
-    image: localstack/localstack:4.14.0
-    ports:
-      - '4566:4566' # LocalStack Gateway
-      - '4510-4559:4510-4559' # external services port range
+    image: floci/floci:2.1.0-compat
     env_file:
-      - 'compose/aws.env'
-    environment:
-      DEBUG: ${DEBUG:-1}
-      LS_LOG: info # Localstack DEBUG Level
-      SERVICES: sqs
-      LOCALSTACK_HOST: 127.0.0.1
-      TZ: Europe/London
+      - ./compose/aws.env
+      - ./compose/floci.env
     volumes:
-      - '${TMPDIR:-/tmp}/localstack:/var/lib/localstack'
-      - ./compose/start-localstack.sh:/etc/localstack/init/ready.d/start-localstack.sh
+      - ./compose/scripts/floci/ready.d:/etc/floci/init/ready.d:ro
     healthcheck:
-      test: cat /tmp/ready
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:4566/_floci/init | grep -q '\"ready\":true'"]
       interval: 5s
-      start_period: 5s
-      retries: 10
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    ports:
+      - "4566:4566"
+      - '4510-4559:4510-4559' # external services port range
       
   mongodb:
     # Initialise a Mongo cluster with a replicaset of 1 node.

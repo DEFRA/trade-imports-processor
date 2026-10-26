@@ -1,6 +1,6 @@
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
@@ -24,7 +24,7 @@ public static class InboundErrorFixtures
 
     private static IPostprocessComposer<InboundErrorItem> InboundErrorItemFixture()
     {
-        return GetFixture().Build<InboundErrorItem>().With(e => e.errorCode, "HMRCVAL101");
+        return GetFixture().Build<InboundErrorItem>().With(e => e.ErrorCode, "HMRCVAL101");
     }
 
     public static IPostprocessComposer<DataApiCustomsDeclaration.ExternalError> DataApiInboundErrorFixture()
