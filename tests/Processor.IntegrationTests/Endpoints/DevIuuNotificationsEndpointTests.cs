@@ -69,7 +69,7 @@ public class DevIuuNotificationsEndpointTests(WireMockClient wireMockClient, ITe
                         .ToArray();
 
                     // ensure that the check outcome is correct
-                    return requests.Count() == 1
+                    return requests.Length == 1
                         && JsonElement.Parse(requests.Single().Request!.Body!).GetProperty("iuuOption").GetString()
                             == checkOutcome;
                 }
