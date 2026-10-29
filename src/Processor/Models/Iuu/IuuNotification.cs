@@ -14,7 +14,7 @@ public class IuuNotification
     public DateTime LastUpdated { get; set; }
 
     [JsonPropertyName("iuuCheckOutcome")]
-    public required string IuuCheckOutcome { get; set; }
+    public string? IuuCheckOutcome { get; set; }
 
     public static explicit operator DataApiIuu.IuuNotification(IuuNotification iuuNotification)
     {
@@ -26,7 +26,7 @@ public class IuuNotification
         };
     }
 
-    private static string? MapIuuOption(string iuuNotificationReference, string iuuCheckOutcome)
+    private static string? MapIuuOption(string iuuNotificationReference, string? iuuCheckOutcome)
     {
         // These will need updating when we know what the IUU Notification message will contain
         return iuuCheckOutcome switch
@@ -34,6 +34,7 @@ public class IuuNotification
             "IUUOK" => "IUUOK",
             "IUUNA" => "IUUNA",
             "IUUNotCompliant" => "IUUNotCompliant",
+            null => null,
             _ => throw new ArgumentOutOfRangeException(
                 $"IUU Notification {iuuNotificationReference} contains an unexpected IUU Check Outcome {iuuCheckOutcome}."
             ),

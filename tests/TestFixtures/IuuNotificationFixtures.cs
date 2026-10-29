@@ -14,7 +14,7 @@ public static class IuuNotificationFixtures
     public static IPostprocessComposer<IuuNotification> IuuNotificationFixture(
         string reference = "IUU.FR.2026.0000001",
         DateTime? lastUpdated = null,
-        string iuuCheckOutcome = "IUUOK"
+        string? iuuCheckOutcome = "IUUOK"
     )
     {
         return GetFixture()
