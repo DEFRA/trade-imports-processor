@@ -102,6 +102,15 @@ static WebApplication BuildWebApplication(WebApplicationBuilder builder)
         nameSuffix: "customs-declarations",
         tags: "Admin"
     );
+    var iuuNotificationEventsOptions = app.Services.GetRequiredService<IOptions<IuuNotificationConsumerOptions>>();
+    app.MapDeadLetterQueueEndpoints(
+        iuuNotificationEventsOptions.Value.QueueName,
+        iuuNotificationEventsOptions.Value.DeadLetterQueueName,
+        policyName: PolicyNames.Execute,
+        pattern: "admin/iuu-notifications/dlq",
+        nameSuffix: "iuu-notifications",
+        tags: "Admin"
+    );
     app.UseExceptionHandler(
         new ExceptionHandlerOptions
         {

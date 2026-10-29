@@ -5,6 +5,7 @@ using Defra.TradeImportsProcessor.Processor.Consumers;
 using Defra.TradeImportsProcessor.Processor.Data;
 using Defra.TradeImportsProcessor.Processor.Data.Extensions;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
+using Defra.TradeImportsProcessor.Processor.Models.Iuu;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Microsoft.AspNetCore.HeaderPropagation;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ public static class EndpointRouteBuilderExtensions
     {
         app.MapPost("dev/traces-cheds", PostTracesChed).RequireAuthorization(PolicyNames.Execute);
         app.MapPost("dev/matched-gmrs", PostMatchedGmr).RequireAuthorization(PolicyNames.Execute);
+        app.MapPost("dev/iuu-notifications", PostIuuNotification).RequireAuthorization(PolicyNames.Execute);
     }
 
     [HttpGet]
@@ -169,6 +171,38 @@ public static class EndpointRouteBuilderExtensions
         headers[traceHeader.Value.Name] = traceId;
 
         await consumer.OnHandle(matchedGmr, cancellationToken);
+        return Results.NoContent();
+    }
+
+    [HttpPost]
+    private static async Task<IResult> PostIuuNotification(
+        HttpRequest request,
+        [FromServices] IOptions<TraceHeader> traceHeader,
+        [FromServices] ITraceContextAccessor traceContextAccessor,
+        [FromServices] HeaderPropagationValues headerPropagationValues,
+        [FromServices] IuuNotificationConsumer consumer,
+        CancellationToken cancellationToken
+    )
+    {
+        var iuuNotification = await request.ReadFromJsonAsync<IuuNotification>(cancellationToken);
+        if (iuuNotification is null)
+            return Results.BadRequest("Request body could not be deserialized as an IuuNotification.");
+
+        var traceId =
+            request.Headers.TryGetValue(traceHeader.Value.Name, out var headerValue)
+            && !StringValues.IsNullOrEmpty(headerValue)
+                ? headerValue.ToString().Replace("-", "")
+                : Guid.NewGuid().ToString("N");
+
+        traceContextAccessor.Context = new TraceContext { TraceId = traceId };
+
+        var headers = headerPropagationValues.Headers ??= new Dictionary<string, StringValues>(
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        headers[traceHeader.Value.Name] = traceId;
+
+        await consumer.OnHandle(iuuNotification, cancellationToken);
         return Results.NoContent();
     }
 }
