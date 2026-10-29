@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using AutoFixture;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
@@ -20,11 +21,15 @@ public class DevIuuNotificationsEndpointTests(WireMockClient wireMockClient, ITe
 {
     private readonly IWireMockAdminApi _wireMockAdminApi = wireMockClient.WireMockAdminApi;
 
-    [Fact]
+    [Theory]
     [Trait("Category", "IntegrationTests")]
-    public async Task WhenIuuNotificationPostedToDevEndpoint_ThenNotificationProcessedAndSentToTheDataApi()
+    [InlineData("IUUOK")]
+    [InlineData(null)]
+    public async Task WhenIuuNotificationPostedToDevEndpoint_ThenNotificationProcessedAndSentToTheDataApi(
+        string? checkOutcome
+    )
     {
-        var iuuNotification = IuuNotificationFixture().Create();
+        var iuuNotification = IuuNotificationFixture(iuuCheckOutcome: checkOutcome).Create();
         var createPath = $"/iuu-notifications/{iuuNotification.Reference}";
 
         var mappingBuilder = _wireMockAdminApi.GetMappingBuilder();
@@ -56,13 +61,17 @@ public class DevIuuNotificationsEndpointTests(WireMockClient wireMockClient, ITe
                     var requestModel = new RequestModel { Methods = ["PUT"], Path = createPath };
                     var r = await _wireMockAdminApi.FindRequestsAsync(requestModel);
                     var requests = r.Where(x =>
-                        x.Request?.Headers != null
-                        && x.Request.Headers.ContainsKey(MessageBusHeaders.TraceId)
-                        && x.Request.Headers.TryGetValue(MessageBusHeaders.TraceId, out var list)
-                        && list.Contains(traceId)
-                    );
+                            x.Request?.Headers != null
+                            && x.Request.Headers.ContainsKey(MessageBusHeaders.TraceId)
+                            && x.Request.Headers.TryGetValue(MessageBusHeaders.TraceId, out var list)
+                            && list.Contains(traceId)
+                        )
+                        .ToArray();
 
-                    return requests.Count() == 1;
+                    // ensure that the check outcome is correct
+                    return requests.Count() == 1
+                        && JsonElement.Parse(requests.Single().Request!.Body!).GetProperty("iuuOption").GetString()
+                            == checkOutcome;
                 }
                 catch (Exception)
                 {
