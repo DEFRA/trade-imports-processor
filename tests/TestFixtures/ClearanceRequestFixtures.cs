@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations.CommodityValidator;
@@ -45,6 +46,7 @@ public static class ClearanceRequestFixtures
 
         return fixture
             .Build<ClearanceRequestHeader>()
+            .Without(h => h.ArrivalDateTimeXml)
             .With(h => h.EntryReference, mrn ?? GenerateMrn())
             .With(h => h.EntryVersionNumber, version)
             .With(h => h.PreviousVersionNumber, version - 1)

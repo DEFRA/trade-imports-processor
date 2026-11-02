@@ -1,4 +1,5 @@
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
@@ -27,7 +28,7 @@ public class FinalisationTests
             },
         };
 
-        var dataApiFinalisation = (DataApiCustomsDeclaration.Finalisation)finalisation;
+        var dataApiFinalisation = finalisation.ToDataApiFinalisation();
 
         await Verify(dataApiFinalisation).DontScrubDateTimes();
     }

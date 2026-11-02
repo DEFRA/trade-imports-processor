@@ -1,5 +1,7 @@
 using AutoFixture;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.TestHelper;
@@ -17,11 +19,14 @@ public class ErrorNotificationValidatorTests
     {
         var inboundErrorItems = new List<InboundErrorItem>
         {
-            new InboundErrorItem { errorCode = "UNKNOWN", errorMessage = "Unknown error" },
-            new InboundErrorItem { errorCode = "HMRCVAL101", errorMessage = "A valid error code" },
+            new InboundErrorItem { ErrorCode = "UNKNOWN", ErrorMessage = "Unknown error" },
+            new InboundErrorItem { ErrorCode = "HMRCVAL101", ErrorMessage = "A valid error code" },
         }.ToArray();
 
-        var inboundError = (ExternalError)InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
+        var inboundError = InboundErrorFixture()
+            .With(i => i.Errors, inboundErrorItems)
+            .Create()
+            .ToDataApiExternalError();
 
         var result = await _errorNotificationValidator.TestValidateAsync(inboundError);
 
@@ -33,11 +38,14 @@ public class ErrorNotificationValidatorTests
     {
         var inboundErrorItems = new List<InboundErrorItem>
         {
-            new InboundErrorItem { errorCode = "HMRCVAL101", errorMessage = "A valid error code" },
-            new InboundErrorItem { errorCode = "HMRCVAL102", errorMessage = "A valid error code" },
+            new InboundErrorItem { ErrorCode = "HMRCVAL101", ErrorMessage = "A valid error code" },
+            new InboundErrorItem { ErrorCode = "HMRCVAL102", ErrorMessage = "A valid error code" },
         }.ToArray();
 
-        var inboundError = (ExternalError)InboundErrorFixture().With(i => i.Errors, inboundErrorItems).Create();
+        var inboundError = InboundErrorFixture()
+            .With(i => i.Errors, inboundErrorItems)
+            .Create()
+            .ToDataApiExternalError();
 
         var result = await _errorNotificationValidator.TestValidateAsync(inboundError);
 
