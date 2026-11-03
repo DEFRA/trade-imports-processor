@@ -16,6 +16,8 @@ public static class Endpoints
         public static string PostTracesCheds() => "/dev/traces-cheds";
 
         public static string PostMatchedGmrs() => "/dev/matched-gmrs";
+
+        public static string PostIuuNotifications() => "/dev/iuu-notifications";
     }
 
     public static class Admin

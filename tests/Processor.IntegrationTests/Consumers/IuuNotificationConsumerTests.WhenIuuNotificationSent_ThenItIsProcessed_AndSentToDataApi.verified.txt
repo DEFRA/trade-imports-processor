@@ -1,0 +1,13 @@
+﻿{
+  created: DateTimeOffset_1,
+  updated: DateTimeOffset_1,
+  resourceId: IUU.FR.2026.0000001,
+  resourceType: IuuNotification,
+  headers: {
+    x-cdp-request-id: Guid_1,
+    ResourceId: IUU.FR.2026.0000001
+  },
+  messageId: Guid_2,
+  message: {"reference":"IUU.FR.2026.0000001","lastUpdated":"2026-10-19T09:00:00Z","iuuCheckOutcome":"IUUOK"},
+  expiresAt: DateTimeOffset_2
+}
