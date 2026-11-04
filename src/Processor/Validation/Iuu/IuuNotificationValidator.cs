@@ -16,8 +16,8 @@ public class IuuNotificationValidator : AbstractValidator<IuuNotification>
             .WithMessage(iuuNotification => $"Invalid IUU Check Outcome: {iuuNotification.IuuCheckOutcome}.");
     }
 
-    private static bool HaveValidCheckOutcomeValue(string iuuCheckOutcome)
+    private static bool HaveValidCheckOutcomeValue(string? iuuCheckOutcome)
     {
-        return s_validIuuCheckOutcomes.Contains(iuuCheckOutcome);
+        return iuuCheckOutcome is null || s_validIuuCheckOutcomes.Contains(iuuCheckOutcome);
     }
 }

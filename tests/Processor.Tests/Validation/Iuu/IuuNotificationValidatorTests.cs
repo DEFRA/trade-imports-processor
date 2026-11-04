@@ -24,10 +24,11 @@ public class IuuNotificationValidatorTests
     }
 
     [Theory]
+    [InlineData(null)]
     [InlineData("IUUOK")]
     [InlineData("IUUNA")]
     [InlineData("IUUNotCompliant")]
-    public void WhenIuuNotificationIsValid_ThenShouldPassValidation(string iuuCheckOutcomeValue)
+    public void WhenIuuNotificationIsValid_ThenShouldPassValidation(string? iuuCheckOutcomeValue)
     {
         var invalidIuuNotification = IuuNotificationFixture(iuuCheckOutcome: iuuCheckOutcomeValue).Create();
 
