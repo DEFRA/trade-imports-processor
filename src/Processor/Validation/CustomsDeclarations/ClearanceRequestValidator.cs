@@ -1,6 +1,6 @@
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Defra.TradeImportsProcessor.Processor.Extensions;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentValidation;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 using Finalisation = Defra.TradeImportsDataApi.Domain.CustomsDeclaration.Finalisation;

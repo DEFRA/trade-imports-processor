@@ -1,4 +1,4 @@
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using FluentValidation.Results;
 
