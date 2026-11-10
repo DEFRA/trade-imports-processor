@@ -10,3 +10,6 @@ awslocal sqs create-queue --queue-name trade_imports_data_upserted_processor --a
 
 awslocal sqs create-queue --queue-name trade_imports_matched_gmrs_btms_processor-deadletter
 awslocal sqs create-queue --queue-name trade_imports_matched_gmrs_btms_processor --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_matched_gmrs_btms_processor-deadletter\",\"maxReceiveCount\":\"1\"}"}'
+
+awslocal sqs create-queue --queue-name trade_imports_iuu_notifications_btms_processor-deadletter 
+awslocal sqs create-queue --queue-name trade_imports_iuu_notifications_btms_processor --attributes '{"RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:trade_imports_iuu_notifications_btms_processor-deadletter.fifo\",\"maxReceiveCount\":\"1\"}"}'

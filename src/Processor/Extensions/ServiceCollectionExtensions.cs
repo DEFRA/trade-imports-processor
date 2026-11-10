@@ -11,12 +11,14 @@ using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Models.Gmrs;
 using Defra.TradeImportsProcessor.Processor.Models.ImportNotification;
 using Defra.TradeImportsProcessor.Processor.Models.Ipaffs;
+using Defra.TradeImportsProcessor.Processor.Models.Iuu;
 using Defra.TradeImportsProcessor.Processor.Services;
 using Defra.TradeImportsProcessor.Processor.Utils;
 using Defra.TradeImportsProcessor.Processor.Utils.CorrelationId;
 using Defra.TradeImportsProcessor.Processor.Utils.Logging;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.Gmrs;
+using Defra.TradeImportsProcessor.Processor.Validation.Iuu;
 using Defra.TradeImportsProcessor.Processor.Validation.TracesCheds;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -145,6 +147,9 @@ public static class ServiceCollectionExtensions
             .Get();
         var tracesChedConsumerOptions = services
             .AddValidateOptions<TracesChedConsumerOptions>(TracesChedConsumerOptions.SectionName)
+            .Get();
+        var iuuNotificationConsumerOptions = services
+            .AddValidateOptions<IuuNotificationConsumerOptions>(IuuNotificationConsumerOptions.SectionName)
             .Get();
         var serviceBusOptions = services.AddValidateOptions<ServiceBusOptions>(ServiceBusOptions.SectionName).Get();
         var rawMessageLoggingOptions = services
@@ -307,6 +312,31 @@ public static class ServiceCollectionExtensions
                     }
                 );
             }
+
+            if (iuuNotificationConsumerOptions.AutoStartConsumers)
+            {
+                smb.AddChildBus(
+                    "SQS_IuuNotifications",
+                    mbb =>
+                    {
+                        mbb.WithProviderAmazonSQS(cfg =>
+                        {
+                            cfg.TopologyProvisioning.Enabled = false;
+                            cfg.SqsClientProviderFactory = _ => new CdpCredentialsSqsClientProvider(
+                                cfg.SqsClientConfig,
+                                configuration
+                            );
+                        });
+
+                        mbb.AutoStartConsumersEnabled(iuuNotificationConsumerOptions.AutoStartConsumers)
+                            .Consume<IuuNotification>(x =>
+                                x.WithConsumer<IuuNotificationConsumer>()
+                                    .Queue(iuuNotificationConsumerOptions.QueueName)
+                                    .Instances(iuuNotificationConsumerOptions.ConsumersPerHost)
+                            );
+                    }
+                );
+            }
         });
 
         // Concrete consumers added for temporary replay endpoints
@@ -314,6 +344,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<CustomsDeclarationsConsumer>();
         services.AddTransient<MatchedGmrConsumer>();
         services.AddTransient<TracesChedConsumer>();
+        services.AddTransient<IuuNotificationConsumer>();
 
         services.AddPublishers(serviceBusOptions);
 
@@ -413,6 +444,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IValidator<FinalisationValidatorInput>, FinalisationValidator>();
         services.AddScoped<IValidator<Gmr>, GmrValidator>();
         services.AddScoped<IValidator<DefraUNVTDCHEDProfile>, TracesChedValidator>();
+        services.AddScoped<IValidator<IuuNotification>, IuuNotificationValidator>();
 
         services.AddScoped<IGmrProcessingService, GmrProcessingService>();
 

@@ -48,6 +48,13 @@ public static class ServiceCollectionExtensions
                 tags: [WebApplicationExtensions.Extended],
                 timeout: TimeSpan.FromSeconds(10)
             )
+            .AddSqs(
+                configuration,
+                "IUU Notifications",
+                sp => sp.GetRequiredService<IOptions<IuuNotificationConsumerOptions>>().Value.QueueName,
+                tags: [WebApplicationExtensions.Extended],
+                timeout: TimeSpan.FromSeconds(10)
+            )
             .AddDataApi(
                 sp => sp.GetRequiredService<IOptions<DataApiOptions>>().Value,
                 tags: [WebApplicationExtensions.Extended],

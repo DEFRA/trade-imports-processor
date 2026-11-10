@@ -32,6 +32,7 @@ public static class ResourceTypes
     public const string CustomsDeclaration = nameof(TradeImportsDataApi.Domain.CustomsDeclaration);
     public const string ProcessingError = nameof(TradeImportsDataApi.Domain.Errors.ProcessingError);
     public const string TracesChed = nameof(TracesChed);
+    public const string IuuNotification = nameof(IuuNotification);
 }
 
 [ExcludeFromCodeCoverage]
@@ -83,6 +84,7 @@ public static class ConsumerContextExtensions
         {
             MatchedGmrConsumer => ResourceTypes.Gmr,
             NotificationConsumer => ResourceTypes.ImportPreNotification,
+            IuuNotificationConsumer => ResourceTypes.IuuNotification,
             _ => ResourceTypes.Unknown,
         };
     }

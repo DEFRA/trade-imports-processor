@@ -1,0 +1,5 @@
+﻿{
+  Reference: IUU.FR.2026.0000001,
+  LastUpdated: 2026-10-19 09:00 Utc,
+  IuuOption: IUUOK
+}
