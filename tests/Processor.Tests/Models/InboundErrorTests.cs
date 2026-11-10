@@ -1,6 +1,6 @@
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
-using DataApiErrors = Defra.TradeImportsDataApi.Domain.Errors;
+using Defra.TradeImportsProcessor.Processor.Extensions.Model;
 
 namespace Defra.TradeImportsProcessor.Processor.Tests.Models;
 
@@ -24,10 +24,10 @@ public class InboundErrorTests
                 ServiceCallTimestamp = new DateTime(2025, 04, 15, 12, 0, 0, DateTimeKind.Utc),
                 SourceSystem = "CDS",
             },
-            Errors = [new InboundErrorItem { errorCode = "T04ST", errorMessage = "It has been overcooked." }],
+            Errors = [new InboundErrorItem { ErrorCode = "T04ST", ErrorMessage = "It has been overcooked." }],
         };
 
-        var dataApiInboundError = (ExternalError)inboundError;
+        var dataApiInboundError = inboundError.ToDataApiExternalError();
 
         await Verify(dataApiInboundError).DontScrubDateTimes();
     }
