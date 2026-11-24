@@ -1,6 +1,6 @@
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using DataApiCustomsDeclaration = Defra.TradeImportsDataApi.Domain.CustomsDeclaration;
 

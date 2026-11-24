@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Amazon.SQS;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImports.SQS.Endpoints;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsDataApi.Domain.CustomsDeclaration;

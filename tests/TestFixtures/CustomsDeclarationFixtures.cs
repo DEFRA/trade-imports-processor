@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Dsl;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
 
 namespace Defra.TradeImportsProcessor.TestFixtures;
 
@@ -40,11 +40,13 @@ public static class CustomsDeclarationFixtures
     {
         var fixture = GetFixture();
         var correlationId = fixture.Create<string>()[..20];
+        var timestamp = serviceCallTimestamp ?? DateTime.UtcNow;
 
         return fixture
             .Build<ServiceHeader>()
             .With(sh => sh.DestinationSystem, "ALVS")
-            .With(sh => sh.ServiceCallTimestamp, serviceCallTimestamp ?? DateTime.UtcNow)
+            .With(sh => sh.ServiceCallTimestamp, timestamp)
+            .With(sh => sh.ServiceCallTimestampXml, timestamp.ToString("O"))
             .With(sh => sh.SourceSystem, "CDS")
             .With(sh => sh.CorrelationId, correlationId);
     }

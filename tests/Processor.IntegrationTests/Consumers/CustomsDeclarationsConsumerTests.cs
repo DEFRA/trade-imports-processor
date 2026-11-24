@@ -2,12 +2,12 @@ using System.Net;
 using System.Text.Json;
 using Amazon.SQS.Model;
 using AutoFixture;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsDataApi.Api.Client;
 using Defra.TradeImportsProcessor.Processor.Extensions;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Clients;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.Helpers;
 using Defra.TradeImportsProcessor.Processor.IntegrationTests.TestBase;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
 using FluentAssertions;
 using WireMock.Admin.Mappings;
 using WireMock.Client;
@@ -17,7 +17,8 @@ using static Defra.TradeImportsProcessor.TestFixtures.ClearanceRequestFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.FinalisationFixtures;
 using static Defra.TradeImportsProcessor.TestFixtures.InboundErrorFixtures;
-using ClearanceRequest = Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations.ClearanceRequest;
+using ClearanceRequest = BtmsGateway.Contract.CustomsDeclarations.ClearanceRequest;
+using InboundHmrcMessageType = Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations.InboundHmrcMessageType;
 
 namespace Defra.TradeImportsProcessor.Processor.IntegrationTests.Consumers;
 

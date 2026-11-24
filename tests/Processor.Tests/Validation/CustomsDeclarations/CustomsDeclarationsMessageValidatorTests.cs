@@ -1,7 +1,6 @@
 using AutoFixture;
-using Defra.TradeImportsProcessor.Processor.Models.CustomsDeclarations;
+using BtmsGateway.Contract.CustomsDeclarations;
 using Defra.TradeImportsProcessor.Processor.Validation.CustomsDeclarations;
-using Elastic.CommonSchema;
 using FluentValidation.TestHelper;
 using static Defra.TradeImportsProcessor.TestFixtures.CustomsDeclarationFixtures;
 
