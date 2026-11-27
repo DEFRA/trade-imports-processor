@@ -19,9 +19,10 @@ public class UpperCaseNamingPolicy : JsonNamingPolicy
 
 [Collection("UsesServiceBus")]
 public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, ITestOutputHelper output)
-    : SqsTestBase(output)
+    : SqsTestBase(output), IAsyncLifetime
 {
     private readonly string MRN = "25GB001ABCDEF1ABC5";
+    private readonly ServiceBusFixture _serviceBusFixture = serviceBusFixture;
     private readonly ServiceBusFixtureClient _serviceBusFixtureClient = serviceBusFixture.GetClient(
         "alvs_topic",
         "trade-imports-processor.tests.subscription"
@@ -30,6 +31,11 @@ public class ResourceEventsConsumerTests(ServiceBusFixture serviceBusFixture, IT
     {
         PropertyNamingPolicy = new UpperCaseNamingPolicy(),
     };
+
+    public Task InitializeAsync() =>
+        _serviceBusFixture.PurgeSubscription("alvs_topic", "trade-imports-processor.tests.subscription");
+
+    public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
     public async Task WhenDecisionNotificationSent_ThenDecisionNotificationIsSentToAlvsServiceBusTopic()
